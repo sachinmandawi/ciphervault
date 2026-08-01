@@ -390,8 +390,9 @@ body {
 
 .sidebar-footer {
   margin-top: auto;
-  padding: 1rem;
+  padding: 1rem 1rem 1.75rem 1rem;
   border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 /* --- MAIN CONTENT & HEADER --- */
@@ -405,8 +406,8 @@ body {
 }
 
 .top-header {
-  height: var(--header-height);
-  padding: 0 2rem;
+  min-height: 76px;
+  padding: 0.85rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -456,7 +457,7 @@ body {
 .content-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem 2rem 4.5rem 2rem;
+  padding: 1.5rem 2rem 5rem 2rem;
 }
 
 .section-header {
