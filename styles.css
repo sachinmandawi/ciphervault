@@ -568,10 +568,11 @@ body {
 
 .form-select {
   appearance: none;
+  -webkit-appearance: none;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  padding: 0.55rem 2.25rem 0.55rem 1rem;
+  padding: 0.55rem 2.5rem 0.55rem 1rem !important;
   border-radius: var(--radius-md);
   font-size: 0.88rem;
   outline: none;
@@ -1560,8 +1561,8 @@ html, body {
   }
 
   .form-select {
-    padding: 0.4rem 0.65rem;
-    font-size: 0.78rem;
+    padding: 0.45rem 2.25rem 0.45rem 0.75rem !important;
+    font-size: 0.8rem;
   }
 
   .items-grid {
