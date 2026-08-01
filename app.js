@@ -1536,7 +1536,11 @@
     if (DOM.dangerWipeInput) {
       DOM.dangerWipeInput.addEventListener('input', (e) => {
         const val = e.target.value.trim();
-        if (DOM.btnDangerWipe) DOM.btnDangerWipe.disabled = (val !== 'DELETE');
+        const isMatch = (val === 'DELETE');
+        if (DOM.btnDangerWipe) {
+          DOM.btnDangerWipe.disabled = !isMatch;
+          DOM.btnDangerWipe.classList.toggle('unlocked', isMatch);
+        }
       });
     }
 

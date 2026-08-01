@@ -1096,15 +1096,40 @@ select option,
   color: var(--text-main);
 }
 
+/* DANGER ZONE WIPE BUTTON (DISABLED vs UNLOCKED RED) */
 .btn-danger {
-  background: rgba(239, 68, 68, 0.2);
-  color: var(--accent-red);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: not-allowed;
+  opacity: 0.6;
+  transition: all var(--transition-fast);
 }
 
-.btn-danger:hover {
-  background: var(--accent-red);
-  color: #fff;
+.btn-danger:disabled,
+.btn-danger[disabled] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text-dim) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.btn-danger.unlocked,
+.btn-danger:not(:disabled) {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5) !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+.btn-danger.unlocked:hover,
+.btn-danger:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 25px rgba(239, 68, 68, 0.65) !important;
 }
 
 .btn-icon {
