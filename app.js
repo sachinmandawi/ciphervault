@@ -354,6 +354,7 @@
     verifierObj: null,
     cachedPayload: null,
     totpTimer: null,
+    currentColor: 'default',
   };
 
   // --- DOM ELEMENTS ---
@@ -385,6 +386,7 @@
     navSet: document.getElementById('nav-settings'),
     btnLockNow: document.getElementById('btn-lock-now'),
     sidebarTagsContainer: document.getElementById('sidebar-tags-container'),
+    sidebarTagsNav: document.getElementById('sidebar-tags-nav'),
 
     // Views
     viewVault: document.getElementById('view-vault'),
@@ -406,6 +408,8 @@
     countBank: document.getElementById('count-bank'),
     countNote: document.getElementById('count-note'),
     countFav: document.getElementById('count-favorite'),
+    countArchive: document.getElementById('count-archive'),
+    countTrash: document.getElementById('count-trash'),
     countWeakBadge: document.getElementById('count-weak'),
 
     // Vault Header & Items
@@ -472,6 +476,7 @@
     itemTags: document.getElementById('item-tags'),
     btnModalGen: document.getElementById('btn-modal-gen'),
     itemStrengthBar: document.getElementById('item-strength-bar'),
+    colorSwatches: document.querySelectorAll('.color-swatch'),
 
     // Toast
     toastContainer: document.getElementById('toast-container')
@@ -1365,6 +1370,12 @@
   function openAddModal() {
     if (!DOM.modalItem) return;
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Add New Vault Item';
+    state.currentColor = 'default';
+    if (DOM.colorSwatches) {
+      DOM.colorSwatches.forEach(s => s.classList.remove('active'));
+      const def = Array.from(DOM.colorSwatches).find(s => s.dataset.color === 'default');
+      if (def) def.classList.add('active');
+    }
     if (DOM.itemId) DOM.itemId.value = '';
     if (DOM.itemForm) DOM.itemForm.reset();
     if (DOM.itemType) DOM.itemType.value = 'login';
@@ -1379,6 +1390,12 @@
     if (!item || !DOM.modalItem) return;
 
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Edit Vault Item';
+    state.currentColor = item.color || 'default';
+    if (DOM.colorSwatches) {
+      DOM.colorSwatches.forEach(s => s.classList.remove('active'));
+      const activeSwatch = Array.from(DOM.colorSwatches).find(s => s.dataset.color === state.currentColor);
+      if (activeSwatch) activeSwatch.classList.add('active');
+    }
     if (DOM.itemId) DOM.itemId.value = item.id;
     if (DOM.itemType) DOM.itemType.value = item.type || 'login';
     if (DOM.itemTitleInput) DOM.itemTitleInput.value = item.title || '';
@@ -1486,6 +1503,34 @@
       await saveVaultToGitHub();
       showToast(item.favorite ? 'Added to Favorites' : 'Removed from Favorites', 'info');
     }
+  }
+
+  
+  async function moveToTrash(id) {
+    const idx = state.vaultItems.findIndex(i => i.id === id);
+    if (idx === -1) return;
+    state.vaultItems[idx].deleted = true;
+    await saveVaultToGitHub();
+    renderVault();
+    showToast('Item moved to Trash', 'info');
+  }
+
+  async function restoreFromTrash(id) {
+    const idx = state.vaultItems.findIndex(i => i.id === id);
+    if (idx === -1) return;
+    state.vaultItems[idx].deleted = false;
+    await saveVaultToGitHub();
+    renderVault();
+    showToast('Item restored', 'success');
+  }
+
+  async function toggleArchive(id) {
+    const idx = state.vaultItems.findIndex(i => i.id === id);
+    if (idx === -1) return;
+    state.vaultItems[idx].archived = !state.vaultItems[idx].archived;
+    await saveVaultToGitHub();
+    renderVault();
+    showToast(state.vaultItems[idx].archived ? 'Item archived' : 'Item unarchived', 'info');
   }
 
   async function deleteItem(id) {
@@ -1857,6 +1902,15 @@
   function setupEventListeners() {
     if (DOM.unlockForm) DOM.unlockForm.addEventListener('submit', handleUnlock);
     if (DOM.btnLockNow) DOM.btnLockNow.addEventListener('click', lockVault);
+    if (DOM.colorSwatches) {
+      DOM.colorSwatches.forEach(swatch => {
+        swatch.addEventListener('click', (e) => {
+          DOM.colorSwatches.forEach(s => s.classList.remove('active'));
+          e.target.classList.add('active');
+          state.currentColor = e.target.dataset.color || 'default';
+        });
+      });
+    }
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.card-dropdown-wrapper')) {
