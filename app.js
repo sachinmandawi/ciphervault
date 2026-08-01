@@ -1,7 +1,7 @@
 /**
  * CIPHERVAULT - Zero-Knowledge Password Manager Engine
  * Technology: Web Crypto API (SubtleCrypto PBKDF2 + AES-GCM 256-bit), LocalStorage, Vanilla JS
- * Pre-configured Login: Username (sachinmandawi), Master Password (sachinmandawi?8103968334?sachinmandawi)
+ * Zero-Knowledge Architecture: No credentials or master keys are hardcoded.
  */
 
 (function () {
@@ -201,48 +201,8 @@
     autoLockMinutes: 5
   };
 
-  // --- PRE-LOADED CREDENTIALS & SAMPLE DATA ---
-  const SAMPLE_ITEMS = [
-    {
-      id: 'sachin-github',
-      type: 'login',
-      title: 'GitHub (Sachin Mandavi)',
-      username: 'sachinmandawi',
-      password: 'sachinmandawi?8103968334?sachinmandawi',
-      url: 'https://github.com/sachinmandawi',
-      favorite: true,
-      updatedAt: Date.now()
-    },
-    {
-      id: 'demo-google',
-      type: 'login',
-      title: 'Google Account',
-      username: 'sachin.mandavi@gmail.com',
-      password: 'sachinmandawi?8103968334?sachinmandawi',
-      url: 'https://accounts.google.com',
-      favorite: true,
-      updatedAt: Date.now() - 3600000 * 24
-    },
-    {
-      id: 'demo-card',
-      type: 'card',
-      title: 'Visa Rewards Credit Card',
-      cardholder: 'Sachin Mandavi',
-      cardnumber: '4532 8819 9021 4410',
-      exp: '09/28',
-      cvv: '892',
-      favorite: false,
-      updatedAt: Date.now() - 3600000 * 12
-    },
-    {
-      id: 'demo-note',
-      type: 'note',
-      title: 'Secure Recovery Keys',
-      notes: 'Primary Key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... Backup PIN: 8103968334',
-      favorite: true,
-      updatedAt: Date.now() - 3600000 * 72
-    }
-  ];
+  // --- SAMPLE DEMO DATA (ONLY FOR DEMO TEST PURPOSE) ---
+  const SAMPLE_ITEMS = [];
 
   // --- DOM ELEMENTS ---
   const DOM = {
@@ -436,7 +396,7 @@
     localStorage.setItem('cipher_verifier', JSON.stringify(verifier));
 
     state.masterKey = key;
-    state.vaultItems = [...SAMPLE_ITEMS];
+    state.vaultItems = [];
     await saveVaultToStorage();
 
     unlockVault();
@@ -479,6 +439,7 @@
   function unlockVault() {
     DOM.authOverlay.classList.remove('active');
     DOM.app.classList.remove('blur-content');
+    DOM.unlockPass.value = '';
     renderVault();
     resetAutoLockTimer();
   }
@@ -511,7 +472,7 @@
   async function loadVaultFromStorage() {
     const rawData = localStorage.getItem('cipher_vault_data');
     if (!rawData) {
-      state.vaultItems = [...SAMPLE_ITEMS];
+      state.vaultItems = [];
       return;
     }
     try {
@@ -1196,7 +1157,7 @@
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, function (m) {
-      return { '&': '&amp;', '<': '&lt;'>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
   }
 

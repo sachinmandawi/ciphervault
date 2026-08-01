@@ -34,29 +34,29 @@
       <form id="setup-form" class="auth-form hidden">
         <div class="form-group">
           <label for="setup-username">Username</label>
-          <input type="text" id="setup-username" required value="sachinmandawi" placeholder="Enter username...">
+          <input type="text" id="setup-username" required placeholder="Choose a username...">
         </div>
 
         <div class="form-group mt-3">
           <label for="setup-password">Create Master Password</label>
           <div class="password-input-wrapper">
-            <input type="password" id="setup-password" required value="sachinmandawi?8103968334?sachinmandawi" placeholder="Enter strong master password..." autocomplete="new-password">
+            <input type="password" id="setup-password" required placeholder="Create strong master password..." autocomplete="new-password">
             <button type="button" class="btn-icon toggle-pass" data-target="setup-password">
               <i class="fa-regular fa-eye"></i>
             </button>
           </div>
           <div class="strength-meter-box mt-2">
             <div class="strength-bar-container">
-              <div id="master-strength-bar" class="strength-bar strong"></div>
+              <div id="master-strength-bar" class="strength-bar"></div>
             </div>
-            <span id="master-strength-label" class="strength-text">Strength: Military Grade</span>
+            <span id="master-strength-label" class="strength-text">Minimum 8 characters required</span>
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="setup-confirm">Confirm Master Password</label>
           <div class="password-input-wrapper">
-            <input type="password" id="setup-confirm" required value="sachinmandawi?8103968334?sachinmandawi" placeholder="Repeat master password..." autocomplete="new-password">
+            <input type="password" id="setup-confirm" required placeholder="Repeat master password..." autocomplete="new-password">
             <button type="button" class="btn-icon toggle-pass" data-target="setup-confirm">
               <i class="fa-regular fa-eye"></i>
             </button>
@@ -77,13 +77,13 @@
       <form id="unlock-form" class="auth-form">
         <div class="form-group">
           <label for="unlock-username">Username</label>
-          <input type="text" id="unlock-username" required value="sachinmandawi" placeholder="Enter username...">
+          <input type="text" id="unlock-username" required placeholder="Enter your username...">
         </div>
 
         <div class="form-group mt-3">
           <label for="unlock-password">Master Password</label>
           <div class="password-input-wrapper">
-            <input type="password" id="unlock-password" required value="sachinmandawi?8103968334?sachinmandawi" placeholder="Enter master password to unlock..." autocomplete="current-password" autofocus>
+            <input type="password" id="unlock-password" required placeholder="Enter master password to unlock..." autocomplete="current-password" autofocus>
             <button type="button" class="btn-icon toggle-pass" data-target="unlock-password">
               <i class="fa-regular fa-eye"></i>
             </button>
