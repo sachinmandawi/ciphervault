@@ -2,6 +2,7 @@
  * CIPHERVAULT - Zero-Knowledge Password Manager Engine
  * Database: Private GitHub Repository (`sachinmandawi/ciphervault-db`)
  * Session Handling: Tab Session Persistence via SessionStorage (Persists on F5 Refresh)
+ * Features: AES-256-GCM Zero-Knowledge, Live TOTP 2FA Authenticator, 1-Click Preview
  */
 
 (function () {
@@ -139,6 +140,73 @@
     }
   };
 
+  // --- LIVE 2FA TOTP AUTHENTICATOR ENGINE (RFC 6238 / RFC 4226) ---
+  const TOTPEngine = {
+    base32ToBytes: function (base32Str) {
+      const base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+      const cleanStr = base32Str.toUpperCase().replace(/[^A-Z2-7]/g, '');
+      let bits = '';
+      for (let i = 0; i < cleanStr.length; i++) {
+        const val = base32chars.indexOf(cleanStr.charAt(i));
+        if (val !== -1) {
+          bits += val.toString(2).padStart(5, '0');
+        }
+      }
+      const bytes = new Uint8Array(Math.floor(bits.length / 8));
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(bits.substr(i * 8, 8), 2);
+      }
+      return bytes;
+    },
+
+    generateTOTP: async function (secretBase32) {
+      if (!secretBase32 || !secretBase32.trim()) return null;
+      try {
+        const keyBytes = this.base32ToBytes(secretBase32);
+        if (keyBytes.length === 0) return null;
+
+        const epoch = Math.floor(Date.now() / 1000);
+        const timeCounter = Math.floor(epoch / 30);
+        const secondsLeft = 30 - (epoch % 30);
+
+        const timeBuffer = new ArrayBuffer(8);
+        const timeView = new DataView(timeBuffer);
+        timeView.setBigUint64(0, BigInt(timeCounter), false);
+
+        const cryptoKey = await window.crypto.subtle.importKey(
+          'raw',
+          keyBytes,
+          { name: 'HMAC', hash: { name: 'SHA-1' } },
+          false,
+          ['sign']
+        );
+
+        const signature = await window.crypto.subtle.sign('HMAC', cryptoKey, timeBuffer);
+        const hmac = new Uint8Array(signature);
+
+        const offset = hmac[hmac.length - 1] & 0x0f;
+        const binary =
+          ((hmac[offset] & 0x7f) << 24) |
+          ((hmac[offset + 1] & 0xff) << 16) |
+          ((hmac[offset + 2] & 0xff) << 8) |
+          (hmac[offset + 3] & 0xff);
+
+        const otp = (binary % 1000000).toString().padStart(6, '0');
+        const formattedOtp = otp.substr(0, 3) + ' ' + otp.substr(3, 3);
+
+        return {
+          code: formattedOtp,
+          rawCode: otp,
+          secondsLeft: secondsLeft,
+          percentLeft: Math.round((secondsLeft / 30) * 100)
+        };
+      } catch (err) {
+        console.warn('TOTP calculation error:', err);
+        return null;
+      }
+    }
+  };
+
   // --- PRIVATE GITHUB REPO DATABASE API ---
   const GitHubDB = {
     getHeaders: function () {
@@ -262,7 +330,8 @@
     autoLockMinutes: 5,
     fileSha: null,
     saltBase64: null,
-    verifierObj: null
+    verifierObj: null,
+    totpTimer: null
   };
 
   // --- DOM ELEMENTS ---
@@ -363,6 +432,7 @@
     itemTitleInput: document.getElementById('item-title-input'),
     itemUsername: document.getElementById('item-username'),
     itemPassword: document.getElementById('item-password'),
+    itemTotp: document.getElementById('item-totp'),
     itemUrl: document.getElementById('item-url'),
     itemCardholder: document.getElementById('item-cardholder'),
     itemCardnumber: document.getElementById('item-cardnumber'),
@@ -411,7 +481,6 @@
     }, 3200);
   }
 
-  // 12-Hour Indian Time Format Helper (e.g., 01:07:25 PM)
   function updateLastSyncTime() {
     const el = document.getElementById('db-last-sync-time');
     if (el) {
@@ -546,6 +615,7 @@
     DOM.app.classList.remove('blur-content');
     renderVault();
     resetAutoLockTimer();
+    startTOTPTimer();
   }
 
   function lockVault() {
@@ -556,6 +626,7 @@
     DOM.app.classList.add('blur-content');
     checkMasterStatus();
     if (state.autoLockTimer) clearTimeout(state.autoLockTimer);
+    if (state.totpTimer) clearInterval(state.totpTimer);
     showToast('Vault locked for security', 'info');
   }
 
@@ -568,8 +639,34 @@
     }
   }
 
+  // --- LIVE TOTP TICK TIMER (1 Second Interval) ---
+  function startTOTPTimer() {
+    if (state.totpTimer) clearInterval(state.totpTimer);
+    state.totpTimer = setInterval(async () => {
+      const totpElements = document.querySelectorAll('[data-totp-secret]');
+      if (totpElements.length === 0) return;
+
+      for (let el of totpElements) {
+        const secret = el.dataset.totpSecret;
+        const result = await TOTPEngine.generateTOTP(secret);
+        if (result) {
+          const codeEl = el.querySelector('.totp-code-display');
+          const fillEl = el.querySelector('.totp-progress-fill');
+          const secEl = el.querySelector('.totp-sec-countdown');
+
+          if (codeEl) codeEl.textContent = result.code;
+          if (secEl) secEl.textContent = `${result.secondsLeft}s`;
+          if (fillEl) {
+            fillEl.style.width = `${result.percentLeft}%`;
+            fillEl.classList.toggle('warning', result.secondsLeft <= 5);
+          }
+        }
+      }
+    }, 1000);
+  }
+
   // --- PREVIEW MODAL LOGIC (Method 1: 1-Click Card Preview) ---
-  function openPreviewModal(id) {
+  async function openPreviewModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
     if (!item) return;
 
@@ -617,6 +714,33 @@
     if (item.type === 'login') {
       rowsHtml += createDetailRow('Username / Email', item.username);
       rowsHtml += createDetailRow('Password', item.password, true);
+      
+      if (item.totp) {
+        const totpData = await TOTPEngine.generateTOTP(item.totp);
+        const codeDisplay = totpData ? totpData.code : '------';
+        const rawCode = totpData ? totpData.rawCode : '';
+        const pctLeft = totpData ? totpData.percentLeft : 100;
+        const secLeft = totpData ? totpData.secondsLeft : 30;
+
+        rowsHtml += `
+          <div class="totp-box" data-totp-secret="${escapeHtml(item.totp)}">
+            <div class="totp-header">
+              <span><i class="fa-solid fa-shield-halved"></i> Live 2FA Authenticator</span>
+              <span class="totp-sec-countdown">${secLeft}s</span>
+            </div>
+            <div class="totp-code-row">
+              <span class="totp-code-display">${codeDisplay}</span>
+              <button type="button" class="btn-icon btn-copy-totp-val" data-val="${rawCode}" title="Copy 2FA Code">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+            <div class="totp-progress-bg">
+              <div class="totp-progress-fill" style="width:${pctLeft}%;"></div>
+            </div>
+          </div>
+        `;
+      }
+
       rowsHtml += createDetailRow('Website URL', item.url);
     } else if (item.type === 'card') {
       rowsHtml += createDetailRow('Cardholder Name', item.cardholder);
@@ -644,6 +768,10 @@
       btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Copied to clipboard!'));
     });
 
+    contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
+      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
+    });
+
     contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
       let shown = false;
       btn.addEventListener('click', () => {
@@ -663,7 +791,7 @@
   }
 
   // --- RENDER VAULT ITEMS ---
-  function renderVault() {
+  async function renderVault() {
     const items = getFilteredAndSortedItems();
     updateCountsAndStats();
 
@@ -684,15 +812,13 @@
       DOM.itemsContainer.classList.remove('list-view');
     }
 
-    const fragment = document.createDocumentFragment();
-    items.forEach(item => {
-      const card = createItemCard(item);
-      fragment.appendChild(card);
-    });
-    DOM.itemsContainer.appendChild(fragment);
+    for (let item of items) {
+      const card = await createItemCard(item);
+      DOM.itemsContainer.appendChild(card);
+    }
   }
 
-  function createItemCard(item) {
+  async function createItemCard(item) {
     const card = document.createElement('div');
     card.className = 'item-card glass-panel';
 
@@ -703,6 +829,33 @@
 
     let subText = item.username || item.cardnumber || item.accountno || item.bankname || 'Secure Item';
     let displayPass = item.password ? '••••••••••••' : (item.cvv ? '•••' : (item.pin ? '••••' : 'Encrypted Data'));
+
+    let totpHtml = '';
+    if (item.totp) {
+      const totpData = await TOTPEngine.generateTOTP(item.totp);
+      const codeDisplay = totpData ? totpData.code : '------';
+      const rawCode = totpData ? totpData.rawCode : '';
+      const pctLeft = totpData ? totpData.percentLeft : 100;
+      const secLeft = totpData ? totpData.secondsLeft : 30;
+
+      totpHtml = `
+        <div class="totp-box" data-totp-secret="${escapeHtml(item.totp)}">
+          <div class="totp-header">
+            <span><i class="fa-solid fa-shield-halved"></i> 2FA Code</span>
+            <span class="totp-sec-countdown">${secLeft}s</span>
+          </div>
+          <div class="totp-code-row">
+            <span class="totp-code-display">${codeDisplay}</span>
+            <button type="button" class="btn-icon btn-copy-totp-card" data-val="${rawCode}" title="Copy 2FA Code">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </div>
+          <div class="totp-progress-bg">
+            <div class="totp-progress-fill" style="width:${pctLeft}%;"></div>
+          </div>
+        </div>
+      `;
+    }
 
     card.innerHTML = `
       <div class="item-header">
@@ -752,6 +905,8 @@
         </div>
       </div>
 
+      ${totpHtml}
+
       <div class="item-footer">
         <span>Updated ${formatDate(item.updatedAt)}</span>
         ${item.password ? `<span class="strength-text">${Generator.calculateStrength(item.password).text}</span>` : ''}
@@ -765,6 +920,14 @@
       if (e.target.closest('.btn-toggle-vis') || e.target.closest('.btn-copy-pass') || e.target.closest('a')) return;
       openPreviewModal(item.id);
     });
+
+    const totpCopyBtn = card.querySelector('.btn-copy-totp-card');
+    if (totpCopyBtn) {
+      totpCopyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyToClipboard(totpCopyBtn.dataset.val, '2FA Code copied!');
+      });
+    }
 
     // 3-Dots Dropdown Menu Toggle
     const menuBtn = card.querySelector('.btn-card-menu');
@@ -929,6 +1092,7 @@
     DOM.itemTitleInput.value = item.title || '';
     DOM.itemUsername.value = item.username || '';
     DOM.itemPassword.value = item.password || '';
+    if (DOM.itemTotp) DOM.itemTotp.value = item.totp || '';
     DOM.itemUrl.value = item.url || '';
     DOM.itemCardholder.value = item.cardholder || '';
     DOM.itemCardnumber.value = item.cardnumber || '';
@@ -977,6 +1141,7 @@
       title: title,
       username: DOM.itemUsername.value.trim(),
       password: DOM.itemPassword.value,
+      totp: DOM.itemTotp ? DOM.itemTotp.value.trim().toUpperCase() : '',
       url: DOM.itemUrl.value.trim(),
       cardholder: DOM.itemCardholder.value.trim(),
       cardnumber: DOM.itemCardnumber.value.trim(),
@@ -999,7 +1164,7 @@
       state.vaultItems.unshift(itemData);
     }
 
-    renderVault();
+    await renderVault();
     closeModal();
     await saveVaultToGitHub();
   }
@@ -1007,7 +1172,7 @@
   async function deleteItem(id) {
     if (confirm('Are you sure you want to delete this vault item?')) {
       state.vaultItems = state.vaultItems.filter(i => i.id !== id);
-      renderVault();
+      await renderVault();
       await saveVaultToGitHub();
       showToast('Item deleted from vault.', 'info');
     }
@@ -1017,7 +1182,7 @@
     const item = state.vaultItems.find(i => i.id === id);
     if (item) {
       item.favorite = !item.favorite;
-      renderVault();
+      await renderVault();
       await saveVaultToGitHub();
     }
   }
@@ -1148,7 +1313,7 @@
           if (imported.vault) {
             const decItems = await CryptoEngine.decryptData(imported.vault, state.masterKey);
             state.vaultItems = [...state.vaultItems, ...decItems];
-            renderVault();
+            await renderVault();
             await saveVaultToGitHub();
             showToast(`Imported ${decItems.length} items successfully!`, 'success');
           }
@@ -1171,7 +1336,7 @@
               count++;
             }
           }
-          renderVault();
+          await renderVault();
           await saveVaultToGitHub();
           showToast(`Imported ${count} items from CSV!`, 'success');
         }
@@ -1221,12 +1386,12 @@
     });
 
     DOM.navItems.forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         DOM.navItems.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         state.currentCategory = btn.dataset.category;
         switchView(DOM.viewVault);
-        renderVault();
+        await renderVault();
         closeMobileMenu();
       });
     });
@@ -1245,36 +1410,36 @@
       closeMobileMenu();
     });
 
-    DOM.searchInput.addEventListener('input', (e) => {
+    DOM.searchInput.addEventListener('input', async (e) => {
       state.searchQuery = e.target.value;
       DOM.clearSearch.classList.toggle('hidden', !state.searchQuery);
-      renderVault();
+      await renderVault();
     });
 
-    DOM.clearSearch.addEventListener('click', () => {
+    DOM.clearSearch.addEventListener('click', async () => {
       DOM.searchInput.value = '';
       state.searchQuery = '';
       DOM.clearSearch.classList.add('hidden');
-      renderVault();
+      await renderVault();
     });
 
-    DOM.sortSelect.addEventListener('change', (e) => {
+    DOM.sortSelect.addEventListener('change', async (e) => {
       state.sortBy = e.target.value;
-      renderVault();
+      await renderVault();
     });
 
-    DOM.btnViewGrid.addEventListener('click', () => {
+    DOM.btnViewGrid.addEventListener('click', async () => {
       state.currentViewMode = 'grid';
       DOM.btnViewGrid.classList.add('active');
       DOM.btnViewList.classList.remove('active');
-      renderVault();
+      await renderVault();
     });
 
-    DOM.btnViewList.addEventListener('click', () => {
+    DOM.btnViewList.addEventListener('click', async () => {
       state.currentViewMode = 'list';
       DOM.btnViewList.classList.add('active');
       DOM.btnViewGrid.classList.remove('active');
-      renderVault();
+      await renderVault();
     });
 
     DOM.btnAddItem.addEventListener('click', openAddModal);
