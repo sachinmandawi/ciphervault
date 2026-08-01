@@ -328,6 +328,13 @@ body {
   gap: 0.25rem;
 }
 
+#sidebar-tags-nav {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem;
+}
+
 .nav-item {
   display: flex;
   align-items: center;
