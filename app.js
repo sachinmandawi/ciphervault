@@ -475,7 +475,6 @@
 
       if (isValid) {
         state.masterKey = key;
-        // Save active pass to SessionStorage for smooth F5 refresh support
         sessionStorage.setItem('cipher_active_pass', pass);
         await loadVaultFromGitHub(key);
         unlockVault();
@@ -553,6 +552,100 @@
     }
   }
 
+  // --- PREVIEW MODAL LOGIC ---
+  function openPreviewModal(id) {
+    const item = state.vaultItems.find(i => i.id === id);
+    if (!item) return;
+
+    const modal = document.getElementById('modal-preview');
+    const iconEl = document.getElementById('preview-icon');
+    const titleEl = document.getElementById('preview-title');
+    const catBadge = document.getElementById('preview-cat-badge');
+    const contentEl = document.getElementById('preview-body-content');
+    const editBtn = document.getElementById('btn-preview-edit');
+
+    let iconHtml = '<i class="fa-solid fa-globe"></i>';
+    if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
+    if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
+    if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
+    iconEl.innerHTML = iconHtml;
+
+    titleEl.textContent = item.title;
+    catBadge.textContent = (item.type || 'login').toUpperCase();
+
+    let rowsHtml = '';
+
+    function createDetailRow(label, value, isSecret = false) {
+      if (!value) return '';
+      const rowId = 'prev_val_' + Math.random().toString(36).substr(2, 6);
+      return `
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:0.75rem 1rem; border-radius:12px; display:flex; flex-direction:column; gap:0.25rem;">
+          <span style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:600; letter-spacing:0.05em;">${escapeHtml(label)}</span>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+            <span id="${rowId}" style="font-family:var(--font-mono); font-size:0.95rem; color:#f8fafc; word-break:break-all;">${isSecret ? '••••••••••••' : escapeHtml(value)}</span>
+            <div style="display:flex; gap:0.25rem; flex-shrink:0;">
+              ${isSecret ? `
+                <button type="button" class="btn-icon btn-toggle-row-vis" data-target="${rowId}" data-real="${escapeHtml(value)}" title="Show/Hide">
+                  <i class="fa-regular fa-eye"></i>
+                </button>
+              ` : ''}
+              <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(value)}" title="Copy">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (item.type === 'login') {
+      rowsHtml += createDetailRow('Username / Email', item.username);
+      rowsHtml += createDetailRow('Password', item.password, true);
+      rowsHtml += createDetailRow('Website URL', item.url);
+    } else if (item.type === 'card') {
+      rowsHtml += createDetailRow('Cardholder Name', item.cardholder);
+      rowsHtml += createDetailRow('Card Number', item.cardnumber);
+      rowsHtml += createDetailRow('Expiry Date', item.exp);
+      rowsHtml += createDetailRow('CVV Security Code', item.cvv, true);
+    } else if (item.type === 'bank') {
+      rowsHtml += createDetailRow('Bank Name', item.bankname);
+      rowsHtml += createDetailRow('Account Number', item.accountno);
+      rowsHtml += createDetailRow('IFSC / Routing Code', item.ifsc);
+      rowsHtml += createDetailRow('ATM / UPI PIN', item.pin, true);
+    } else if (item.type === 'note') {
+      rowsHtml += createDetailRow('Secure Note', item.notes);
+    }
+
+    rowsHtml += `
+      <div style="font-size:0.75rem; color:#64748b; margin-top:0.5rem; text-align:right;">
+        Last modified: ${formatDate(item.updatedAt)}
+      </div>
+    `;
+
+    contentEl.innerHTML = rowsHtml;
+
+    contentEl.querySelectorAll('.btn-copy-row-val').forEach(btn => {
+      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Copied to clipboard!'));
+    });
+
+    contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
+      let shown = false;
+      btn.addEventListener('click', () => {
+        shown = !shown;
+        const target = document.getElementById(btn.dataset.target);
+        target.textContent = shown ? btn.dataset.real : '••••••••••••';
+        btn.querySelector('i').className = shown ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+      });
+    });
+
+    editBtn.onclick = () => {
+      modal.classList.remove('active');
+      openEditModal(item.id);
+    };
+
+    modal.classList.add('active');
+  }
+
   // --- RENDER VAULT ITEMS ---
   function renderVault() {
     const items = getFilteredAndSortedItems();
@@ -597,13 +690,16 @@
 
     card.innerHTML = `
       <div class="item-header">
-        <div class="item-favicon">${iconHtml}</div>
-        <div class="item-title-block">
+        <div class="item-favicon" style="cursor:pointer;" title="Click to View Full Details">${iconHtml}</div>
+        <div class="item-title-block" style="cursor:pointer;" title="Click to View Full Details">
           <div class="item-title">${escapeHtml(item.title)}</div>
           <div class="item-sub">${escapeHtml(subText)}</div>
         </div>
         <div class="item-actions">
-          <button class="btn-icon btn-star ${item.favorite ? 'active' : ''}" data-id="${item.id}">
+          <button class="btn-icon btn-preview" data-id="${item.id}" title="Preview Full Details">
+            <i class="fa-regular fa-eye"></i>
+          </button>
+          <button class="btn-icon btn-star ${item.favorite ? 'active' : ''}" data-id="${item.id}" title="Favorite">
             <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
           </button>
           <button class="btn-icon btn-edit" data-id="${item.id}" title="Edit">
@@ -618,7 +714,7 @@
       <div class="item-body">
         <span class="item-pass-hidden" id="pass-text-${item.id}">${displayPass}</span>
         <div class="item-card-btns">
-          ${item.password || item.pin ? `
+          ${item.password || item.pin || item.cvv ? `
             <button class="btn-icon btn-toggle-vis" data-id="${item.id}" title="Toggle Show/Hide">
               <i class="fa-regular fa-eye"></i>
             </button>
@@ -640,11 +736,16 @@
       </div>
     `;
 
+    // 1-Click Preview triggers
+    card.querySelector('.item-favicon').addEventListener('click', () => openPreviewModal(item.id));
+    card.querySelector('.item-title-block').addEventListener('click', () => openPreviewModal(item.id));
+    card.querySelector('.btn-preview').addEventListener('click', () => openPreviewModal(item.id));
+
     card.querySelector('.btn-star').addEventListener('click', () => toggleFavorite(item.id));
     card.querySelector('.btn-edit').addEventListener('click', () => openEditModal(item.id));
     card.querySelector('.btn-delete').addEventListener('click', () => deleteItem(item.id));
 
-    const secretVal = item.password || item.pin;
+    const secretVal = item.password || item.pin || item.cvv;
     if (secretVal) {
       card.querySelector('.btn-copy-pass').addEventListener('click', () => copyToClipboard(secretVal, 'Copied to clipboard!'));
       
@@ -792,6 +893,8 @@
 
   function closeModal() {
     DOM.modalItem.classList.remove('active');
+    const prevModal = document.getElementById('modal-preview');
+    if (prevModal) prevModal.classList.remove('active');
   }
 
   function switchCategoryFields(type) {
