@@ -14,6 +14,9 @@
   <!-- FontAwesome Free Icons for UI -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
+  <!-- QRCode.js Library CDN for 2FA Mobile Sync -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -157,6 +160,14 @@
             <span class="badge" id="count-favorite">0</span>
           </button>
         </nav>
+      </div>
+
+      <!-- DYNAMIC TAGS FILTER SECTION -->
+      <div class="sidebar-section">
+        <span class="sidebar-label">TAGS & LABELS</span>
+        <div id="sidebar-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.35rem 0.75rem;">
+          <span style="font-size:0.75rem; color:var(--text-dim);">No tags created yet</span>
+        </div>
       </div>
 
       <div class="sidebar-section">
@@ -651,6 +662,23 @@
               <textarea id="item-notes" rows="4" placeholder="Write sensitive notes, recovery codes, SSH keys..."></textarea>
             </div>
           </div>
+
+          <!-- CUSTOM TAGS / LABELS FIELD -->
+          <div class="form-group mt-2">
+            <label for="item-tags">Custom Tags / Labels <span class="sub-text">(e.g. #work, #personal, #crypto, #banking)</span></label>
+            <input type="text" id="item-tags" placeholder="e.g. #work, #personal, #crypto">
+          </div>
+
+          <!-- ENCRYPTED FILE & DOCUMENT ATTACHMENT FIELD -->
+          <div class="form-group mt-2">
+            <label for="item-attachment-input">Encrypted File Attachment <span class="sub-text">(ID card, PDF, SSH Key - Max 3MB)</span></label>
+            <input type="file" id="item-attachment-input" class="form-control">
+            <div id="attachment-preview-box" class="hidden mt-2" style="background:rgba(99,102,241,0.1); border:1px dashed rgba(99,102,241,0.4); padding:0.65rem 0.85rem; border-radius:10px; display:flex; align-items:center; justify-content:space-between; font-size:0.85rem;">
+              <span id="attachment-name-text" style="color:var(--text-main); font-weight:600;"><i class="fa-solid fa-paperclip text-purple"></i> <span>file.pdf</span></span>
+              <button type="button" id="btn-remove-attachment" class="btn-icon" style="color:#ef4444;" title="Remove Attachment"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+
         </div>
 
         <div class="modal-footer">
@@ -685,6 +713,23 @@
         <button id="btn-preview-edit" class="btn btn-primary">
           <i class="fa-solid fa-pen-to-square"></i> Edit Details
         </button>
+        <button type="button" class="btn btn-outline close-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2FA QR CODE POPUP MODAL FOR MOBILE SCANNER SYNC -->
+  <div id="modal-qr" class="modal-overlay">
+    <div class="modal-card glass-panel" style="max-width: 400px; text-align: center;">
+      <div class="modal-header">
+        <h3 id="qr-modal-title" style="margin:0; font-size:1.15rem;"><i class="fa-solid fa-qrcode text-cyan"></i> 2FA QR Code Sync</h3>
+        <button class="btn-icon close-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1.5rem;">
+        <div id="qr-code-container" style="background: #ffffff; padding: 1.25rem; border-radius: 16px; box-shadow: 0 0 25px rgba(6,182,212,0.4); display: flex; align-items: center; justify-content: center; min-width: 180px; min-height: 180px;"></div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Scan with <strong>Google Authenticator</strong>, <strong>Authy</strong>, or <strong>Microsoft Authenticator</strong> on your phone.</p>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
         <button type="button" class="btn btn-outline close-modal">Close</button>
       </div>
     </div>

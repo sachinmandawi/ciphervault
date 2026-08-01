@@ -2,7 +2,8 @@
  * CIPHERVAULT - Zero-Knowledge Password Manager Engine
  * Database: Private GitHub Repository (`sachinmandawi/ciphervault-db`)
  * Session Handling: Tab Session Persistence via SessionStorage (Persists on F5 Refresh)
- * Features: AES-256-GCM Zero-Knowledge, Dedicated Live 2FA Authenticator Section, 1-Click Preview
+ * Features: AES-256-GCM Zero-Knowledge, Dedicated Live 2FA Authenticator Section, 1-Click Preview,
+ * 2FA Mobile QR Sync, Encrypted File Attachments, Custom Tags System
  */
 
 (function () {
@@ -323,6 +324,7 @@
     masterKey: null,
     vaultItems: [],
     currentCategory: 'all',
+    selectedTag: null,
     currentViewMode: 'grid',
     searchQuery: '',
     sortBy: 'updated',
@@ -331,7 +333,8 @@
     fileSha: null,
     saltBase64: null,
     verifierObj: null,
-    totpTimer: null
+    totpTimer: null,
+    currentAttachment: null
   };
 
   // --- DOM ELEMENTS ---
@@ -362,6 +365,7 @@
     navSec: document.getElementById('nav-security'),
     navSet: document.getElementById('nav-settings'),
     btnLockNow: document.getElementById('btn-lock-now'),
+    sidebarTagsContainer: document.getElementById('sidebar-tags-container'),
 
     // Views
     viewVault: document.getElementById('view-vault'),
@@ -446,12 +450,49 @@
     itemIfsc: document.getElementById('item-ifsc'),
     itemPin: document.getElementById('item-pin'),
     itemNotes: document.getElementById('item-notes'),
+    itemTags: document.getElementById('item-tags'),
+    itemAttachmentInput: document.getElementById('item-attachment-input'),
+    attachmentPreviewBox: document.getElementById('attachment-preview-box'),
+    attachmentNameText: document.getElementById('attachment-name-text'),
+    btnRemoveAttachment: document.getElementById('btn-remove-attachment'),
     btnModalGen: document.getElementById('btn-modal-gen'),
     itemStrengthBar: document.getElementById('item-strength-bar'),
+
+    // QR Code Sync Modal
+    modalQr: document.getElementById('modal-qr'),
+    qrCodeContainer: document.getElementById('qr-code-container'),
 
     // Toast
     toastContainer: document.getElementById('toast-container')
   };
+
+  // --- 2FA MOBILE QR CODE GENERATOR & SYNC ---
+  function openQRCodeModal(totpSecret, title, username) {
+    if (!totpSecret) return;
+    if (!DOM.qrCodeContainer || !DOM.modalQr) return;
+
+    DOM.qrCodeContainer.innerHTML = '';
+    const otpauthUrl = `otpauth://totp/CipherVault:${encodeURIComponent(title || 'Account')}:${encodeURIComponent(username || '')}?secret=${encodeURIComponent(totpSecret)}&issuer=CipherVault`;
+
+    try {
+      if (window.QRCode) {
+        new QRCode(DOM.qrCodeContainer, {
+          text: otpauthUrl,
+          width: 180,
+          height: 180,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } else {
+        DOM.qrCodeContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(otpauthUrl)}" alt="QR Code" style="width:180px; height:180px; border-radius:12px;">`;
+      }
+    } catch (e) {
+      DOM.qrCodeContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(otpauthUrl)}" alt="QR Code" style="width:180px; height:180px; border-radius:12px;">`;
+    }
+
+    DOM.modalQr.classList.add('active');
+  }
 
   // --- MOBILE DRAWER HANDLERS ---
   function openMobileMenu() {
@@ -512,7 +553,6 @@
       if (titleEl) titleEl.textContent = 'CipherVault Login';
       if (subEl) subEl.textContent = 'Private GitHub DB Connected';
 
-      // Check if session exists in SessionStorage (Survives F5 Refresh!)
       const savedPass = sessionStorage.getItem('cipher_active_pass');
       if (savedPass) {
         const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
@@ -644,7 +684,7 @@
     }
   }
 
-  // --- LIVE TOTP TICK TIMER (1 Second Interval) ---
+  // --- LIVE TOTP TICK TIMER ---
   function startTOTPTimer() {
     if (state.totpTimer) clearInterval(state.totpTimer);
     state.totpTimer = setInterval(async () => {
@@ -728,9 +768,14 @@
 
         <div style="background:rgba(8,11,18,0.9); border:1px solid rgba(6,182,212,0.25); padding:1rem 1.25rem; border-radius:12px; display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; width:100%;">
           <span class="totp-code-display" style="font-size:1.6rem; color:#ffffff; font-family:var(--font-mono); letter-spacing:0.12em;">${codeDisplay}</span>
-          <button type="button" class="btn btn-primary btn-copy-totp-dedicated" data-val="${rawCode}" style="padding:0.4rem 0.85rem; font-size:0.85rem;">
-            <i class="fa-regular fa-copy"></i> Copy
-          </button>
+          <div style="display:flex; gap:0.4rem;">
+            <button type="button" class="btn btn-secondary btn-qr-sync" title="Show QR Code for Phone Sync" style="padding:0.4rem 0.65rem;">
+              <i class="fa-solid fa-qrcode"></i>
+            </button>
+            <button type="button" class="btn btn-primary btn-copy-totp-dedicated" data-val="${rawCode}" style="padding:0.4rem 0.85rem; font-size:0.85rem;">
+              <i class="fa-regular fa-copy"></i> Copy
+            </button>
+          </div>
         </div>
 
         <div class="totp-progress-bg">
@@ -743,11 +788,16 @@
         copyToClipboard(rawCode, '2FA OTP Code copied!');
       });
 
+      card.querySelector('.btn-qr-sync').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openQRCodeModal(item.totp, item.title, item.username);
+      });
+
       container.appendChild(card);
     }
   }
 
-  // --- PREVIEW MODAL LOGIC (Method 1: 1-Click Card Preview) ---
+  // --- PREVIEW MODAL LOGIC (1-Click Card Detail View) ---
   async function openPreviewModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
     if (!item) return;
@@ -812,9 +862,14 @@
             </div>
             <div class="totp-code-row">
               <span class="totp-code-display">${codeDisplay}</span>
-              <button type="button" class="btn-icon btn-copy-totp-val" data-val="${rawCode}" title="Copy 2FA Code">
-                <i class="fa-regular fa-copy"></i>
-              </button>
+              <div style="display:flex; gap:0.4rem;">
+                <button type="button" class="btn-icon btn-qr-sync-prev" title="Show QR Code for Mobile Sync">
+                  <i class="fa-solid fa-qrcode"></i>
+                </button>
+                <button type="button" class="btn-icon btn-copy-totp-val" data-val="${rawCode}" title="Copy 2FA Code">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
             </div>
             <div class="totp-progress-bg">
               <div class="totp-progress-fill" style="width:${pctLeft}%;"></div>
@@ -838,6 +893,37 @@
       rowsHtml += createDetailRow('Secure Note', item.notes);
     }
 
+    // Render Tags if present
+    if (item.tags && item.tags.length > 0) {
+      const tagBadges = item.tags.map(t => `<span class="tag-badge">#${escapeHtml(t)}</span>`).join(' ');
+      rowsHtml += `
+        <div style="margin-top:0.35rem;">
+          <span style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.35rem;">Tags</span>
+          <div style="display:flex; flex-wrap:wrap; gap:0.35rem;">${tagBadges}</div>
+        </div>
+      `;
+    }
+
+    // Render Encrypted Attachment Card if present
+    if (item.attachment && item.attachment.name) {
+      rowsHtml += `
+        <div style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.3); padding:0.85rem 1rem; border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-top:0.35rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden;">
+            <div style="width:36px; height:36px; border-radius:8px; background:rgba(168,85,247,0.2); color:var(--accent-purple); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="fa-solid fa-paperclip"></i>
+            </div>
+            <div style="overflow:hidden;">
+              <span style="font-weight:600; color:#fff; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${escapeHtml(item.attachment.name)}</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${(item.attachment.size / 1024).toFixed(1)} KB</span>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm btn-download-file" style="padding:0.4rem 0.75rem; font-size:0.8rem;">
+            <i class="fa-solid fa-download"></i> Download
+          </button>
+        </div>
+      `;
+    }
+
     rowsHtml += `
       <div style="font-size:0.75rem; color:#64748b; margin-top:0.5rem; text-align:right;">
         Last modified: ${formatDate(item.updatedAt)}
@@ -854,6 +940,19 @@
       contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
         btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
       });
+
+      const qrBtnPrev = contentEl.querySelector('.btn-qr-sync-prev');
+      if (qrBtnPrev) {
+        qrBtnPrev.addEventListener('click', () => openQRCodeModal(item.totp, item.title, item.username));
+      }
+
+      const dlBtn = contentEl.querySelector('.btn-download-file');
+      if (dlBtn && item.attachment) {
+        dlBtn.addEventListener('click', () => {
+          downloadFile(item.attachment.data, item.attachment.name, item.attachment.type || 'application/octet-stream');
+          showToast(`Downloaded encrypted file: ${item.attachment.name}`, 'success');
+        });
+      }
 
       contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
         let shown = false;
@@ -934,9 +1033,14 @@
           </div>
           <div class="totp-code-row">
             <span class="totp-code-display">${codeDisplay}</span>
-            <button type="button" class="btn-icon btn-copy-totp-card" data-val="${rawCode}" title="Copy 2FA Code">
-              <i class="fa-regular fa-copy"></i>
-            </button>
+            <div style="display:flex; gap:0.25rem;">
+              <button type="button" class="btn-icon btn-qr-sync-card" title="Show QR Code for Mobile Sync">
+                <i class="fa-solid fa-qrcode"></i>
+              </button>
+              <button type="button" class="btn-icon btn-copy-totp-card" data-val="${rawCode}" title="Copy 2FA Code">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
           </div>
           <div class="totp-progress-bg">
             <div class="totp-progress-fill" style="width:${pctLeft}%;"></div>
@@ -945,11 +1049,26 @@
       `;
     }
 
+    let tagsHtml = '';
+    if (item.tags && item.tags.length > 0) {
+      tagsHtml = `<div style="display:flex; flex-wrap:wrap; gap:0.25rem; margin-top:0.2rem;">` +
+        item.tags.map(t => `<span class="tag-badge ${state.selectedTag === t ? 'active' : ''}" data-tag="${escapeHtml(t)}">#${escapeHtml(t)}</span>`).join('') +
+        `</div>`;
+    }
+
+    let attachmentBadge = '';
+    if (item.attachment && item.attachment.name) {
+      attachmentBadge = `<span title="Has Encrypted File Attachment" style="font-size:0.75rem; color:var(--accent-purple);"><i class="fa-solid fa-paperclip"></i></span>`;
+    }
+
     card.innerHTML = `
       <div class="item-header">
         <div class="item-favicon" style="cursor:pointer;" title="Click to View Details">${iconHtml}</div>
         <div class="item-title-block" style="cursor:pointer;" title="Click to View Details">
-          <div class="item-title">${escapeHtml(item.title)}</div>
+          <div class="item-title" style="display:flex; align-items:center; gap:0.35rem;">
+            <span>${escapeHtml(item.title)}</span>
+            ${attachmentBadge}
+          </div>
           <div class="item-sub">${escapeHtml(subText)}</div>
         </div>
         <div class="card-dropdown-wrapper">
@@ -994,6 +1113,7 @@
       </div>
 
       ${totpHtml}
+      ${tagsHtml}
 
       <div class="item-footer">
         <span>Updated ${formatDate(item.updatedAt)}</span>
@@ -1001,12 +1121,20 @@
       </div>
     `;
 
-    // 1-Click Card Click triggers Preview Modal
     card.querySelector('.item-favicon').addEventListener('click', (e) => { e.stopPropagation(); openPreviewModal(item.id); });
     card.querySelector('.item-title-block').addEventListener('click', (e) => { e.stopPropagation(); openPreviewModal(item.id); });
     card.querySelector('.item-body').addEventListener('click', (e) => {
       if (e.target.closest('.btn-toggle-vis') || e.target.closest('.btn-copy-pass') || e.target.closest('a')) return;
       openPreviewModal(item.id);
+    });
+
+    card.querySelectorAll('.tag-badge').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tag = btn.dataset.tag;
+        state.selectedTag = state.selectedTag === tag ? null : tag;
+        renderVault();
+      });
     });
 
     const totpCopyBtn = card.querySelector('.btn-copy-totp-card');
@@ -1017,7 +1145,14 @@
       });
     }
 
-    // 3-Dots Dropdown Menu Toggle
+    const qrSyncCardBtn = card.querySelector('.btn-qr-sync-card');
+    if (qrSyncCardBtn) {
+      qrSyncCardBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openQRCodeModal(item.totp, item.title, item.username);
+      });
+    }
+
     const menuBtn = card.querySelector('.btn-card-menu');
     const menuDropdown = card.querySelector('.card-dropdown-menu');
 
@@ -1031,7 +1166,6 @@
       });
     }
 
-    // 3-Dots Menu Item Click Actions
     const btnStar = card.querySelector('.btn-star');
     if (btnStar) {
       btnStar.addEventListener('click', (e) => {
@@ -1097,6 +1231,10 @@
       }
     }
 
+    if (state.selectedTag) {
+      items = items.filter(i => i.tags && i.tags.includes(state.selectedTag));
+    }
+
     if (state.searchQuery) {
       const q = state.searchQuery.toLowerCase();
       items = items.filter(i => 
@@ -1105,7 +1243,8 @@
         (i.bankname && i.bankname.toLowerCase().includes(q)) ||
         (i.accountno && i.accountno.toLowerCase().includes(q)) ||
         (i.url && i.url.toLowerCase().includes(q)) ||
-        (i.notes && i.notes.toLowerCase().includes(q))
+        (i.notes && i.notes.toLowerCase().includes(q)) ||
+        (i.tags && i.tags.some(t => t.toLowerCase().includes(q)))
       );
     }
 
@@ -1138,6 +1277,32 @@
     if (DOM.countBank) DOM.countBank.textContent = countBank;
     if (DOM.countNote) DOM.countNote.textContent = countNote;
     if (DOM.countFav) DOM.countFav.textContent = countFav;
+
+    // Render Dynamic Tags in Sidebar
+    if (DOM.sidebarTagsContainer) {
+      const tagSet = new Set();
+      all.forEach(item => {
+        if (item.tags && Array.isArray(item.tags)) {
+          item.tags.forEach(t => tagSet.add(t));
+        }
+      });
+
+      if (tagSet.size === 0) {
+        DOM.sidebarTagsContainer.innerHTML = `<span style="font-size:0.75rem; color:var(--text-dim);">No tags created yet</span>`;
+      } else {
+        DOM.sidebarTagsContainer.innerHTML = Array.from(tagSet).map(t => `
+          <span class="tag-badge ${state.selectedTag === t ? 'active' : ''}" data-tag="${escapeHtml(t)}">#${escapeHtml(t)}</span>
+        `).join('');
+
+        DOM.sidebarTagsContainer.querySelectorAll('.tag-badge').forEach(b => {
+          b.addEventListener('click', () => {
+            const tag = b.dataset.tag;
+            state.selectedTag = state.selectedTag === tag ? null : tag;
+            renderVault();
+          });
+        });
+      }
+    }
 
     let weakCount = 0;
     const passMap = {};
@@ -1172,7 +1337,10 @@
       note: 'Secure Notes',
       favorite: 'Favorite Items'
     };
-    if (DOM.currentCatTitle) DOM.currentCatTitle.textContent = catTitles[state.currentCategory] || 'Vault Items';
+    let titleText = catTitles[state.currentCategory] || 'Vault Items';
+    if (state.selectedTag) titleText += ` (#${state.selectedTag})`;
+
+    if (DOM.currentCatTitle) DOM.currentCatTitle.textContent = titleText;
     if (DOM.itemsCounter) DOM.itemsCounter.textContent = `${getFilteredAndSortedItems().length} items displayed`;
   }
 
@@ -1183,6 +1351,9 @@
     if (DOM.itemId) DOM.itemId.value = '';
     if (DOM.itemForm) DOM.itemForm.reset();
     if (DOM.itemType) DOM.itemType.value = 'login';
+    if (DOM.itemTags) DOM.itemTags.value = '';
+    state.currentAttachment = null;
+    if (DOM.attachmentPreviewBox) DOM.attachmentPreviewBox.classList.add('hidden');
     switchCategoryFields('login');
     if (DOM.itemStrengthBar) DOM.itemStrengthBar.className = 'strength-bar';
     DOM.modalItem.classList.add('active');
@@ -1209,6 +1380,15 @@
     if (DOM.itemIfsc) DOM.itemIfsc.value = item.ifsc || '';
     if (DOM.itemPin) DOM.itemPin.value = item.pin || '';
     if (DOM.itemNotes) DOM.itemNotes.value = item.notes || '';
+    if (DOM.itemTags) DOM.itemTags.value = item.tags ? item.tags.map(t => `#${t}`).join(', ') : '';
+
+    state.currentAttachment = item.attachment || null;
+    if (state.currentAttachment && DOM.attachmentPreviewBox) {
+      if (DOM.attachmentNameText) DOM.attachmentNameText.innerHTML = `<i class="fa-solid fa-paperclip text-purple"></i> ${escapeHtml(state.currentAttachment.name)}`;
+      DOM.attachmentPreviewBox.classList.remove('hidden');
+    } else if (DOM.attachmentPreviewBox) {
+      DOM.attachmentPreviewBox.classList.add('hidden');
+    }
 
     switchCategoryFields(item.type || 'login');
     if (item.password) updateItemPasswordStrength(item.password);
@@ -1220,6 +1400,7 @@
     if (DOM.modalItem) DOM.modalItem.classList.remove('active');
     const prevModal = document.getElementById('modal-preview');
     if (prevModal) prevModal.classList.remove('active');
+    if (DOM.modalQr) DOM.modalQr.classList.remove('active');
   }
 
   function switchCategoryFields(type) {
@@ -1245,6 +1426,9 @@
       return;
     }
 
+    const rawTags = DOM.itemTags ? DOM.itemTags.value.split(/[,#\s]+/).map(t => t.trim().toLowerCase()).filter(t => t.length > 0) : [];
+    const cleanTags = [...new Set(rawTags)];
+
     const itemData = {
       id: id || 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
       type: type,
@@ -1262,6 +1446,8 @@
       ifsc: DOM.itemIfsc ? DOM.itemIfsc.value.trim() : '',
       pin: DOM.itemPin ? DOM.itemPin.value.trim() : '',
       notes: DOM.itemNotes ? DOM.itemNotes.value.trim() : '',
+      tags: cleanTags,
+      attachment: state.currentAttachment,
       favorite: id ? (state.vaultItems.find(i => i.id === id)?.favorite || false) : false,
       updatedAt: Date.now(),
       createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now()
@@ -1473,55 +1659,6 @@
     }
   }
 
-  // --- AUTOMATED 100-ITEM STRESS TESTER & CLEANUP ---
-  window.generate100TestItems = async function () {
-    const categories = ['login', 'card', 'bank', 'note'];
-    const domains = ['google.com', 'github.com', 'amazon.in', 'netflix.com', 'sbi.co.in', 'hdfcbank.com', 'spotify.com', 'twitter.com'];
-    const firstNames = ['Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Sai', 'Reyansh', 'Ayaan', 'Krishna', 'Ishaan'];
-    const totpSecrets = ['JBSWY3DPEHPK3PXP', 'HXDM544ZS2H3PZ22', 'MZXW6YTBOI======', 'KRUFRGY3THS6N26Q'];
-
-    const testItems = [];
-    for (let i = 1; i <= 100; i++) {
-      const cat = categories[i % categories.length];
-      const domain = domains[i % domains.length];
-      const name = firstNames[i % firstNames.length];
-      
-      const item = {
-        id: 'test_user_' + i,
-        type: cat,
-        title: `${name}'s ${domain.split('.')[0].toUpperCase()} #${i}`,
-        username: `${name.toLowerCase()}${i}@${domain}`,
-        password: i % 6 === 0 ? '123456' : Generator.generate({ length: 18, uppercase: true, lowercase: true, numbers: true, symbols: true }),
-        totp: i % 4 === 0 ? totpSecrets[i % totpSecrets.length] : '',
-        url: `https://${domain}`,
-        cardholder: `${name} Sharma`,
-        cardnumber: `4532 ${1000 + i} ${2000 + i} ${8000 + i}`,
-        exp: '12/28',
-        cvv: `${100 + (i % 899)}`,
-        bankname: `Bank of ${name}`,
-        accountno: `99887766${i}`,
-        ifsc: `SBIN000${100 + i}`,
-        pin: `${1000 + (i % 8999)}`,
-        notes: `Secure test note content for user #${i}`,
-        favorite: i % 3 === 0,
-        updatedAt: Date.now() - (i * 3600000),
-        createdAt: Date.now() - (i * 86400000)
-      };
-
-      testItems.push(item);
-    }
-
-    state.vaultItems = testItems;
-    await renderVault();
-    showToast('Created 100 Test Users & Items for Stress Testing!', 'success');
-  };
-
-  window.clear100TestItems = async function () {
-    state.vaultItems = state.vaultItems.filter(i => !i.id.startsWith('test_user_'));
-    await renderVault();
-    showToast('Cleaned up all 100 test items!', 'info');
-  };
-
   // --- SAFE EVENT LISTENERS SETUP ---
   function setupEventListeners() {
     if (DOM.unlockForm) DOM.unlockForm.addEventListener('submit', handleUnlock);
@@ -1556,6 +1693,42 @@
       });
     }
 
+    // Encrypted File Attachment Input Listener
+    if (DOM.itemAttachmentInput) {
+      DOM.itemAttachmentInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 3 * 1024 * 1024) {
+          showToast('File size limit exceeded (Max 3MB)', 'error');
+          e.target.value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          state.currentAttachment = {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            data: evt.target.result
+          };
+          if (DOM.attachmentNameText) DOM.attachmentNameText.innerHTML = `<i class="fa-solid fa-paperclip text-purple"></i> ${escapeHtml(file.name)}`;
+          if (DOM.attachmentPreviewBox) DOM.attachmentPreviewBox.classList.remove('hidden');
+          showToast(`Attached file: ${file.name}`, 'info');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    if (DOM.btnRemoveAttachment) {
+      DOM.btnRemoveAttachment.addEventListener('click', () => {
+        state.currentAttachment = null;
+        if (DOM.itemAttachmentInput) DOM.itemAttachmentInput.value = '';
+        if (DOM.attachmentPreviewBox) DOM.attachmentPreviewBox.classList.add('hidden');
+        showToast('Attachment removed', 'info');
+      });
+    }
+
     const allSidebarButtons = document.querySelectorAll('.sidebar-nav .nav-item');
     function setActiveSidebarButton(targetBtn) {
       allSidebarButtons.forEach(b => b.classList.remove('active'));
@@ -1566,6 +1739,7 @@
       btn.addEventListener('click', async () => {
         setActiveSidebarButton(btn);
         state.currentCategory = btn.dataset.category;
+        state.selectedTag = null;
         switchView(DOM.viewVault);
         await renderVault();
         closeMobileMenu();
@@ -1760,7 +1934,7 @@
       DOM.genStrengthBadge.className = `badge-pill ${metrics.score}`;
     }
     if (DOM.genEntropyVal) DOM.genEntropyVal.textContent = `${metrics.entropy} bits`;
-    if (DOM.genCrackTime) DOM.crackTime = metrics.crackTime;
+    if (DOM.genCrackTime) DOM.genCrackTime.textContent = metrics.crackTime;
   }
 
   function updateItemPasswordStrength(pass) {
