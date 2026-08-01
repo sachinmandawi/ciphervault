@@ -142,6 +142,8 @@
 
   // --- LIVE 2FA TOTP AUTHENTICATOR ENGINE (RFC 6238 / RFC 4226) ---
   const TOTPEngine = {
+    _keyCache: new Map(),
+
     base32ToBytes: function (base32Str) {
       const base32chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
       const cleanStr = base32Str.toUpperCase().replace(/[^A-Z2-7]/g, '');
@@ -162,8 +164,20 @@
     generateTOTP: async function (secretBase32) {
       if (!secretBase32 || !secretBase32.trim()) return null;
       try {
-        const keyBytes = this.base32ToBytes(secretBase32);
-        if (keyBytes.length === 0) return null;
+        const cleanSecret = secretBase32.trim().toUpperCase();
+        let cryptoKey = this._keyCache.get(cleanSecret);
+        if (!cryptoKey) {
+          const keyBytes = this.base32ToBytes(cleanSecret);
+          if (keyBytes.length === 0) return null;
+          cryptoKey = await window.crypto.subtle.importKey(
+            'raw',
+            keyBytes,
+            { name: 'HMAC', hash: { name: 'SHA-1' } },
+            false,
+            ['sign']
+          );
+          this._keyCache.set(cleanSecret, cryptoKey);
+        }
 
         const epoch = Math.floor(Date.now() / 1000);
         const timeCounter = Math.floor(epoch / 30);
@@ -172,14 +186,6 @@
         const timeBuffer = new ArrayBuffer(8);
         const timeView = new DataView(timeBuffer);
         timeView.setBigUint64(0, BigInt(timeCounter), false);
-
-        const cryptoKey = await window.crypto.subtle.importKey(
-          'raw',
-          keyBytes,
-          { name: 'HMAC', hash: { name: 'SHA-1' } },
-          false,
-          ['sign']
-        );
 
         const signature = await window.crypto.subtle.sign('HMAC', cryptoKey, timeBuffer);
         const hmac = new Uint8Array(signature);
@@ -1054,10 +1060,10 @@
       DOM.itemsContainer.classList.remove('list-view');
     }
 
-    for (let item of items) {
-      const card = await createItemCard(item);
-      DOM.itemsContainer.appendChild(card);
-    }
+    const cards = await Promise.all(items.map(item => createItemCard(item)));
+    const fragment = document.createDocumentFragment();
+    cards.forEach(card => fragment.appendChild(card));
+    DOM.itemsContainer.appendChild(fragment);
   }
 
   async function createItemCard(item) {
