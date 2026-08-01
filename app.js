@@ -351,8 +351,8 @@
     btnExportCsv: document.getElementById('btn-export-csv'),
     btnTriggerImport: document.getElementById('btn-trigger-import'),
     importFileInput: document.getElementById('import-file-input'),
+    dangerWipeInput: document.getElementById('danger-wipe-confirm-input'),
     btnDangerWipe: document.getElementById('btn-danger-wipe'),
-    btnResetVault: document.getElementById('btn-reset-vault'),
 
     // Modal Item
     modalItem: document.getElementById('modal-item'),
@@ -998,8 +998,16 @@
   // --- EVENT LISTENERS SETUP ---
   function setupEventListeners() {
     DOM.unlockForm.addEventListener('submit', handleUnlock);
-    DOM.btnResetVault.addEventListener('click', wipeVaultData);
     DOM.btnLockNow.addEventListener('click', lockVault);
+
+    if (DOM.dangerWipeInput) {
+      DOM.dangerWipeInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        DOM.btnDangerWipe.disabled = (val !== 'DELETE');
+      });
+    }
+
+    DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
 
     if (DOM.mobileMenuToggle) DOM.mobileMenuToggle.addEventListener('click', openMobileMenu);
     if (DOM.mobileMenuClose) DOM.mobileMenuClose.addEventListener('click', closeMobileMenu);
@@ -1113,7 +1121,6 @@
     DOM.importFileInput.addEventListener('change', (e) => {
       if (e.target.files[0]) handleImportFile(e.target.files[0]);
     });
-    DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
 
     DOM.settingAutolock.addEventListener('change', (e) => {
       state.autoLockMinutes = parseInt(e.target.value, 10);
