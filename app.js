@@ -411,10 +411,16 @@
     }, 3200);
   }
 
+  // 12-Hour Indian Time Format Helper (e.g., 01:07:25 PM)
   function updateLastSyncTime() {
     const el = document.getElementById('db-last-sync-time');
     if (el) {
-      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const nowStr = new Date().toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
       el.innerHTML = `Last Synced: <strong style="color:#f8fafc;">${nowStr}</strong>`;
     }
   }
@@ -1402,7 +1408,7 @@
   function formatDate(timestamp) {
     if (!timestamp || isNaN(timestamp)) return 'Recently';
     const date = new Date(timestamp);
-    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   // --- INITIALIZATION ---
