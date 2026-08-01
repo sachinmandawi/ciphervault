@@ -215,6 +215,15 @@ h1, h2, h3, h4 {
   gap: 0.4rem;
 }
 
+.form-row {
+  display: flex;
+  gap: 0.85rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
 .form-group label {
   font-size: 0.82rem;
   font-weight: 600;
@@ -409,6 +418,24 @@ input:focus, textarea:focus, .form-select:focus {
 .app-container.blur-content {
   filter: blur(16px);
   pointer-events: none;
+}
+
+/* MOBILE BACKDROP OVERLAY */
+.mobile-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 95;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-backdrop.active {
+  opacity: 1;
+  pointer-events: all;
 }
 
 /* SIDEBAR */
@@ -1197,7 +1224,7 @@ input:focus, textarea:focus, .form-select:focus {
 .mt-4 { margin-top: 1rem; }
 .mobile-only { display: none !important; }
 
-/* MEDIA QUERIES */
+/* MEDIA QUERIES & RESPONSIVE BREAKPOINTS */
 @media (max-width: 1024px) {
   .sidebar {
     position: fixed;
@@ -1220,4 +1247,7 @@ input:focus, textarea:focus, .form-select:focus {
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
   .items-grid { grid-template-columns: 1fr; }
   .auth-card { padding: 1.75rem 1.5rem; }
+  .form-row { flex-direction: column; gap: 0.4rem; }
+  .modal-card { padding: 1.25rem; max-height: 95vh; }
+  .toast-container { left: 1rem; right: 1rem; bottom: 1rem; }
 }
