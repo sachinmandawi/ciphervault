@@ -1582,6 +1582,17 @@
     await saveVaultToGitHub();
   }
 
+  async function toggleFavorite(id) {
+    const item = state.vaultItems.find(i => String(i.id) === String(id));
+    if (item) {
+      item.favorite = !item.favorite;
+      item.updatedAt = Date.now();
+      await renderVault();
+      await saveVaultToGitHub();
+      showToast(item.favorite ? 'Added to Favorites' : 'Removed from Favorites', 'info');
+    }
+  }
+
   async function deleteItem(id) {
     if (confirm('Are you sure you want to delete this vault item?')) {
       state.vaultItems = state.vaultItems.filter(i => i.id !== id);
@@ -1590,9 +1601,6 @@
 
       await saveVaultToGitHub();
       showToast('Item deleted from vault.', 'info');
-      item.favorite = !item.favorite;
-      await renderVault();
-      await saveVaultToGitHub();
     }
   }
 
