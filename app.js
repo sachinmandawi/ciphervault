@@ -1480,6 +1480,8 @@
     if (prevModal) prevModal.classList.remove('active');
     const filePrevModal = document.getElementById('modal-file-preview');
     if (filePrevModal) filePrevModal.classList.remove('active');
+    const labelsModal = document.getElementById('modal-manage-labels');
+    if (labelsModal) labelsModal.classList.remove('active');
   }
 
   function switchCategoryFields(type) {
@@ -1571,14 +1573,17 @@
   let currentManageItemId = null;
 
   function openManageLabelsModal(itemId) {
-    const item = state.vaultItems.find(i => i.id === itemId);
+    const item = state.vaultItems.find(i => String(i.id) === String(itemId));
     if (!item) return;
 
-    currentManageItemId = itemId;
+    currentManageItemId = item.id;
     tempManageTags = [...(item.tags || [])];
 
     const input = document.getElementById('input-new-label-name');
     if (input) input.value = '';
+
+    const titleEl = document.getElementById('manage-labels-modal-title');
+    if (titleEl) titleEl.textContent = `Manage Labels: ${item.title}`;
 
     renderLabelCheckmarksList();
 
@@ -1624,29 +1629,20 @@
       `;
 
       row.innerHTML = `
-        <div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden;">
-          <input type="checkbox" class="label-checkbox" data-tag="${escapeHtml(tag)}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--accent-purple); cursor:pointer;">
-          <span style="font-size:0.9rem; font-weight:600; color:${isChecked ? '#fff' : 'var(--text-muted)'};">#${escapeHtml(tag)}</span>
+        <div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden; flex:1;">
+          <input type="checkbox" class="label-checkbox" data-tag="${escapeHtml(tag)}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--accent-purple); cursor:pointer; flex-shrink:0;">
+          <span style="font-size:0.9rem; font-weight:600; color:${isChecked ? '#fff' : 'var(--text-muted)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">#${escapeHtml(tag)}</span>
         </div>
-        <span class="badge-pill" style="font-size:0.7rem; background:${isChecked ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
+        <span class="badge-pill" style="font-size:0.7rem; flex-shrink:0; background:${isChecked ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
       `;
 
-      row.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'INPUT') {
-          const cb = row.querySelector('.label-checkbox');
-          if (cb) {
-            cb.checked = !cb.checked;
-            toggleTagSelection(tag, cb.checked);
-          }
-        }
-      });
-
       const cb = row.querySelector('.label-checkbox');
-      if (cb) {
-        cb.addEventListener('change', (e) => {
-          toggleTagSelection(tag, e.target.checked);
-        });
-      }
+      row.addEventListener('click', (e) => {
+        if (e.target !== cb) {
+          cb.checked = !cb.checked;
+        }
+        toggleTagSelection(tag, cb.checked);
+      });
 
       container.appendChild(row);
     });
