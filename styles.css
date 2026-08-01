@@ -1223,10 +1223,12 @@ input:focus, textarea:focus, select:focus {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .password-input-wrapper input {
-  padding-right: 75px;
+  width: 100%;
+  padding-right: 42px;
 }
 
 .password-input-wrapper .btn-icon {
@@ -1236,11 +1238,19 @@ input:focus, textarea:focus, select:focus {
 }
 
 .password-input-wrapper .toggle-pass {
-  right: 38px;
+  right: 8px;
 }
 
-.password-input-wrapper #btn-modal-gen {
-  right: 6px;
+.password-input-wrapper.has-gen input {
+  padding-right: 76px;
+}
+
+.password-input-wrapper.has-gen .toggle-pass {
+  right: 40px;
+}
+
+.password-input-wrapper.has-gen #btn-modal-gen {
+  right: 8px;
   color: var(--accent-purple);
 }
 
