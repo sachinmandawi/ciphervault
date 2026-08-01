@@ -540,115 +540,127 @@
         <button class="btn-icon close-modal"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <form id="item-form" class="modal-body">
-        <input type="hidden" id="item-id">
-        
-        <div class="form-group">
-          <label for="item-type">Item Category</label>
-          <select id="item-type" class="form-select">
-            <option value="login">Login / Account</option>
-            <option value="card">Debit Card</option>
-            <option value="bank">Bank Account</option>
-            <option value="note">Secure Note</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="item-title-input">Title / Name <span style="color:#ef4444; font-weight:700;">* (Required)</span></label>
-          <input type="text" id="item-title-input" required placeholder="e.g. SBI Debit Card, HDFC Savings, Google...">
-        </div>
-
-        <!-- Login specific fields -->
-        <div id="fields-login" class="category-fields">
-          <div class="form-group">
-            <label for="item-username">Username / Email <span class="sub-text">(Optional)</span></label>
-            <input type="text" id="item-username" placeholder="name@example.com or user123">
-          </div>
-
-          <div class="form-group">
-            <label for="item-password">Password <span class="sub-text">(Optional)</span></label>
-            <div class="password-input-wrapper">
-              <input type="password" id="item-password" placeholder="Enter or generate password...">
-              <button type="button" class="btn-icon toggle-pass" data-target="item-password">
-                <i class="fa-regular fa-eye"></i>
-              </button>
-              <button type="button" id="btn-modal-gen" class="btn-icon" title="Generate Strong Password">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-              </button>
-            </div>
-            <div class="strength-bar-container mt-2">
-              <div id="item-strength-bar" class="strength-bar"></div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="item-totp">2FA Secret Key (TOTP Authenticator) <span class="sub-text">(Optional - e.g. JBSWY3DPEHPK3PXP)</span></label>
-            <input type="text" id="item-totp" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" style="font-family:var(--font-mono); text-transform:uppercase;">
-          </div>
-
-          <div class="form-group">
-            <label for="item-url">Website URL <span class="sub-text">(Optional)</span></label>
-            <input type="url" id="item-url" placeholder="https://example.com">
-          </div>
-        </div>
-
-        <!-- Card specific fields (Debit Card) -->
-        <div id="fields-card" class="category-fields hidden">
-          <div class="form-group">
-            <label for="item-cardholder">Cardholder Name <span class="sub-text">(Optional)</span></label>
-            <input type="text" id="item-cardholder" placeholder="John Doe">
-          </div>
-          <div class="form-group">
-            <label for="item-cardnumber">Card Number <span class="sub-text">(Optional)</span></label>
-            <input type="text" id="item-cardnumber" placeholder="4532 •••• •••• 8901">
-          </div>
+      <form id="item-form" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+        <div class="modal-body">
+          <input type="hidden" id="item-id">
+          
           <div class="form-row">
-            <div class="form-group">
-              <label for="item-exp">Expiry (MM/YY) <span class="sub-text">(Optional)</span></label>
-              <input type="text" id="item-exp" placeholder="12/28">
+            <div class="form-group flex-1">
+              <label for="item-type">Item Category</label>
+              <select id="item-type" class="form-select">
+                <option value="login">Login / Account</option>
+                <option value="card">Debit Card</option>
+                <option value="bank">Bank Account</option>
+                <option value="note">Secure Note</option>
+              </select>
             </div>
-            <div class="form-group">
-              <label for="item-cvv">CVV / CVC <span class="sub-text">(Optional)</span></label>
-              <input type="password" id="item-cvv" placeholder="123">
-            </div>
-          </div>
-        </div>
 
-        <!-- Bank Account specific fields -->
-        <div id="fields-bank" class="category-fields hidden">
-          <div class="form-group">
-            <label for="item-bankname">Bank Name <span class="sub-text">(Optional)</span></label>
-            <input type="text" id="item-bankname" placeholder="e.g. State Bank of India, HDFC Bank...">
-          </div>
-          <div class="form-group">
-            <label for="item-accountno">Account Number <span class="sub-text">(Optional)</span></label>
-            <input type="text" id="item-accountno" placeholder="e.g. 38492019481">
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="item-ifsc">IFSC / Routing Code <span class="sub-text">(Optional)</span></label>
-              <input type="text" id="item-ifsc" placeholder="e.g. SBIN0001234">
-            </div>
-            <div class="form-group">
-              <label for="item-pin">ATM / UPI PIN <span class="sub-text">(Optional)</span></label>
-              <input type="password" id="item-pin" placeholder="••••">
+            <div class="form-group flex-1">
+              <label for="item-title-input">Title <span style="color:#ef4444; font-weight:700;">*</span></label>
+              <input type="text" id="item-title-input" required placeholder="e.g. Google, SBI, Netflix...">
             </div>
           </div>
-        </div>
 
-        <!-- Note specific fields -->
-        <div id="fields-note" class="category-fields hidden">
-          <div class="form-group">
-            <label for="item-notes">Secure Note Content <span class="sub-text">(Optional)</span></label>
-            <textarea id="item-notes" rows="5" placeholder="Write sensitive notes, recovery codes, SSH keys..."></textarea>
+          <!-- Login specific fields -->
+          <div id="fields-login" class="category-fields">
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="item-username">Username / Email</label>
+                <input type="text" id="item-username" placeholder="name@example.com">
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="item-password">Password</label>
+                <div class="password-input-wrapper">
+                  <input type="password" id="item-password" placeholder="Enter or generate...">
+                  <button type="button" class="btn-icon toggle-pass" data-target="item-password" title="Show/Hide">
+                    <i class="fa-regular fa-eye"></i>
+                  </button>
+                  <button type="button" id="btn-modal-gen" class="btn-icon" title="Generate Password">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  </button>
+                </div>
+                <div class="strength-bar-container mt-1">
+                  <div id="item-strength-bar" class="strength-bar"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="item-totp">2FA Key <span class="sub-text">(TOTP)</span></label>
+                <input type="text" id="item-totp" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" style="font-family:var(--font-mono); text-transform:uppercase;">
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="item-url">Website URL</label>
+                <input type="url" id="item-url" placeholder="https://example.com">
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group checkbox-row mt-3">
-          <label class="checkbox-inline">
-            <input type="checkbox" id="item-favorite">
-            <span>Mark as Favorite</span>
-          </label>
+          <!-- Card specific fields (Debit Card) -->
+          <div id="fields-card" class="category-fields hidden">
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="item-cardholder">Cardholder Name</label>
+                <input type="text" id="item-cardholder" placeholder="John Doe">
+              </div>
+              <div class="form-group flex-1">
+                <label for="item-cardnumber">Card Number</label>
+                <input type="text" id="item-cardnumber" placeholder="4532 •••• •••• 8901">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="item-exp">Expiry (MM/YY)</label>
+                <input type="text" id="item-exp" placeholder="12/28">
+              </div>
+              <div class="form-group flex-1">
+                <label for="item-cvv">CVV / CVC</label>
+                <input type="password" id="item-cvv" placeholder="123">
+              </div>
+            </div>
+          </div>
+
+          <!-- Bank Account specific fields -->
+          <div id="fields-bank" class="category-fields hidden">
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="item-bankname">Bank Name</label>
+                <input type="text" id="item-bankname" placeholder="e.g. SBI, HDFC...">
+              </div>
+              <div class="form-group flex-1">
+                <label for="item-accountno">Account Number</label>
+                <input type="text" id="item-accountno" placeholder="38492019481">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="item-ifsc">IFSC Code</label>
+                <input type="text" id="item-ifsc" placeholder="SBIN0001234">
+              </div>
+              <div class="form-group flex-1">
+                <label for="item-pin">ATM / UPI PIN</label>
+                <input type="password" id="item-pin" placeholder="••••">
+              </div>
+            </div>
+          </div>
+
+          <!-- Note specific fields -->
+          <div id="fields-note" class="category-fields hidden">
+            <div class="form-group">
+              <label for="item-notes">Secure Note Content</label>
+              <textarea id="item-notes" rows="4" placeholder="Write sensitive notes, recovery codes, SSH keys..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-group checkbox-row mt-1">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="item-favorite">
+              <span>Mark as Favorite</span>
+            </label>
+          </div>
         </div>
 
         <div class="modal-footer">
