@@ -324,7 +324,6 @@
     itemsContainer: document.getElementById('vault-items-container'),
     emptyState: document.getElementById('empty-state'),
     btnEmptyAdd: document.getElementById('btn-empty-add'),
-    btnLoadDemo: document.getElementById('btn-load-demo'),
 
     // Quick actions
     btnAddItem: document.getElementById('btn-add-item'),
@@ -1079,13 +1078,6 @@
     DOM.btnQuickGen.addEventListener('click', () => {
       updateGeneratorView();
       switchView(DOM.viewGen);
-    });
-
-    DOM.btnLoadDemo.addEventListener('click', async () => {
-      state.vaultItems = [];
-      renderVault();
-      await saveVaultToGitHub();
-      showToast('Vault cleared!', 'info');
     });
 
     DOM.genLength.addEventListener('input', (e) => {
