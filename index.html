@@ -138,8 +138,13 @@
           </button>
           <button class="nav-item" data-category="card">
             <i class="fa-regular fa-credit-card"></i>
-            <span>Credit Cards</span>
+            <span>Debit Cards</span>
             <span class="badge" id="count-card">0</span>
+          </button>
+          <button class="nav-item" data-category="bank">
+            <i class="fa-solid fa-building-columns"></i>
+            <span>Bank Accounts</span>
+            <span class="badge" id="count-bank">0</span>
           </button>
           <button class="nav-item" data-category="note">
             <i class="fa-regular fa-note-sticky"></i>
@@ -191,7 +196,7 @@
 
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="search-input" placeholder="Search logins, notes... (Ctrl+/)" autocomplete="off">
+          <input type="text" id="search-input" placeholder="Search logins, bank accounts, notes... (Ctrl+/)" autocomplete="off">
           <button id="clear-search" class="btn-icon hidden"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
@@ -490,14 +495,15 @@
           <label for="item-type">Item Category</label>
           <select id="item-type" class="form-select">
             <option value="login">Login / Account</option>
-            <option value="card">Credit Card</option>
+            <option value="card">Debit Card</option>
+            <option value="bank">Bank Account</option>
             <option value="note">Secure Note</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="item-title-input">Title / Website Name <span style="color:#ef4444; font-weight:700;">* (Required)</span></label>
-          <input type="text" id="item-title-input" required placeholder="e.g. Google, GitHub, Netflix, Wi-Fi...">
+          <label for="item-title-input">Title / Name <span style="color:#ef4444; font-weight:700;">* (Required)</span></label>
+          <input type="text" id="item-title-input" required placeholder="e.g. SBI Debit Card, HDFC Savings, Google...">
         </div>
 
         <!-- Login specific fields -->
@@ -529,7 +535,7 @@
           </div>
         </div>
 
-        <!-- Card specific fields -->
+        <!-- Card specific fields (Debit Card) -->
         <div id="fields-card" class="category-fields hidden">
           <div class="form-group">
             <label for="item-cardholder">Cardholder Name <span class="sub-text">(Optional)</span></label>
@@ -547,6 +553,28 @@
             <div class="form-group">
               <label for="item-cvv">CVV / CVC <span class="sub-text">(Optional)</span></label>
               <input type="password" id="item-cvv" placeholder="123">
+            </div>
+          </div>
+        </div>
+
+        <!-- Bank Account specific fields -->
+        <div id="fields-bank" class="category-fields hidden">
+          <div class="form-group">
+            <label for="item-bankname">Bank Name <span class="sub-text">(Optional)</span></label>
+            <input type="text" id="item-bankname" placeholder="e.g. State Bank of India, HDFC Bank...">
+          </div>
+          <div class="form-group">
+            <label for="item-accountno">Account Number <span class="sub-text">(Optional)</span></label>
+            <input type="text" id="item-accountno" placeholder="e.g. 38492019481">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="item-ifsc">IFSC / Routing Code <span class="sub-text">(Optional)</span></label>
+              <input type="text" id="item-ifsc" placeholder="e.g. SBIN0001234">
+            </div>
+            <div class="form-group">
+              <label for="item-pin">ATM / UPI PIN <span class="sub-text">(Optional)</span></label>
+              <input type="password" id="item-pin" placeholder="••••">
             </div>
           </div>
         </div>

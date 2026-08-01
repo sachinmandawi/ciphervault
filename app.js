@@ -309,6 +309,7 @@
     countAll: document.getElementById('count-all'),
     countLogin: document.getElementById('count-login'),
     countCard: document.getElementById('count-card'),
+    countBank: document.getElementById('count-bank'),
     countNote: document.getElementById('count-note'),
     countFav: document.getElementById('count-favorite'),
     countWeakBadge: document.getElementById('count-weak'),
@@ -367,6 +368,10 @@
     itemCardnumber: document.getElementById('item-cardnumber'),
     itemExp: document.getElementById('item-exp'),
     itemCvv: document.getElementById('item-cvv'),
+    itemBankname: document.getElementById('item-bankname'),
+    itemAccountno: document.getElementById('item-accountno'),
+    itemIfsc: document.getElementById('item-ifsc'),
+    itemPin: document.getElementById('item-pin'),
     itemNotes: document.getElementById('item-notes'),
     itemFavorite: document.getElementById('item-favorite'),
     btnModalGen: document.getElementById('btn-modal-gen'),
@@ -584,10 +589,11 @@
 
     let iconHtml = '<i class="fa-solid fa-globe"></i>';
     if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
+    if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
     if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
 
-    let subText = item.username || item.cardnumber || 'Secure Note';
-    let displayPass = item.password ? '••••••••••••' : (item.cvv ? '•••' : 'Encrypted Data');
+    let subText = item.username || item.cardnumber || item.accountno || item.bankname || 'Secure Item';
+    let displayPass = item.password ? '••••••••••••' : (item.cvv ? '•••' : (item.pin ? '••••' : 'Encrypted Data'));
 
     card.innerHTML = `
       <div class="item-header">
@@ -612,11 +618,11 @@
       <div class="item-body">
         <span class="item-pass-hidden" id="pass-text-${item.id}">${displayPass}</span>
         <div class="item-card-btns">
-          ${item.password ? `
+          ${item.password || item.pin ? `
             <button class="btn-icon btn-toggle-vis" data-id="${item.id}" title="Toggle Show/Hide">
               <i class="fa-regular fa-eye"></i>
             </button>
-            <button class="btn-icon btn-copy-pass" data-id="${item.id}" title="Copy Password">
+            <button class="btn-icon btn-copy-pass" data-id="${item.id}" title="Copy Code">
               <i class="fa-regular fa-copy"></i>
             </button>
           ` : ''}
@@ -638,15 +644,16 @@
     card.querySelector('.btn-edit').addEventListener('click', () => openEditModal(item.id));
     card.querySelector('.btn-delete').addEventListener('click', () => deleteItem(item.id));
 
-    if (item.password) {
-      card.querySelector('.btn-copy-pass').addEventListener('click', () => copyToClipboard(item.password, 'Password copied! (Clears in 30s)'));
+    const secretVal = item.password || item.pin;
+    if (secretVal) {
+      card.querySelector('.btn-copy-pass').addEventListener('click', () => copyToClipboard(secretVal, 'Copied to clipboard!'));
       
       const toggleVisBtn = card.querySelector('.btn-toggle-vis');
       let isVis = false;
       toggleVisBtn.addEventListener('click', () => {
         isVis = !isVis;
         const targetSpan = document.getElementById(`pass-text-${item.id}`);
-        targetSpan.textContent = isVis ? item.password : '••••••••••••';
+        targetSpan.textContent = isVis ? secretVal : '••••••••••••';
         toggleVisBtn.querySelector('i').className = isVis ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
       });
     }
@@ -670,6 +677,8 @@
       items = items.filter(i => 
         (i.title && i.title.toLowerCase().includes(q)) ||
         (i.username && i.username.toLowerCase().includes(q)) ||
+        (i.bankname && i.bankname.toLowerCase().includes(q)) ||
+        (i.accountno && i.accountno.toLowerCase().includes(q)) ||
         (i.url && i.url.toLowerCase().includes(q)) ||
         (i.notes && i.notes.toLowerCase().includes(q))
       );
@@ -694,12 +703,14 @@
     const countAll = all.length;
     const countLogin = all.filter(i => i.type === 'login').length;
     const countCard = all.filter(i => i.type === 'card').length;
+    const countBank = all.filter(i => i.type === 'bank').length;
     const countNote = all.filter(i => i.type === 'note').length;
     const countFav = all.filter(i => i.favorite).length;
 
     DOM.countAll.textContent = countAll;
     DOM.countLogin.textContent = countLogin;
     DOM.countCard.textContent = countCard;
+    if (DOM.countBank) DOM.countBank.textContent = countBank;
     DOM.countNote.textContent = countNote;
     DOM.countFav.textContent = countFav;
 
@@ -731,7 +742,8 @@
     const catTitles = {
       all: 'All Items',
       login: 'Logins & Passwords',
-      card: 'Credit & Debit Cards',
+      card: 'Debit Cards',
+      bank: 'Bank Accounts',
       note: 'Secure Notes',
       favorite: 'Favorite Items'
     };
@@ -765,6 +777,10 @@
     DOM.itemCardnumber.value = item.cardnumber || '';
     DOM.itemExp.value = item.exp || '';
     DOM.itemCvv.value = item.cvv || '';
+    if (DOM.itemBankname) DOM.itemBankname.value = item.bankname || '';
+    if (DOM.itemAccountno) DOM.itemAccountno.value = item.accountno || '';
+    if (DOM.itemIfsc) DOM.itemIfsc.value = item.ifsc || '';
+    if (DOM.itemPin) DOM.itemPin.value = item.pin || '';
     DOM.itemNotes.value = item.notes || '';
     DOM.itemFavorite.checked = !!item.favorite;
 
@@ -781,6 +797,7 @@
   function switchCategoryFields(type) {
     document.getElementById('fields-login').classList.toggle('hidden', type !== 'login');
     document.getElementById('fields-card').classList.toggle('hidden', type !== 'card');
+    document.getElementById('fields-bank').classList.toggle('hidden', type !== 'bank');
     document.getElementById('fields-note').classList.toggle('hidden', type !== 'note');
   }
 
@@ -806,6 +823,10 @@
       cardnumber: DOM.itemCardnumber.value.trim(),
       exp: DOM.itemExp.value.trim(),
       cvv: DOM.itemCvv.value.trim(),
+      bankname: DOM.itemBankname ? DOM.itemBankname.value.trim() : '',
+      accountno: DOM.itemAccountno ? DOM.itemAccountno.value.trim() : '',
+      ifsc: DOM.itemIfsc ? DOM.itemIfsc.value.trim() : '',
+      pin: DOM.itemPin ? DOM.itemPin.value.trim() : '',
       notes: DOM.itemNotes.value.trim(),
       favorite: DOM.itemFavorite.checked,
       updatedAt: Date.now(),
