@@ -411,6 +411,14 @@
     }, 3200);
   }
 
+  function updateLastSyncTime() {
+    const el = document.getElementById('db-last-sync-time');
+    if (el) {
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      el.innerHTML = `Last Synced: <strong style="color:#f8fafc;">${nowStr}</strong>`;
+    }
+  }
+
   // --- MASTER LOCK & PRIVATE GITHUB DB SYNC ---
   async function checkMasterStatus() {
     try {
@@ -496,6 +504,7 @@
       } else {
         state.vaultItems = [];
       }
+      updateLastSyncTime();
     } catch (err) {
       showToast('Error loading from Private GitHub DB', 'error');
       state.vaultItems = [];
@@ -518,6 +527,7 @@
 
       const newSha = await GitHubDB.saveVaultFile(payload, state.fileSha);
       state.fileSha = newSha;
+      updateLastSyncTime();
       showToast('Successfully synced to Private GitHub DB!', 'success');
     } catch (err) {
       console.error('GitHub Sync Error:', err);
@@ -746,7 +756,6 @@
     card.querySelector('.item-favicon').addEventListener('click', (e) => { e.stopPropagation(); openPreviewModal(item.id); });
     card.querySelector('.item-title-block').addEventListener('click', (e) => { e.stopPropagation(); openPreviewModal(item.id); });
     card.querySelector('.item-body').addEventListener('click', (e) => {
-      // Prevent opening preview if clicking password action buttons
       if (e.target.closest('.btn-toggle-vis') || e.target.closest('.btn-copy-pass') || e.target.closest('a')) return;
       openPreviewModal(item.id);
     });
@@ -757,7 +766,6 @@
 
     menuBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Close all other open card dropdowns first
       document.querySelectorAll('.card-dropdown-menu').forEach(m => {
         if (m !== menuDropdown) m.classList.add('hidden');
       });
@@ -1183,7 +1191,6 @@
     DOM.unlockForm.addEventListener('submit', handleUnlock);
     DOM.btnLockNow.addEventListener('click', lockVault);
 
-    // Close any open 3-dots card menu when clicking outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.card-dropdown-wrapper')) {
         document.querySelectorAll('.card-dropdown-menu').forEach(m => m.classList.add('hidden'));
