@@ -1556,12 +1556,6 @@
 
       await saveVaultToGitHub();
       showToast('Item deleted from vault.', 'info');
-    }
-  }
-
-  async function toggleFavorite(id) {
-    const item = state.vaultItems.find(i => i.id === id);
-    if (item) {
       item.favorite = !item.favorite;
       await renderVault();
       await saveVaultToGitHub();
@@ -1573,22 +1567,33 @@
   let currentManageItemId = null;
 
   function openManageLabelsModal(itemId) {
-    const item = state.vaultItems.find(i => String(i.id) === String(itemId));
-    if (!item) return;
+    try {
+      const item = state.vaultItems.find(i => String(i.id) === String(itemId));
+      if (!item) return;
 
-    currentManageItemId = item.id;
-    tempManageTags = [...(item.tags || [])];
+      currentManageItemId = item.id;
+      let existing = [];
+      if (Array.isArray(item.tags)) {
+        existing = item.tags;
+      } else if (typeof item.tags === 'string') {
+        existing = item.tags.split(/[,#\s]+/).filter(Boolean);
+      }
+      tempManageTags = [...existing];
 
-    const input = document.getElementById('input-new-label-name');
-    if (input) input.value = '';
+      const input = document.getElementById('input-new-label-name');
+      if (input) input.value = '';
 
-    const titleEl = document.getElementById('manage-labels-modal-title');
-    if (titleEl) titleEl.textContent = `Manage Labels: ${item.title}`;
+      const titleEl = document.getElementById('manage-labels-modal-title');
+      if (titleEl) titleEl.textContent = `Manage Labels: ${item.title}`;
 
-    renderLabelCheckmarksList();
+      renderLabelCheckmarksList();
 
-    const modal = document.getElementById('modal-manage-labels');
-    if (modal) modal.classList.add('active');
+      const modal = document.getElementById('modal-manage-labels');
+      if (modal) modal.classList.add('active');
+    } catch (err) {
+      console.error('Error opening manage labels modal:', err);
+      showToast('Error opening label manager', 'error');
+    }
   }
 
   function renderLabelCheckmarksList() {
@@ -1597,13 +1602,17 @@
 
     const allTags = new Set();
     state.vaultItems.forEach(i => {
-      if (i.tags && Array.isArray(i.tags)) {
-        i.tags.forEach(t => allTags.add(t));
+      if (i && i.tags) {
+        if (Array.isArray(i.tags)) {
+          i.tags.forEach(t => { if (t) allTags.add(String(t).replace(/^#/, '').trim()); });
+        } else if (typeof i.tags === 'string') {
+          i.tags.split(/[,#\s]+/).forEach(t => { if (t) allTags.add(t.replace(/^#/, '').trim()); });
+        }
       }
     });
-    tempManageTags.forEach(t => allTags.add(t));
+    tempManageTags.forEach(t => { if (t) allTags.add(String(t).replace(/^#/, '').trim()); });
 
-    const tagsArray = Array.from(allTags);
+    const tagsArray = Array.from(allTags).filter(Boolean);
     container.innerHTML = '';
 
     if (tagsArray.length === 0) {
@@ -1633,34 +1642,57 @@
           <input type="checkbox" class="label-checkbox" data-tag="${escapeHtml(tag)}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--accent-purple); cursor:pointer; flex-shrink:0;">
           <span style="font-size:0.9rem; font-weight:600; color:${isChecked ? '#fff' : 'var(--text-muted)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">#${escapeHtml(tag)}</span>
         </div>
-        <span class="badge-pill" style="font-size:0.7rem; flex-shrink:0; background:${isChecked ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
+        <span class="badge-pill label-badge" style="font-size:0.7rem; flex-shrink:0; background:${isChecked ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
       `;
 
       const cb = row.querySelector('.label-checkbox');
+      const badge = row.querySelector('.label-badge');
+      const labelText = row.querySelector('span');
+
+      const updateRowUI = (checked) => {
+        if (checked) {
+          if (!tempManageTags.includes(tag)) tempManageTags.push(tag);
+          row.style.background = 'rgba(139,92,246,0.15)';
+          row.style.borderColor = 'rgba(139,92,246,0.35)';
+          if (badge) {
+            badge.textContent = 'Assigned';
+            badge.style.background = 'rgba(139,92,246,0.25)';
+            badge.style.color = 'var(--accent-purple)';
+          }
+          if (labelText) labelText.style.color = '#fff';
+        } else {
+          tempManageTags = tempManageTags.filter(t => t !== tag);
+          row.style.background = 'rgba(255,255,255,0.03)';
+          row.style.borderColor = 'rgba(255,255,255,0.08)';
+          if (badge) {
+            badge.textContent = 'Unassigned';
+            badge.style.background = 'rgba(255,255,255,0.06)';
+            badge.style.color = 'var(--text-dim)';
+          }
+          if (labelText) labelText.style.color = 'var(--text-muted)';
+        }
+      };
+
+      cb.addEventListener('change', (e) => {
+        e.stopPropagation();
+        updateRowUI(cb.checked);
+      });
+
       row.addEventListener('click', (e) => {
         if (e.target !== cb) {
           cb.checked = !cb.checked;
+          updateRowUI(cb.checked);
         }
-        toggleTagSelection(tag, cb.checked);
       });
 
       container.appendChild(row);
     });
   }
 
-  function toggleTagSelection(tag, isChecked) {
-    if (isChecked) {
-      if (!tempManageTags.includes(tag)) tempManageTags.push(tag);
-    } else {
-      tempManageTags = tempManageTags.filter(t => t !== tag);
-    }
-    renderLabelCheckmarksList();
-  }
-
   function handleAddNewLabel() {
     const input = document.getElementById('input-new-label-name');
     if (!input) return;
-    const rawVal = input.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    const rawVal = input.value.trim().toLowerCase().replace(/^#/, '').replace(/[^a-z0-9_-]/g, '');
     if (!rawVal) {
       showToast('Please type a valid label name!', 'error');
       return;
@@ -1676,7 +1708,7 @@
 
   async function handleSaveItemLabels() {
     if (!currentManageItemId) return;
-    const item = state.vaultItems.find(i => i.id === currentManageItemId);
+    const item = state.vaultItems.find(i => String(i.id) === String(currentManageItemId));
     if (!item) return;
 
     item.tags = [...tempManageTags];
