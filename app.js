@@ -1456,8 +1456,14 @@
     if (DOM.sidebarTagsContainer) {
       const tagSet = new Set();
       all.forEach(item => {
-        if (item.tags && Array.isArray(item.tags)) {
-          item.tags.forEach(t => tagSet.add(t));
+        if (item.tags) {
+          if (Array.isArray(item.tags)) {
+            item.tags.forEach(t => { if(t) tagSet.add(String(t).replace(/^#/, '').trim().toLowerCase()) });
+          } else if (typeof item.tags === 'string') {
+            item.tags.split(/[,#\s]+/).forEach(t => {
+              if (t) tagSet.add(t.trim().toLowerCase());
+            });
+          }
         }
       });
 
