@@ -346,6 +346,7 @@
     fileSha: null,
     saltBase64: null,
     verifierObj: null,
+    cachedPayload: null,
     totpTimer: null,
     currentAttachment: null
   };
@@ -526,6 +527,7 @@
       state.fileSha = remote.sha;
       state.saltBase64 = remote.payload.salt;
       state.verifierObj = remote.payload.verifier;
+      state.cachedPayload = remote.payload; // Instant memory cache!
 
       const dbBadge = document.getElementById('db-status-badge');
       const dbDot = document.getElementById('db-status-dot');
@@ -569,7 +571,7 @@
       }
       if (dbDot) dbDot.className = 'status-dot yellow';
 
-      showToast('Offline Mode: GitHub connection failed', 'error');
+      showToast('Offline Mode: Using cached vault session', 'info');
       
       if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
       if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
@@ -596,6 +598,7 @@
         state.fileSha = remote.sha;
         state.saltBase64 = remote.payload.salt;
         state.verifierObj = remote.payload.verifier;
+        state.cachedPayload = remote.payload;
       }
 
       const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
@@ -618,10 +621,16 @@
 
   async function loadVaultFromGitHub(key) {
     try {
-      const remote = await GitHubDB.fetchVaultFile();
-      state.fileSha = remote.sha;
-      if (remote.payload.vault && remote.payload.vault.ciphertext) {
-        state.vaultItems = await CryptoEngine.decryptData(remote.payload.vault, key);
+      let payload = state.cachedPayload;
+      if (!payload || !payload.vault) {
+        const remote = await GitHubDB.fetchVaultFile();
+        state.fileSha = remote.sha;
+        payload = remote.payload;
+        state.cachedPayload = payload;
+      }
+
+      if (payload && payload.vault && payload.vault.ciphertext) {
+        state.vaultItems = await CryptoEngine.decryptData(payload.vault, key);
       } else {
         state.vaultItems = [];
       }
@@ -648,6 +657,7 @@
 
       const newSha = await GitHubDB.saveVaultFile(payload, state.fileSha);
       state.fileSha = newSha;
+      state.cachedPayload = payload; // Update in-memory payload cache!
       updateLastSyncTime();
       showToast('Successfully synced to Private GitHub DB!', 'success');
     } catch (err) {
