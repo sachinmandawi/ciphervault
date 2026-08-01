@@ -209,37 +209,37 @@
 
   // --- PRIVATE GITHUB REPO DATABASE API ---
   const GitHubDB = {
-    getHeaders: function (isRaw = false) {
-      const headers = {
+    getHeaders: function () {
+      return {
         'Authorization': `token ${GITHUB_CONFIG.getToken()}`,
-        'Accept': isRaw ? 'application/vnd.github.v3.raw' : 'application/vnd.github.v3+json'
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
       };
-      if (!isRaw) headers['Content-Type'] = 'application/json';
-      return headers;
     },
 
     fetchVaultFile: async function () {
       const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?nocache=${Date.now()}`;
-      
-      // Fetch Raw JSON to bypass GitHub API 1MB file size limit
-      const res = await fetch(url, { headers: this.getHeaders(true), cache: 'no-store' });
+      const res = await fetch(url, { headers: this.getHeaders(), cache: 'no-store' });
       if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
-      const payload = await res.json();
+      const data = await res.json();
       
-      let sha = null;
-      try {
-        const metaRes = await fetch(url, { headers: this.getHeaders(false), cache: 'no-store' });
-        if (metaRes.ok) {
-          const metaData = await metaRes.json();
-          sha = metaData.sha;
-        }
-      } catch (e) {
-        console.warn('Could not fetch sha meta:', e);
+      let contentStr = '';
+      if (data.content && data.content.trim() !== '') {
+        contentStr = decodeURIComponent(escape(window.atob(data.content.replace(/\n|\r/g, ''))));
+      } else if (data.sha) {
+        // Large file (>1MB) fallback: fetch via git/blobs endpoint
+        const blobUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/git/blobs/${data.sha}?nocache=${Date.now()}`;
+        const blobRes = await fetch(blobUrl, { headers: this.getHeaders(), cache: 'no-store' });
+        if (!blobRes.ok) throw new Error(`GitHub Blob API HTTP ${blobRes.status}`);
+        const blobData = await blobRes.json();
+        contentStr = decodeURIComponent(escape(window.atob(blobData.content.replace(/\n|\r/g, ''))));
+      } else {
+        throw new Error('No content or sha returned from GitHub DB');
       }
 
       return {
-        sha: sha,
-        payload: payload
+        sha: data.sha,
+        payload: JSON.parse(contentStr)
       };
     },
 
@@ -255,7 +255,7 @@
 
       const res = await fetch(url, {
         method: 'PUT',
-        headers: this.getHeaders(false),
+        headers: this.getHeaders(),
         body: JSON.stringify(body)
       });
 
@@ -569,7 +569,7 @@
       }
       if (dbDot) dbDot.className = 'status-dot yellow';
 
-      showToast('Offline Mode: Using cached vault session', 'info');
+      showToast('Offline Mode: GitHub connection failed', 'error');
       
       if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
       if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
