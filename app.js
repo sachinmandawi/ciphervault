@@ -552,7 +552,7 @@
     }
   }
 
-  // --- PREVIEW MODAL LOGIC ---
+  // --- PREVIEW MODAL LOGIC (Method 1: 1-Click Card Preview) ---
   function openPreviewModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
     if (!item) return;
@@ -690,40 +690,46 @@
 
     card.innerHTML = `
       <div class="item-header">
-        <div class="item-favicon" style="cursor:pointer;" title="Click to View Full Details">${iconHtml}</div>
-        <div class="item-title-block" style="cursor:pointer;" title="Click to View Full Details">
+        <div class="item-favicon" style="cursor:pointer;" title="Click to View Details">${iconHtml}</div>
+        <div class="item-title-block" style="cursor:pointer;" title="Click to View Details">
           <div class="item-title">${escapeHtml(item.title)}</div>
           <div class="item-sub">${escapeHtml(subText)}</div>
         </div>
-        <div class="item-actions">
-          <button class="btn-icon btn-preview" data-id="${item.id}" title="Preview Full Details">
-            <i class="fa-regular fa-eye"></i>
+        <div class="card-dropdown-wrapper">
+          <button type="button" class="btn-icon btn-card-menu" title="More Actions">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
           </button>
-          <button class="btn-icon btn-star ${item.favorite ? 'active' : ''}" data-id="${item.id}" title="Favorite">
-            <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
-          </button>
-          <button class="btn-icon btn-edit" data-id="${item.id}" title="Edit">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </button>
-          <button class="btn-icon btn-delete text-danger" data-id="${item.id}" title="Delete">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+          <div class="card-dropdown-menu hidden">
+            <button type="button" class="dropdown-item btn-star ${item.favorite ? 'active' : ''}">
+              <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
+              <span>${item.favorite ? 'Unfavorite' : 'Mark Favorite'}</span>
+            </button>
+            <button type="button" class="dropdown-item btn-edit">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>Edit Item</span>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item btn-delete text-danger">
+              <i class="fa-solid fa-trash"></i>
+              <span>Delete Item</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="item-body">
+      <div class="item-body" title="Click to View Details">
         <span class="item-pass-hidden" id="pass-text-${item.id}">${displayPass}</span>
         <div class="item-card-btns">
           ${item.password || item.pin || item.cvv ? `
-            <button class="btn-icon btn-toggle-vis" data-id="${item.id}" title="Toggle Show/Hide">
+            <button type="button" class="btn-icon btn-toggle-vis" data-id="${item.id}" title="Toggle Show/Hide">
               <i class="fa-regular fa-eye"></i>
             </button>
-            <button class="btn-icon btn-copy-pass" data-id="${item.id}" title="Copy Code">
+            <button type="button" class="btn-icon btn-copy-pass" data-id="${item.id}" title="Copy Code">
               <i class="fa-regular fa-copy"></i>
             </button>
           ` : ''}
           ${item.type === 'login' && item.url ? `
-            <a href="${escapeHtml(item.url)}" target="_blank" class="btn-icon" title="Open Link">
+            <a href="${escapeHtml(item.url)}" target="_blank" class="btn-icon" title="Open Link" onclick="event.stopPropagation();">
               <i class="fa-solid fa-arrow-up-right-from-square"></i>
             </a>
           ` : ''}
@@ -736,22 +742,58 @@
       </div>
     `;
 
-    // 1-Click Preview triggers
-    card.querySelector('.item-favicon').addEventListener('click', () => openPreviewModal(item.id));
-    card.querySelector('.item-title-block').addEventListener('click', () => openPreviewModal(item.id));
-    card.querySelector('.btn-preview').addEventListener('click', () => openPreviewModal(item.id));
+    // 1-Click Card Click triggers Preview Modal
+    card.querySelector('.item-favicon').addEventListener('click', (e) => { e.stopPropagation(); openPreviewModal(item.id); });
+    card.querySelector('.item-title-block').addEventListener('click', (e) => { e.stopPropagation(); openPreviewModal(item.id); });
+    card.querySelector('.item-body').addEventListener('click', (e) => {
+      // Prevent opening preview if clicking password action buttons
+      if (e.target.closest('.btn-toggle-vis') || e.target.closest('.btn-copy-pass') || e.target.closest('a')) return;
+      openPreviewModal(item.id);
+    });
 
-    card.querySelector('.btn-star').addEventListener('click', () => toggleFavorite(item.id));
-    card.querySelector('.btn-edit').addEventListener('click', () => openEditModal(item.id));
-    card.querySelector('.btn-delete').addEventListener('click', () => deleteItem(item.id));
+    // 3-Dots Dropdown Menu Toggle
+    const menuBtn = card.querySelector('.btn-card-menu');
+    const menuDropdown = card.querySelector('.card-dropdown-menu');
+
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Close all other open card dropdowns first
+      document.querySelectorAll('.card-dropdown-menu').forEach(m => {
+        if (m !== menuDropdown) m.classList.add('hidden');
+      });
+      menuDropdown.classList.toggle('hidden');
+    });
+
+    // 3-Dots Menu Item Click Actions
+    card.querySelector('.btn-star').addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuDropdown.classList.add('hidden');
+      toggleFavorite(item.id);
+    });
+
+    card.querySelector('.btn-edit').addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuDropdown.classList.add('hidden');
+      openEditModal(item.id);
+    });
+
+    card.querySelector('.btn-delete').addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuDropdown.classList.add('hidden');
+      deleteItem(item.id);
+    });
 
     const secretVal = item.password || item.pin || item.cvv;
     if (secretVal) {
-      card.querySelector('.btn-copy-pass').addEventListener('click', () => copyToClipboard(secretVal, 'Copied to clipboard!'));
+      card.querySelector('.btn-copy-pass').addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyToClipboard(secretVal, 'Copied to clipboard!');
+      });
       
       const toggleVisBtn = card.querySelector('.btn-toggle-vis');
       let isVis = false;
-      toggleVisBtn.addEventListener('click', () => {
+      toggleVisBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         isVis = !isVis;
         const targetSpan = document.getElementById(`pass-text-${item.id}`);
         targetSpan.textContent = isVis ? secretVal : '••••••••••••';
@@ -1140,6 +1182,13 @@
   function setupEventListeners() {
     DOM.unlockForm.addEventListener('submit', handleUnlock);
     DOM.btnLockNow.addEventListener('click', lockVault);
+
+    // Close any open 3-dots card menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.card-dropdown-wrapper')) {
+        document.querySelectorAll('.card-dropdown-menu').forEach(m => m.classList.add('hidden'));
+      }
+    });
 
     if (DOM.dangerWipeInput) {
       DOM.dangerWipeInput.addEventListener('input', (e) => {
