@@ -209,23 +209,37 @@
 
   // --- PRIVATE GITHUB REPO DATABASE API ---
   const GitHubDB = {
-    getHeaders: function () {
-      return {
+    getHeaders: function (isRaw = false) {
+      const headers = {
         'Authorization': `token ${GITHUB_CONFIG.getToken()}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
+        'Accept': isRaw ? 'application/vnd.github.v3.raw' : 'application/vnd.github.v3+json'
       };
+      if (!isRaw) headers['Content-Type'] = 'application/json';
+      return headers;
     },
 
     fetchVaultFile: async function () {
       const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?nocache=${Date.now()}`;
-      const res = await fetch(url, { headers: this.getHeaders(), cache: 'no-store' });
+      
+      // Fetch Raw JSON to bypass GitHub API 1MB file size limit
+      const res = await fetch(url, { headers: this.getHeaders(true), cache: 'no-store' });
       if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
-      const data = await res.json();
-      const contentStr = decodeURIComponent(escape(window.atob(data.content.replace(/\n|\r/g, ''))));
+      const payload = await res.json();
+      
+      let sha = null;
+      try {
+        const metaRes = await fetch(url, { headers: this.getHeaders(false), cache: 'no-store' });
+        if (metaRes.ok) {
+          const metaData = await metaRes.json();
+          sha = metaData.sha;
+        }
+      } catch (e) {
+        console.warn('Could not fetch sha meta:', e);
+      }
+
       return {
-        sha: data.sha,
-        payload: JSON.parse(contentStr)
+        sha: sha,
+        payload: payload
       };
     },
 
@@ -241,7 +255,7 @@
 
       const res = await fetch(url, {
         method: 'PUT',
-        headers: this.getHeaders(),
+        headers: this.getHeaders(false),
         body: JSON.stringify(body)
       });
 
@@ -572,7 +586,7 @@
     if (DOM.unlockError) DOM.unlockError.classList.add('hidden');
 
     try {
-      if (user !== GITHUB_CONFIG.owner) {
+      if (user.toLowerCase() !== GITHUB_CONFIG.owner.toLowerCase()) {
         if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
         return;
       }
@@ -1417,6 +1431,8 @@
     if (DOM.modalItem) DOM.modalItem.classList.remove('active');
     const prevModal = document.getElementById('modal-preview');
     if (prevModal) prevModal.classList.remove('active');
+    const filePrevModal = document.getElementById('modal-file-preview');
+    if (filePrevModal) filePrevModal.classList.remove('active');
   }
 
   function switchCategoryFields(type) {
