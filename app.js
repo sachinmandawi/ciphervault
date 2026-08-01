@@ -1439,6 +1439,55 @@
     }
   }
 
+  // --- AUTOMATED 100-ITEM STRESS TESTER & CLEANUP ---
+  window.generate100TestItems = async function () {
+    const categories = ['login', 'card', 'bank', 'note'];
+    const domains = ['google.com', 'github.com', 'amazon.in', 'netflix.com', 'sbi.co.in', 'hdfcbank.com', 'spotify.com', 'twitter.com'];
+    const firstNames = ['Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Sai', 'Reyansh', 'Ayaan', 'Krishna', 'Ishaan'];
+    const totpSecrets = ['JBSWY3DPEHPK3PXP', 'HXDM544ZS2H3PZ22', 'MZXW6YTBOI======', 'KRUFRGY3THS6N26Q'];
+
+    const testItems = [];
+    for (let i = 1; i <= 100; i++) {
+      const cat = categories[i % categories.length];
+      const domain = domains[i % domains.length];
+      const name = firstNames[i % firstNames.length];
+      
+      const item = {
+        id: 'test_user_' + i,
+        type: cat,
+        title: `${name}'s ${domain.split('.')[0].toUpperCase()} #${i}`,
+        username: `${name.toLowerCase()}${i}@${domain}`,
+        password: i % 6 === 0 ? '123456' : Generator.generate({ length: 18, uppercase: true, lowercase: true, numbers: true, symbols: true }),
+        totp: i % 4 === 0 ? totpSecrets[i % totpSecrets.length] : '',
+        url: `https://${domain}`,
+        cardholder: `${name} Sharma`,
+        cardnumber: `4532 ${1000 + i} ${2000 + i} ${8000 + i}`,
+        exp: '12/28',
+        cvv: `${100 + (i % 899)}`,
+        bankname: `Bank of ${name}`,
+        accountno: `99887766${i}`,
+        ifsc: `SBIN000${100 + i}`,
+        pin: `${1000 + (i % 8999)}`,
+        notes: `Secure test note content for user #${i}`,
+        favorite: i % 3 === 0,
+        updatedAt: Date.now() - (i * 3600000),
+        createdAt: Date.now() - (i * 86400000)
+      };
+
+      testItems.push(item);
+    }
+
+    state.vaultItems = testItems;
+    await renderVault();
+    showToast('Created 100 Test Users & Items for Stress Testing!', 'success');
+  };
+
+  window.clear100TestItems = async function () {
+    state.vaultItems = state.vaultItems.filter(i => !i.id.startsWith('test_user_'));
+    await renderVault();
+    showToast('Cleaned up all 100 test items!', 'info');
+  };
+
   // --- EVENT LISTENERS SETUP ---
   function setupEventListeners() {
     DOM.unlockForm.addEventListener('submit', handleUnlock);
