@@ -528,12 +528,32 @@
 
   // --- MASTER LOCK & PRIVATE GITHUB DB SYNC ---
   async function checkMasterStatus() {
-    try {
-      const remote = await GitHubDB.fetchVaultFile();
+    const cached = localStorage.getItem('cipher_offline_vault');
+    const cachedSha = localStorage.getItem('cipher_offline_sha');
+    if (cached) {
+      try {
+        const payload = JSON.parse(cached);
+        state.fileSha = cachedSha || '';
+        state.saltBase64 = payload.salt;
+        state.verifierObj = payload.verifier;
+        state.cachedPayload = payload;
+        
+        if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
+        if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
+        const titleEl = document.getElementById('auth-title');
+        const subEl = document.getElementById('auth-subtitle');
+        if (titleEl) titleEl.textContent = 'CipherVault Login';
+        if (subEl) subEl.textContent = 'Cached DB Ready';
+      } catch(e) {}
+    }
+
+    const fetchPromise = GitHubDB.fetchVaultFile().then(async remote => {
       state.fileSha = remote.sha;
       state.saltBase64 = remote.payload.salt;
       state.verifierObj = remote.payload.verifier;
-      state.cachedPayload = remote.payload; // Instant memory cache!
+      state.cachedPayload = remote.payload;
+      localStorage.setItem('cipher_offline_vault', JSON.stringify(remote.payload));
+      localStorage.setItem('cipher_offline_sha', remote.sha);
 
       const dbBadge = document.getElementById('db-status-badge');
       const dbDot = document.getElementById('db-status-dot');
@@ -552,20 +572,11 @@
       if (titleEl) titleEl.textContent = 'CipherVault Login';
       if (subEl) subEl.textContent = 'Private GitHub DB Connected';
 
-      const savedPass = sessionStorage.getItem('cipher_active_pass');
-      if (savedPass) {
-        const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
-        const key = await CryptoEngine.deriveKey(savedPass, new Uint8Array(salt));
-        const isValid = await CryptoEngine.verifyKey(state.verifierObj, key);
-        if (isValid) {
-          state.masterKey = key;
-          await loadVaultFromGitHub(key);
-          unlockVault();
-          return;
-        }
+      if (state.masterKey && cached) {
+        await loadVaultFromGitHub(state.masterKey);
+        if (DOM.authOverlay && !DOM.authOverlay.classList.contains('active')) renderVault();
       }
-
-    } catch (err) {
+    }).catch(err => {
       console.warn('GitHub DB fetch error:', err);
       const dbBadge = document.getElementById('db-status-badge');
       const dbDot = document.getElementById('db-status-dot');
@@ -576,11 +587,27 @@
         dbBadge.style.color = '#f59e0b';
       }
       if (dbDot) dbDot.className = 'status-dot yellow';
+      if (!cached) showToast('Network Error & No Cache Found', 'error');
+      else showToast('Offline Mode: Using cached vault session', 'info');
+    });
 
-      showToast('Offline Mode: Using cached vault session', 'info');
-      
-      if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
-      if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
+    if (!cached) {
+      try { await fetchPromise; } catch(e){}
+    }
+
+    const savedPass = sessionStorage.getItem('cipher_active_pass');
+    if (savedPass && state.saltBase64 && state.verifierObj) {
+      try {
+        const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
+        const key = await CryptoEngine.deriveKey(savedPass, new Uint8Array(salt));
+        const isValid = await CryptoEngine.verifyKey(state.verifierObj, key);
+        if (isValid) {
+          state.masterKey = key;
+          await loadVaultFromGitHub(key);
+          unlockVault();
+          return;
+        }
+      } catch(e) {}
     }
 
     if (DOM.unlockUser) DOM.unlockUser.value = '';
@@ -605,6 +632,8 @@
         state.saltBase64 = remote.payload.salt;
         state.verifierObj = remote.payload.verifier;
         state.cachedPayload = remote.payload;
+        localStorage.setItem('cipher_offline_vault', JSON.stringify(remote.payload));
+        localStorage.setItem('cipher_offline_sha', remote.sha);
       }
 
       const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
@@ -664,11 +693,16 @@
       const newSha = await GitHubDB.saveVaultFile(payload, state.fileSha);
       state.fileSha = newSha;
       state.cachedPayload = payload; // Update in-memory payload cache!
+      localStorage.setItem('cipher_offline_vault', JSON.stringify(payload));
+      localStorage.setItem('cipher_offline_sha', newSha);
       updateLastSyncTime();
       showToast('Successfully synced to Private GitHub DB!', 'success');
     } catch (err) {
       console.error('GitHub Sync Error:', err);
-      showToast('Saved locally (GitHub Sync Pending)', 'info');
+      // Fallback: save to local cache so offline changes are preserved temporarily
+      state.cachedPayload = payload;
+      localStorage.setItem('cipher_offline_vault', JSON.stringify(payload));
+      showToast('Saved locally (GitHub Sync Pending)', 'warning');
     }
   }
 
