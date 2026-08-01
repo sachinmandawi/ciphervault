@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>CipherVault - Zero-Knowledge Password Manager</title>
+  <meta name="description" content="Secure, end-to-end encrypted password manager running locally in your browser. Compatible with all devices.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons for UI -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- MASTER PASSWORD / LOCK SCREEN MODAL -->
+  <div id="auth-overlay" class="auth-overlay active">
+    <div class="auth-card glass-panel">
+      <div class="auth-header">
+        <div class="brand-badge">
+          <i class="fa-solid fa-shield-halved brand-icon"></i>
+        </div>
+        <h1 id="auth-title">CipherVault</h1>
+        <p id="auth-subtitle">Zero-Knowledge Encrypted Password Manager</p>
+      </div>
+
+      <!-- Setup Form (Shown if no master password exists) -->
+      <form id="setup-form" class="auth-form hidden">
+        <div class="info-banner">
+          <i class="fa-solid fa-lock"></i>
+          <span>Set a strong Master Password. It encrypts your vault using <strong>AES-256-GCM</strong>. We cannot recover it if lost!</span>
+        </div>
+        <div class="form-group">
+          <label for="setup-password">Create Master Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="setup-password" required placeholder="Enter strong master password..." autocomplete="new-password">
+            <button type="button" class="btn-icon toggle-pass" data-target="setup-password">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <div class="strength-bar-container">
+            <div id="master-strength-bar" class="strength-bar"></div>
+          </div>
+          <span id="master-strength-label" class="strength-text">Password Strength</span>
+        </div>
+        <div class="form-group">
+          <label for="setup-confirm">Confirm Master Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="setup-confirm" required placeholder="Repeat master password..." autocomplete="new-password">
+            <button type="button" class="btn-icon toggle-pass" data-target="setup-confirm">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          <i class="fa-solid fa-key"></i> Initialize Vault
+        </button>
+      </form>
+
+      <!-- Unlock Form (Shown if vault is locked) -->
+      <form id="unlock-form" class="auth-form">
+        <div class="form-group">
+          <label for="unlock-password">Master Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="unlock-password" required placeholder="Enter master password to unlock..." autocomplete="current-password" autofocus>
+            <button type="button" class="btn-icon toggle-pass" data-target="unlock-password">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div id="unlock-error" class="error-msg hidden">
+          <i class="fa-solid fa-triangle-exclamation"></i> Incorrect master password!
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          <i class="fa-solid fa-unlock"></i> Unlock Vault
+        </button>
+        <button type="button" id="btn-reset-vault" class="btn btn-text text-danger mt-3">
+          <i class="fa-solid fa-trash-can"></i> Reset & Clear Vault
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MOBILE OVERLAY BACKDROP -->
+  <div id="mobile-backdrop" class="mobile-backdrop"></div>
+
+  <!-- MAIN APP WRAPPER -->
+  <div id="app" class="app-container blur-content">
+    
+    <!-- SIDEBAR NAVIGATION (Desktop & Mobile Drawer) -->
+    <aside class="sidebar glass-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon-small">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">CipherVault</span>
+          <span class="brand-status"><span class="status-dot green"></span> Encrypted</span>
+        </div>
+        <button id="mobile-menu-close" class="btn-icon mobile-only">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">VAULT</span>
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-category="all">
+            <i class="fa-solid fa-vault"></i>
+            <span>All Items</span>
+            <span class="badge" id="count-all">0</span>
+          </button>
+          <button class="nav-item" data-category="login">
+            <i class="fa-solid fa-globe"></i>
+            <span>Logins</span>
+            <span class="badge" id="count-login">0</span>
+          </button>
+          <button class="nav-item" data-category="card">
+            <i class="fa-regular fa-credit-card"></i>
+            <span>Credit Cards</span>
+            <span class="badge" id="count-card">0</span>
+          </button>
+          <button class="nav-item" data-category="note">
+            <i class="fa-regular fa-note-sticky"></i>
+            <span>Secure Notes</span>
+            <span class="badge" id="count-note">0</span>
+          </button>
+          <button class="nav-item" data-category="favorite">
+            <i class="fa-regular fa-star"></i>
+            <span>Favorites</span>
+            <span class="badge" id="count-favorite">0</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">TOOLS & AUDIT</span>
+        <nav class="sidebar-nav">
+          <button class="nav-item" id="nav-generator">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Generator</span>
+          </button>
+          <button class="nav-item" id="nav-security">
+            <i class="fa-solid fa-shield-heart"></i>
+            <span>Health Audit</span>
+            <span class="badge warning" id="count-weak">0</span>
+          </button>
+          <button class="nav-item" id="nav-settings">
+            <i class="fa-solid fa-gear"></i>
+            <span>Settings & Backup</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="btn-lock-now" class="btn btn-outline btn-block">
+          <i class="fa-solid fa-lock"></i> Lock Vault
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      
+      <!-- TOP HEADER BAR -->
+      <header class="top-header glass-header">
+        <button id="mobile-menu-toggle" class="btn-icon mobile-only" title="Open Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-input" placeholder="Search logins, notes... (Ctrl+/)" autocomplete="off">
+          <button id="clear-search" class="btn-icon hidden"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-quick-gen" class="btn btn-secondary desktop-only">
+            <i class="fa-solid fa-key"></i> Generate
+          </button>
+          <button id="btn-add-item" class="btn btn-primary glow-btn">
+            <i class="fa-solid fa-plus"></i> <span class="hide-mobile">New Item</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW CONTAINER -->
+      <div class="content-scroll">
+        
+        <!-- DASHBOARD / VAULT VIEW -->
+        <section id="view-vault" class="view-section active">
+          
+          <!-- HEALTH OVERVIEW STATS -->
+          <div class="stats-grid">
+            <div class="stat-card glass-panel">
+              <div class="stat-icon cyan">
+                <i class="fa-solid fa-database"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value" id="stat-total">0</span>
+                <span class="stat-label">Total Vault Items</span>
+              </div>
+            </div>
+            
+            <div class="stat-card glass-panel">
+              <div class="stat-icon green">
+                <i class="fa-solid fa-shield-check"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value" id="stat-score">100%</span>
+                <span class="stat-label">Vault Health Score</span>
+              </div>
+            </div>
+
+            <div class="stat-card glass-panel">
+              <div class="stat-icon yellow">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value" id="stat-reused">0</span>
+                <span class="stat-label">Reused Passwords</span>
+              </div>
+            </div>
+
+            <div class="stat-card glass-panel">
+              <div class="stat-icon red">
+                <i class="fa-solid fa-skull"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value" id="stat-weak-count">0</span>
+                <span class="stat-label">Weak / At-Risk</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- VAULT TOOLBAR -->
+          <div class="vault-toolbar">
+            <div class="toolbar-title">
+              <h2 id="current-category-title">All Items</h2>
+              <span id="items-counter" class="sub-text">0 items found</span>
+            </div>
+
+            <div class="toolbar-controls">
+              <div class="select-wrapper">
+                <select id="sort-select" class="form-select">
+                  <option value="updated">Recently Modified</option>
+                  <option value="title">Alphabetical (A-Z)</option>
+                  <option value="strength">Password Strength</option>
+                  <option value="created">Date Created</option>
+                </select>
+              </div>
+
+              <div class="view-toggle desktop-only">
+                <button class="btn-icon active" id="btn-view-grid" title="Grid View">
+                  <i class="fa-solid fa-grid-2"></i>
+                </button>
+                <button class="btn-icon" id="btn-view-list" title="List View">
+                  <i class="fa-solid fa-list"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- VAULT ITEMS CONTAINER -->
+          <div id="vault-items-container" class="items-grid">
+            <!-- Dynamic Items Rendered Here -->
+          </div>
+
+          <!-- EMPTY STATE -->
+          <div id="empty-state" class="empty-state hidden">
+            <div class="empty-icon">
+              <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3>No Items Found</h3>
+            <p>Your vault is empty in this category or no search matches were found.</p>
+            <button id="btn-empty-add" class="btn btn-primary mt-4">
+              <i class="fa-solid fa-plus"></i> Add Your First Item
+            </button>
+            <button id="btn-load-demo" class="btn btn-secondary mt-2">
+              <i class="fa-solid fa-flask"></i> Load Demo Sample Data
+            </button>
+          </div>
+
+        </section>
+
+        <!-- PASSWORD GENERATOR VIEW -->
+        <section id="view-generator" class="view-section">
+          <div class="section-header">
+            <h2>Password Generator</h2>
+            <p class="sub-text">Create ultra-secure, cryptographically strong passwords locally using Web Crypto API.</p>
+          </div>
+
+          <div class="generator-container glass-panel">
+            <div class="generated-output-box">
+              <div class="generated-password-display" id="gen-result">
+                Select options below to generate...
+              </div>
+              <div class="output-actions">
+                <button id="btn-regen" class="btn-icon lg" title="Regenerate">
+                  <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button id="btn-copy-gen" class="btn btn-primary">
+                  <i class="fa-regular fa-copy"></i> <span class="hide-mobile">Copy Password</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="gen-metrics">
+              <div class="metric-item">
+                <span class="metric-label">Strength</span>
+                <span id="gen-strength-badge" class="badge-pill strong">Military Grade</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Entropy</span>
+                <span id="gen-entropy-val" class="metric-val">128 bits</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Est. Crack Time</span>
+                <span id="gen-crack-time" class="metric-val">Trillions of Years</span>
+              </div>
+            </div>
+
+            <div class="gen-controls-grid">
+              <div class="control-card">
+                <div class="slider-header">
+                  <label for="gen-length">Password Length</label>
+                  <span id="gen-length-val" class="slider-num">20</span>
+                </div>
+                <input type="range" id="gen-length" min="8" max="64" value="20" class="custom-range">
+              </div>
+
+              <div class="options-grid">
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-uppercase" checked>
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Uppercase Letters</strong>
+                    <span>A-Z</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-lowercase" checked>
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Lowercase Letters</strong>
+                    <span>a-z</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-numbers" checked>
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Numbers</strong>
+                    <span>0-9</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-symbols" checked>
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Symbols</strong>
+                    <span>!@#$%^&*()</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-avoid-similar">
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Avoid Ambiguous Characters</strong>
+                    <span>Excludes i, l, 1, L, o, 0, O</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECURITY AUDIT VIEW -->
+        <section id="view-security" class="view-section">
+          <div class="section-header">
+            <h2>Vault Health Audit</h2>
+            <p class="sub-text">Security analysis of your stored credentials for weak, reused, or exposed patterns.</p>
+          </div>
+
+          <div id="security-audit-container">
+            <!-- Rendered dynamically in app.js -->
+          </div>
+        </section>
+
+        <!-- SETTINGS & BACKUP VIEW -->
+        <section id="view-settings" class="view-section">
+          <div class="section-header">
+            <h2>Settings & Data Security</h2>
+            <p class="sub-text">Manage vault encryption, auto-lock preferences, backup exports, and imports.</p>
+          </div>
+
+          <div class="settings-grid">
+            <div class="setting-card glass-panel">
+              <h3><i class="fa-solid fa-clock"></i> Auto-Lock Security</h3>
+              <p>Automatically lock your vault after a period of inactivity to prevent unauthorized access.</p>
+              <div class="form-group mt-4">
+                <label for="setting-autolock">Auto-Lock Timeout</label>
+                <select id="setting-autolock" class="form-select">
+                  <option value="1">1 Minute</option>
+                  <option value="5" selected>5 Minutes</option>
+                  <option value="15">15 Minutes</option>
+                  <option value="30">30 Minutes</option>
+                  <option value="0">Never (Not Recommended)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="setting-card glass-panel">
+              <h3><i class="fa-solid fa-file-export"></i> Backup & Export</h3>
+              <p>Export an encrypted backup file (.json) or CSV spreadsheet of your vault items.</p>
+              <div class="button-group mt-4">
+                <button id="btn-export-encrypted" class="btn btn-secondary">
+                  <i class="fa-solid fa-lock"></i> Export Encrypted (.json)
+                </button>
+                <button id="btn-export-csv" class="btn btn-outline">
+                  <i class="fa-solid fa-file-csv"></i> Export Unencrypted CSV
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-card glass-panel">
+              <h3><i class="fa-solid fa-file-import"></i> Restore & Import</h3>
+              <p>Import passwords from an encrypted CipherVault backup or external CSV file.</p>
+              <div class="form-group mt-4">
+                <input type="file" id="import-file-input" accept=".json,.csv" class="hidden">
+                <button id="btn-trigger-import" class="btn btn-primary">
+                  <i class="fa-solid fa-upload"></i> Choose File to Import
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-card glass-panel border-danger">
+              <h3><i class="fa-solid fa-triangle-exclamation text-danger"></i> Danger Zone</h3>
+              <p>Wipe all stored passwords, encryption keys, and master settings from this browser.</p>
+              <div class="mt-4">
+                <button id="btn-danger-wipe" class="btn btn-danger">
+                  <i class="fa-solid fa-trash-can"></i> Permanently Delete All Vault Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ADD / EDIT ITEM MODAL -->
+  <div id="modal-item" class="modal-overlay">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3 id="modal-item-title">Add New Vault Item</h3>
+        <button class="btn-icon close-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="item-form" class="modal-body">
+        <input type="hidden" id="item-id">
+        
+        <div class="form-group">
+          <label for="item-type">Item Category</label>
+          <select id="item-type" class="form-select">
+            <option value="login">Login / Account</option>
+            <option value="card">Credit Card</option>
+            <option value="note">Secure Note</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="item-title-input">Title / Website Name</label>
+          <input type="text" id="item-title-input" required placeholder="e.g. Google, GitHub, Netflix...">
+        </div>
+
+        <!-- Login specific fields -->
+        <div id="fields-login" class="category-fields">
+          <div class="form-group">
+            <label for="item-username">Username / Email</label>
+            <input type="text" id="item-username" placeholder="name@example.com or user123">
+          </div>
+
+          <div class="form-group">
+            <label for="item-password">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="item-password" placeholder="Enter or generate password...">
+              <button type="button" class="btn-icon toggle-pass" data-target="item-password">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+              <button type="button" id="btn-modal-gen" class="btn-icon" title="Generate Strong Password">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </button>
+            </div>
+            <div class="strength-bar-container mt-2">
+              <div id="item-strength-bar" class="strength-bar"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="item-url">Website URL</label>
+            <input type="url" id="item-url" placeholder="https://example.com">
+          </div>
+        </div>
+
+        <!-- Card specific fields -->
+        <div id="fields-card" class="category-fields hidden">
+          <div class="form-group">
+            <label for="item-cardholder">Cardholder Name</label>
+            <input type="text" id="item-cardholder" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label for="item-cardnumber">Card Number</label>
+            <input type="text" id="item-cardnumber" placeholder="4532 •••• •••• 8901">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="item-exp">Expiry (MM/YY)</label>
+              <input type="text" id="item-exp" placeholder="12/28">
+            </div>
+            <div class="form-group">
+              <label for="item-cvv">CVV / CVC</label>
+              <input type="password" id="item-cvv" placeholder="123">
+            </div>
+          </div>
+        </div>
+
+        <!-- Note specific fields -->
+        <div id="fields-note" class="category-fields hidden">
+          <div class="form-group">
+            <label for="item-notes">Secure Note Content</label>
+            <textarea id="item-notes" rows="5" placeholder="Write sensitive notes, recovery codes, SSH keys..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-group checkbox-row mt-3">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="item-favorite">
+            <span>Mark as Favorite</span>
+          </label>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline close-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i> Save Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
