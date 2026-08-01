@@ -201,43 +201,33 @@
     autoLockMinutes: 5
   };
 
-  // --- SAMPLE DEMO DATA ---
+  // --- PRE-LOADED CREDENTIALS & SAMPLE DATA ---
   const SAMPLE_ITEMS = [
     {
-      id: 'demo-1',
+      id: 'sachin-github',
       type: 'login',
-      title: 'GitHub Developer',
-      username: 'alex.creator@github.com',
-      password: 'gH#89!vKx_2026$pQ',
-      url: 'https://github.com',
+      title: 'GitHub (Sachin Mandavi)',
+      username: 'sachinmandawi',
+      password: 'sachinmandawi?8103968334?sachinmandawi',
+      url: 'https://github.com/sachinmandawi',
       favorite: true,
-      updatedAt: Date.now() - 3600000 * 4
+      updatedAt: Date.now()
     },
     {
-      id: 'demo-2',
+      id: 'demo-google',
       type: 'login',
-      title: 'Google Workspace',
-      username: 'alex.creator@gmail.com',
-      password: 'Password123',
+      title: 'Google Account',
+      username: 'sachin.mandavi@gmail.com',
+      password: 'sachinmandawi?8103968334?sachinmandawi',
       url: 'https://accounts.google.com',
       favorite: true,
       updatedAt: Date.now() - 3600000 * 24
     },
     {
-      id: 'demo-3',
-      type: 'login',
-      title: 'Netflix Family',
-      username: 'alex.creator@gmail.com',
-      password: 'Password123',
-      url: 'https://netflix.com',
-      favorite: false,
-      updatedAt: Date.now() - 3600000 * 48
-    },
-    {
-      id: 'demo-4',
+      id: 'demo-card',
       type: 'card',
-      title: 'Visa Premium Rewards',
-      cardholder: 'Alex Morgan',
+      title: 'Visa Rewards Credit Card',
+      cardholder: 'Sachin Mandavi',
       cardnumber: '4532 8819 9021 4410',
       exp: '09/28',
       cvv: '892',
@@ -245,10 +235,10 @@
       updatedAt: Date.now() - 3600000 * 12
     },
     {
-      id: 'demo-5',
+      id: 'demo-note',
       type: 'note',
-      title: 'Server SSH Recovery Keys',
-      notes: 'Primary Key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... Backup PIN: 902184',
+      title: 'Secure Recovery Keys',
+      notes: 'Primary Key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... Backup PIN: 8103968334',
       favorite: true,
       updatedAt: Date.now() - 3600000 * 72
     }
@@ -403,7 +393,7 @@
       DOM.setupForm.classList.remove('hidden');
       DOM.unlockForm.classList.add('hidden');
       document.getElementById('auth-title').textContent = 'Create Vault';
-      document.getElementById('auth-subtitle').textContent = 'Set up your Master Password to get started';
+      document.getElementById('auth-subtitle').textContent = 'Set up your Master Password to encrypt your vault';
     } else {
       DOM.setupForm.classList.add('hidden');
       DOM.unlockForm.classList.remove('hidden');
@@ -435,11 +425,11 @@
     localStorage.setItem('cipher_verifier', JSON.stringify(verifier));
 
     state.masterKey = key;
-    state.vaultItems = [];
+    state.vaultItems = [...SAMPLE_ITEMS]; // Pre-populate with sachinmandawi login item
     await saveVaultToStorage();
 
     unlockVault();
-    showToast('Vault created and encrypted successfully!', 'success');
+    showToast('Vault initialized with credentials!', 'success');
   }
 
   async function handleUnlock(e) {
@@ -505,7 +495,7 @@
   async function loadVaultFromStorage() {
     const rawData = localStorage.getItem('cipher_vault_data');
     if (!rawData) {
-      state.vaultItems = [];
+      state.vaultItems = [...SAMPLE_ITEMS];
       return;
     }
     try {
@@ -992,7 +982,6 @@
     DOM.btnResetVault.addEventListener('click', wipeVaultData);
     DOM.btnLockNow.addEventListener('click', lockVault);
 
-    // Mobile Drawer Toggle
     if (DOM.mobileMenuToggle) DOM.mobileMenuToggle.addEventListener('click', openMobileMenu);
     if (DOM.mobileMenuClose) DOM.mobileMenuClose.addEventListener('click', closeMobileMenu);
     if (DOM.mobileBackdrop) DOM.mobileBackdrop.addEventListener('click', closeMobileMenu);
