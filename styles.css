@@ -974,9 +974,10 @@ input:focus, textarea:focus, select:focus {
 .strength-bar-container {
   height: 4px;
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   border-radius: 99px;
   overflow: hidden;
+  margin-top: 0.35rem;
 }
 
 .strength-bar {
@@ -990,6 +991,98 @@ input:focus, textarea:focus, select:focus {
 .strength-bar.fair { width: 66%; background: var(--accent-yellow); }
 .strength-bar.good { width: 85%; background: var(--accent-cyan); }
 .strength-bar.strong { width: 100%; background: var(--accent-green); }
+
+/* --- FAVORITE TOGGLE CARD --- */
+.favorite-toggle-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-top: 1.15rem;
+  transition: all var(--transition-fast);
+}
+
+.favorite-toggle-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.fav-toggle-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 100%;
+}
+
+.fav-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.fav-star-icon {
+  font-size: 1.15rem;
+  color: var(--accent-yellow);
+}
+
+.fav-toggle-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.fav-toggle-text strong {
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.fav-toggle-text span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Custom Switch Slider */
+.switch-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+}
+
+.custom-switch-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.custom-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+  transition: background 0.25s ease;
+}
+
+.custom-switch-slider::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-switch-input:checked + .custom-switch-slider {
+  background: var(--accent-yellow);
+}
+
+.custom-switch-input:checked + .custom-switch-slider::before {
+  transform: translateX(18px);
+}
 
 /* --- MODAL POPUP --- */
 .modal-overlay {

@@ -580,13 +580,13 @@
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                   </button>
                 </div>
-                <div class="strength-bar-container mt-1">
+                <div class="strength-bar-container">
                   <div id="item-strength-bar" class="strength-bar"></div>
                 </div>
               </div>
             </div>
 
-            <div class="form-row">
+            <div class="form-row mt-2">
               <div class="form-group flex-1">
                 <label for="item-totp">2FA Key <span class="sub-text">(TOTP)</span></label>
                 <input type="text" id="item-totp" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" style="font-family:var(--font-mono); text-transform:uppercase;">
@@ -611,7 +611,7 @@
                 <input type="text" id="item-cardnumber" placeholder="4532 •••• •••• 8901">
               </div>
             </div>
-            <div class="form-row">
+            <div class="form-row mt-2">
               <div class="form-group flex-1">
                 <label for="item-exp">Expiry (MM/YY)</label>
                 <input type="text" id="item-exp" placeholder="12/28">
@@ -635,7 +635,7 @@
                 <input type="text" id="item-accountno" placeholder="38492019481">
               </div>
             </div>
-            <div class="form-row">
+            <div class="form-row mt-2">
               <div class="form-group flex-1">
                 <label for="item-ifsc">IFSC Code</label>
                 <input type="text" id="item-ifsc" placeholder="SBIN0001234">
@@ -655,10 +655,20 @@
             </div>
           </div>
 
-          <div class="form-group checkbox-row mt-1">
-            <label class="checkbox-inline">
-              <input type="checkbox" id="item-favorite">
-              <span>Mark as Favorite</span>
+          <!-- Sleek Favorite Toggle Switch Card -->
+          <div class="favorite-toggle-card">
+            <label class="fav-toggle-label" for="item-favorite">
+              <div class="fav-toggle-left">
+                <i class="fa-solid fa-star fav-star-icon"></i>
+                <div class="fav-toggle-text">
+                  <strong>Mark as Favorite</strong>
+                  <span>Quick 1-click access from Favorites category</span>
+                </div>
+              </div>
+              <div class="switch-wrapper">
+                <input type="checkbox" id="item-favorite" class="custom-switch-input">
+                <span class="custom-switch-slider"></span>
+              </div>
             </label>
           </div>
         </div>
