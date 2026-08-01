@@ -21,20 +21,17 @@
   <!-- MASTER PASSWORD / LOCK SCREEN MODAL -->
   <div id="auth-overlay" class="auth-overlay active">
     <div class="auth-card glass-panel">
+      
       <div class="auth-header">
-        <div class="brand-badge">
+        <div class="brand-badge-glow">
           <i class="fa-solid fa-shield-halved brand-icon"></i>
         </div>
-        <h1 id="auth-title">CipherVault</h1>
-        <p id="auth-subtitle">Zero-Knowledge Encrypted Password Manager</p>
+        <h1 id="auth-title">Create Vault</h1>
+        <p id="auth-subtitle">Set up a Master Password to encrypt your vault</p>
       </div>
 
       <!-- Setup Form (Shown if no master password exists) -->
       <form id="setup-form" class="auth-form hidden">
-        <div class="info-banner">
-          <i class="fa-solid fa-lock"></i>
-          <span>Set a strong Master Password. It encrypts your vault using <strong>AES-256-GCM</strong>. We cannot recover it if lost!</span>
-        </div>
         <div class="form-group">
           <label for="setup-password">Create Master Password</label>
           <div class="password-input-wrapper">
@@ -43,12 +40,15 @@
               <i class="fa-regular fa-eye"></i>
             </button>
           </div>
-          <div class="strength-bar-container">
-            <div id="master-strength-bar" class="strength-bar"></div>
+          <div class="strength-meter-box mt-2">
+            <div class="strength-bar-container">
+              <div id="master-strength-bar" class="strength-bar"></div>
+            </div>
+            <span id="master-strength-label" class="strength-text">Minimum 8 characters</span>
           </div>
-          <span id="master-strength-label" class="strength-text">Password Strength</span>
         </div>
-        <div class="form-group">
+
+        <div class="form-group mt-3">
           <label for="setup-confirm">Confirm Master Password</label>
           <div class="password-input-wrapper">
             <input type="password" id="setup-confirm" required placeholder="Repeat master password..." autocomplete="new-password">
@@ -57,7 +57,13 @@
             </button>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">
+
+        <div class="security-banner mt-4">
+          <i class="fa-solid fa-shield-lock"></i>
+          <span>Encrypted via <strong>AES-256-GCM</strong>. Save this password safely—it cannot be reset if lost.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-4">
           <i class="fa-solid fa-key"></i> Initialize Vault
         </button>
       </form>
@@ -73,16 +79,22 @@
             </button>
           </div>
         </div>
+
         <div id="unlock-error" class="error-msg hidden">
-          <i class="fa-solid fa-triangle-exclamation"></i> Incorrect master password!
+          <i class="fa-solid fa-triangle-exclamation"></i> Incorrect master password. Please try again.
         </div>
-        <button type="submit" class="btn btn-primary btn-block">
+
+        <button type="submit" class="btn btn-primary btn-block mt-3">
           <i class="fa-solid fa-unlock"></i> Unlock Vault
         </button>
-        <button type="button" id="btn-reset-vault" class="btn btn-text text-danger mt-3">
-          <i class="fa-solid fa-trash-can"></i> Reset & Clear Vault
-        </button>
+
+        <div class="text-center mt-3">
+          <button type="button" id="btn-reset-vault" class="btn-reset-text">
+            <i class="fa-solid fa-rotate-left"></i> Reset & Wipe Vault Data
+          </button>
+        </div>
       </form>
+
     </div>
   </div>
 
@@ -92,7 +104,7 @@
   <!-- MAIN APP WRAPPER -->
   <div id="app" class="app-container blur-content">
     
-    <!-- SIDEBAR NAVIGATION (Desktop & Mobile Drawer) -->
+    <!-- SIDEBAR NAVIGATION -->
     <aside class="sidebar glass-sidebar" id="sidebar">
       <div class="sidebar-brand">
         <div class="brand-icon-small">
