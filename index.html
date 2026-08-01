@@ -499,19 +499,19 @@
         </div>
 
         <div class="form-group">
-          <label for="item-title-input">Title / Website Name</label>
-          <input type="text" id="item-title-input" required placeholder="e.g. Google, GitHub, Netflix...">
+          <label for="item-title-input">Title / Website Name <span style="color:#ef4444; font-weight:700;">* (Required)</span></label>
+          <input type="text" id="item-title-input" required placeholder="e.g. Google, GitHub, Netflix, Wi-Fi...">
         </div>
 
         <!-- Login specific fields -->
         <div id="fields-login" class="category-fields">
           <div class="form-group">
-            <label for="item-username">Username / Email</label>
+            <label for="item-username">Username / Email <span class="sub-text">(Optional)</span></label>
             <input type="text" id="item-username" placeholder="name@example.com or user123">
           </div>
 
           <div class="form-group">
-            <label for="item-password">Password</label>
+            <label for="item-password">Password <span class="sub-text">(Optional)</span></label>
             <div class="password-input-wrapper">
               <input type="password" id="item-password" placeholder="Enter or generate password...">
               <button type="button" class="btn-icon toggle-pass" data-target="item-password">
@@ -527,7 +527,7 @@
           </div>
 
           <div class="form-group">
-            <label for="item-url">Website URL</label>
+            <label for="item-url">Website URL <span class="sub-text">(Optional)</span></label>
             <input type="url" id="item-url" placeholder="https://example.com">
           </div>
         </div>
@@ -535,20 +535,20 @@
         <!-- Card specific fields -->
         <div id="fields-card" class="category-fields hidden">
           <div class="form-group">
-            <label for="item-cardholder">Cardholder Name</label>
+            <label for="item-cardholder">Cardholder Name <span class="sub-text">(Optional)</span></label>
             <input type="text" id="item-cardholder" placeholder="John Doe">
           </div>
           <div class="form-group">
-            <label for="item-cardnumber">Card Number</label>
+            <label for="item-cardnumber">Card Number <span class="sub-text">(Optional)</span></label>
             <input type="text" id="item-cardnumber" placeholder="4532 •••• •••• 8901">
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="item-exp">Expiry (MM/YY)</label>
+              <label for="item-exp">Expiry (MM/YY) <span class="sub-text">(Optional)</span></label>
               <input type="text" id="item-exp" placeholder="12/28">
             </div>
             <div class="form-group">
-              <label for="item-cvv">CVV / CVC</label>
+              <label for="item-cvv">CVV / CVC <span class="sub-text">(Optional)</span></label>
               <input type="password" id="item-cvv" placeholder="123">
             </div>
           </div>
@@ -557,7 +557,7 @@
         <!-- Note specific fields -->
         <div id="fields-note" class="category-fields hidden">
           <div class="form-group">
-            <label for="item-notes">Secure Note Content</label>
+            <label for="item-notes">Secure Note Content <span class="sub-text">(Optional)</span></label>
             <textarea id="item-notes" rows="5" placeholder="Write sensitive notes, recovery codes, SSH keys..."></textarea>
           </div>
         </div>
