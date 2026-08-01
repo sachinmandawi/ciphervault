@@ -1676,12 +1676,16 @@
           <input type="checkbox" class="label-checkbox" data-tag="${escapeHtml(tag)}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--accent-purple); cursor:pointer; flex-shrink:0;">
           <span style="font-size:0.9rem; font-weight:600; color:${isChecked ? '#fff' : 'var(--text-muted)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">#${escapeHtml(tag)}</span>
         </div>
-        <span class="badge-pill label-badge" style="font-size:0.7rem; flex-shrink:0; background:${isChecked ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
+          <span class="badge-pill label-badge" style="font-size:0.7rem; background:${isChecked ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
+          <button type="button" class="btn-icon btn-delete-label" style="color:var(--accent-red); font-size:0.9rem; padding:0.3rem;" title="Delete globally"><i class="fa-solid fa-trash"></i></button>
+        </div>
       `;
 
       const cb = row.querySelector('.label-checkbox');
       const badge = row.querySelector('.label-badge');
       const labelText = row.querySelector('span');
+      const btnDelLabel = row.querySelector('.btn-delete-label');
 
       const updateRowUI = (checked) => {
         if (checked) {
@@ -1712,8 +1716,28 @@
         updateRowUI(cb.checked);
       });
 
+      if (btnDelLabel) {
+        btnDelLabel.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (confirm(`Are you sure you want to permanently delete the label "#${tag}" from ALL vault items?`)) {
+            tempManageTags = tempManageTags.filter(t => t !== tag);
+            state.vaultItems.forEach(item => {
+              if (Array.isArray(item.tags)) {
+                item.tags = item.tags.filter(t => t.replace(/^#/, '').trim() !== tag);
+              } else if (typeof item.tags === 'string') {
+                item.tags = item.tags.split(/[,#\s]+/).map(t => t.replace(/^#/, '').trim()).filter(t => t && t !== tag).join(',');
+              }
+            });
+            await renderVault();
+            await saveVaultToGitHub();
+            renderLabelCheckmarksList();
+            showToast(`Label #${tag} deleted globally`, 'success');
+          }
+        });
+      }
+
       row.addEventListener('click', (e) => {
-        if (e.target !== cb) {
+        if (e.target !== cb && !e.target.closest('.btn-delete-label')) {
           cb.checked = !cb.checked;
           updateRowUI(cb.checked);
         }
@@ -1965,6 +1989,21 @@
 
     const btnSaveTagsAction = document.getElementById('btn-save-labels-action');
     if (btnSaveTagsAction) btnSaveTagsAction.addEventListener('click', handleSaveItemLabels);
+
+    const btnManualSync = document.getElementById('btn-manual-sync');
+    if (btnManualSync) {
+      btnManualSync.addEventListener('click', async () => {
+        if (!state.masterKey) {
+          showToast('Please unlock vault first', 'warning');
+          return;
+        }
+        btnManualSync.disabled = true;
+        btnManualSync.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Syncing...`;
+        await saveVaultToGitHub();
+        btnManualSync.disabled = false;
+        btnManualSync.innerHTML = `<i class="fa-solid fa-rotate"></i> Force Manual Sync with GitHub`;
+      });
+    }
 
     if (DOM.mobileMenuToggle) DOM.mobileMenuToggle.addEventListener('click', openMobileMenu);
     if (DOM.mobileMenuClose) DOM.mobileMenuClose.addEventListener('click', closeMobileMenu);
