@@ -671,14 +671,6 @@
             <input type="text" id="item-tags" placeholder="e.g. #work, #personal, #crypto">
           </div>
 
-          <!-- ENCRYPTED FILE & DOCUMENT ATTACHMENT FIELD -->
-          <div class="form-group mt-2">
-            <label for="item-attachment-input">Encrypted File Attachment <span class="sub-text">(ID card, PDF, SSH Key - Max 10MB)</span></label>
-            <input type="file" id="item-attachment-input" class="form-control">
-            <div id="attachment-preview-box" class="hidden mt-2" style="background:rgba(99,102,241,0.1); border:1px dashed rgba(99,102,241,0.4); padding:0.65rem 0.85rem; border-radius:10px; display:flex; align-items:center; justify-content:space-between; font-size:0.85rem;">
-              <span id="attachment-name-text" style="color:var(--text-main); font-weight:600;"><i class="fa-solid fa-paperclip text-purple"></i> <span>file.pdf</span></span>
-              <button type="button" id="btn-remove-attachment" class="btn-icon" style="color:#ef4444;" title="Remove Attachment"><i class="fa-solid fa-trash"></i></button>
-            </div>
           </div>
 
         </div>
@@ -720,32 +712,6 @@
     </div>
   </div>
 
-  <!-- ATTACHMENT LIGHTBOX PREVIEW MODAL -->
-  <div id="modal-file-preview" class="modal-overlay">
-    <div class="modal-card glass-panel" style="max-width: 820px; max-height: 92vh;">
-      <div class="modal-header">
-        <div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden;">
-          <i class="fa-solid fa-paperclip" style="color:var(--accent-purple); font-size:1.2rem;"></i>
-          <h3 id="file-preview-title" style="margin:0; font-size:1.1rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Attachment Preview</h3>
-        </div>
-        <button class="btn-icon close-modal"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div class="modal-body" id="file-preview-body" style="display:flex; align-items:center; justify-content:center; overflow:auto; min-height:300px; max-height:72vh; padding:1.25rem; background:rgba(5,7,12,0.92); border-radius:12px; margin:0.85rem 1.25rem 0 1.25rem;">
-        <!-- Dynamic Image / PDF / Text / Code preview rendered here -->
-      </div>
-
-      <div class="modal-footer" style="justify-content:space-between;">
-        <span id="file-preview-info" style="font-size:0.82rem; color:var(--text-muted);">0 KB</span>
-        <div style="display:flex; gap:0.5rem;">
-          <button type="button" id="btn-file-preview-dl" class="btn btn-primary">
-            <i class="fa-solid fa-download"></i> Download File
-          </button>
-          <button type="button" class="btn btn-outline close-modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
   <!-- MANAGE LABELS MODAL -->
   <div id="modal-manage-labels" class="modal-overlay">
     <div class="modal-card glass-panel" style="max-width: 460px;">

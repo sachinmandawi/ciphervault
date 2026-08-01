@@ -354,7 +354,6 @@
     verifierObj: null,
     cachedPayload: null,
     totpTimer: null,
-    currentAttachment: null
   };
 
   // --- DOM ELEMENTS ---
@@ -471,10 +470,6 @@
     itemPin: document.getElementById('item-pin'),
     itemNotes: document.getElementById('item-notes'),
     itemTags: document.getElementById('item-tags'),
-    itemAttachmentInput: document.getElementById('item-attachment-input'),
-    attachmentPreviewBox: document.getElementById('attachment-preview-box'),
-    attachmentNameText: document.getElementById('attachment-name-text'),
-    btnRemoveAttachment: document.getElementById('btn-remove-attachment'),
     btnModalGen: document.getElementById('btn-modal-gen'),
     itemStrengthBar: document.getElementById('item-strength-bar'),
 
@@ -838,61 +833,7 @@
     }
   }
 
-  // --- ATTACHMENT LIGHTBOX PREVIEW HANDLER ---
-  function openAttachmentPreview(attachment) {
-    if (!attachment || !attachment.data) return;
-    const modal = document.getElementById('modal-file-preview');
-    const titleEl = document.getElementById('file-preview-title');
-    const bodyEl = document.getElementById('file-preview-body');
-    const infoEl = document.getElementById('file-preview-info');
-    const dlBtn = document.getElementById('btn-file-preview-dl');
 
-    if (!modal || !bodyEl) return;
-
-    if (titleEl) titleEl.textContent = attachment.name || 'Attachment Preview';
-    if (infoEl) infoEl.textContent = `${(attachment.size / 1024).toFixed(1)} KB • ${attachment.type || 'Encrypted File'}`;
-
-    if (dlBtn) {
-      dlBtn.onclick = () => {
-        downloadFile(attachment.data, attachment.name, attachment.type || 'application/octet-stream');
-        showToast(`Downloaded: ${attachment.name}`, 'success');
-      };
-    }
-
-    const type = (attachment.type || '').toLowerCase();
-    const name = (attachment.name || '').toLowerCase();
-
-    bodyEl.innerHTML = '';
-
-    if (type.startsWith('image/') || /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(name)) {
-      bodyEl.innerHTML = `<img src="${attachment.data}" alt="${escapeHtml(attachment.name)}" style="max-width:100%; max-height:68vh; border-radius:12px; box-shadow:0 12px 35px rgba(0,0,0,0.85); object-fit:contain;">`;
-    } else if (type === 'application/pdf' || name.endsWith('.pdf')) {
-      bodyEl.innerHTML = `<iframe src="${attachment.data}" style="width:100%; height:65vh; border:none; border-radius:10px; background:#ffffff;"></iframe>`;
-    } else if (type.startsWith('text/') || /\.(txt|json|csv|log|md|xml|js|html|py|css)$/i.test(name)) {
-      try {
-        let textContent = '';
-        if (attachment.data.includes(';base64,')) {
-          const b64 = attachment.data.split(';base64,')[1];
-          textContent = decodeURIComponent(escape(window.atob(b64)));
-        } else {
-          textContent = attachment.data;
-        }
-        bodyEl.innerHTML = `<pre style="width:100%; max-height:65vh; overflow:auto; background:rgba(10,13,22,0.95); padding:1.25rem; border-radius:12px; font-family:var(--font-mono); font-size:0.88rem; color:#f8fafc; border:1px solid rgba(255,255,255,0.1); white-space:pre-wrap; word-break:break-all;">${escapeHtml(textContent)}</pre>`;
-      } catch (e) {
-        bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-muted);"><i class="fa-solid fa-file-lines" style="font-size:3rem; margin-bottom:1rem; color:var(--accent-purple);"></i><p>Text preview unavailable for this binary file format.</p></div>`;
-      }
-    } else {
-      bodyEl.innerHTML = `
-        <div style="text-align:center; padding:2rem; color:var(--text-muted);">
-          <i class="fa-solid fa-file-shield" style="font-size:3.5rem; color:var(--accent-purple); margin-bottom:1rem;"></i>
-          <h4 style="color:#fff; font-size:1.1rem; margin-bottom:0.5rem;">${escapeHtml(attachment.name)}</h4>
-          <p style="font-size:0.85rem; max-width:380px; margin:0 auto 1.5rem auto;">Encrypted binary file attachment (${(attachment.size / 1024).toFixed(1)} KB). Click below to download and view locally.</p>
-        </div>
-      `;
-    }
-
-    modal.classList.add('active');
-  }
 
   // --- PREVIEW MODAL LOGIC (1-Click Card Detail View) ---
   async function openPreviewModal(id) {
@@ -1009,29 +950,6 @@
       `;
     }
 
-    if (item.attachment && item.attachment.name) {
-      rowsHtml += `
-        <div style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.3); padding:0.85rem 1rem; border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-top:0.35rem;">
-          <div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden;">
-            <div style="width:36px; height:36px; border-radius:8px; background:rgba(168,85,247,0.2); color:var(--accent-purple); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <i class="fa-solid fa-paperclip"></i>
-            </div>
-            <div style="overflow:hidden;">
-              <span style="font-weight:600; color:#fff; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${escapeHtml(item.attachment.name)}</span>
-              <span style="font-size:0.75rem; color:var(--text-muted);">${(item.attachment.size / 1024).toFixed(1)} KB</span>
-            </div>
-          </div>
-          <div style="display:flex; gap:0.4rem; flex-shrink:0;">
-            <button type="button" class="btn btn-secondary btn-sm btn-preview-file" style="padding:0.4rem 0.75rem; font-size:0.8rem;">
-              <i class="fa-solid fa-eye"></i> Preview
-            </button>
-            <button type="button" class="btn btn-primary btn-sm btn-download-file" style="padding:0.4rem 0.75rem; font-size:0.8rem;">
-              <i class="fa-solid fa-download"></i> Download
-            </button>
-          </div>
-        </div>
-      `;
-    }
 
     rowsHtml += `
       <div style="font-size:0.75rem; color:#64748b; margin-top:0.5rem; text-align:right;">
@@ -1051,17 +969,8 @@
       });
 
       const prevBtn = contentEl.querySelector('.btn-preview-file');
-      if (prevBtn && item.attachment) {
-        prevBtn.addEventListener('click', () => openAttachmentPreview(item.attachment));
-      }
 
       const dlBtn = contentEl.querySelector('.btn-download-file');
-      if (dlBtn && item.attachment) {
-        dlBtn.addEventListener('click', () => {
-          downloadFile(item.attachment.data, item.attachment.name, item.attachment.type || 'application/octet-stream');
-          showToast(`Downloaded encrypted file: ${item.attachment.name}`, 'success');
-        });
-      }
 
       contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
         let shown = false;
@@ -1160,10 +1069,6 @@
         `</div>`;
     }
 
-    let attachmentBadge = '';
-    if (item.attachment && item.attachment.name) {
-      attachmentBadge = `<span title="Has Encrypted File Attachment" style="font-size:0.75rem; color:var(--accent-purple);"><i class="fa-solid fa-paperclip"></i></span>`;
-    }
 
     card.innerHTML = `
       <div class="item-header">
@@ -1171,7 +1076,7 @@
         <div class="item-title-block" style="cursor:pointer;" title="Click to View Details">
           <div class="item-title" style="display:flex; align-items:center; gap:0.35rem;">
             <span>${escapeHtml(item.title)}</span>
-            ${attachmentBadge}
+            
           </div>
           <div class="item-sub">${escapeHtml(subText)}</div>
         </div>
@@ -1464,8 +1369,6 @@
     if (DOM.itemForm) DOM.itemForm.reset();
     if (DOM.itemType) DOM.itemType.value = 'login';
     if (DOM.itemTags) DOM.itemTags.value = '';
-    state.currentAttachment = null;
-    if (DOM.attachmentPreviewBox) DOM.attachmentPreviewBox.classList.add('hidden');
     switchCategoryFields('login');
     if (DOM.itemStrengthBar) DOM.itemStrengthBar.className = 'strength-bar';
     DOM.modalItem.classList.add('active');
@@ -1494,13 +1397,6 @@
     if (DOM.itemNotes) DOM.itemNotes.value = item.notes || '';
     if (DOM.itemTags) DOM.itemTags.value = item.tags ? item.tags.map(t => `#${t}`).join(', ') : '';
 
-    state.currentAttachment = item.attachment || null;
-    if (state.currentAttachment && DOM.attachmentPreviewBox) {
-      if (DOM.attachmentNameText) DOM.attachmentNameText.innerHTML = `<i class="fa-solid fa-paperclip text-purple"></i> ${escapeHtml(state.currentAttachment.name)}`;
-      DOM.attachmentPreviewBox.classList.remove('hidden');
-    } else if (DOM.attachmentPreviewBox) {
-      DOM.attachmentPreviewBox.classList.add('hidden');
-    }
 
     switchCategoryFields(item.type || 'login');
     if (item.password) updateItemPasswordStrength(item.password);
@@ -1562,7 +1458,6 @@
       pin: DOM.itemPin ? DOM.itemPin.value.trim() : '',
       notes: DOM.itemNotes ? DOM.itemNotes.value.trim() : '',
       tags: cleanTags,
-      attachment: state.currentAttachment,
       favorite: id ? (state.vaultItems.find(i => i.id === id)?.favorite || false) : false,
       updatedAt: Date.now(),
       createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now()
@@ -2023,41 +1918,6 @@
       });
     }
 
-    // Encrypted File Attachment Input Listener (Max 10MB)
-    if (DOM.itemAttachmentInput) {
-      DOM.itemAttachmentInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        if (file.size > 10 * 1024 * 1024) {
-          showToast('File size limit exceeded (Max 10MB)', 'error');
-          e.target.value = '';
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function (evt) {
-          state.currentAttachment = {
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            data: evt.target.result
-          };
-          if (DOM.attachmentNameText) DOM.attachmentNameText.innerHTML = `<i class="fa-solid fa-paperclip text-purple"></i> ${escapeHtml(file.name)}`;
-          if (DOM.attachmentPreviewBox) DOM.attachmentPreviewBox.classList.remove('hidden');
-          showToast(`Attached file: ${file.name}`, 'info');
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    if (DOM.btnRemoveAttachment) {
-      DOM.btnRemoveAttachment.addEventListener('click', () => {
-        state.currentAttachment = null;
-        if (DOM.itemAttachmentInput) DOM.itemAttachmentInput.value = '';
-        if (DOM.attachmentPreviewBox) DOM.attachmentPreviewBox.classList.add('hidden');
-        showToast('Attachment removed', 'info');
-      });
-    }
 
     const allSidebarButtons = document.querySelectorAll('.sidebar-nav .nav-item');
     function setActiveSidebarButton(targetBtn) {
