@@ -1355,6 +1355,7 @@
   }
 
   function updateCountsAndStats() {
+    const all = state.vaultItems;
     const notDeleted = state.vaultItems.filter(i => !i.deleted);
     const countAll = notDeleted.filter(i => !i.archived).length;
     const countLogin = notDeleted.filter(i => !i.archived && i.type === 'login').length;
