@@ -755,6 +755,62 @@
     }
   }
 
+  // --- ATTACHMENT LIGHTBOX PREVIEW HANDLER ---
+  function openAttachmentPreview(attachment) {
+    if (!attachment || !attachment.data) return;
+    const modal = document.getElementById('modal-file-preview');
+    const titleEl = document.getElementById('file-preview-title');
+    const bodyEl = document.getElementById('file-preview-body');
+    const infoEl = document.getElementById('file-preview-info');
+    const dlBtn = document.getElementById('btn-file-preview-dl');
+
+    if (!modal || !bodyEl) return;
+
+    if (titleEl) titleEl.textContent = attachment.name || 'Attachment Preview';
+    if (infoEl) infoEl.textContent = `${(attachment.size / 1024).toFixed(1)} KB • ${attachment.type || 'Encrypted File'}`;
+
+    if (dlBtn) {
+      dlBtn.onclick = () => {
+        downloadFile(attachment.data, attachment.name, attachment.type || 'application/octet-stream');
+        showToast(`Downloaded: ${attachment.name}`, 'success');
+      };
+    }
+
+    const type = (attachment.type || '').toLowerCase();
+    const name = (attachment.name || '').toLowerCase();
+
+    bodyEl.innerHTML = '';
+
+    if (type.startsWith('image/') || /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(name)) {
+      bodyEl.innerHTML = `<img src="${attachment.data}" alt="${escapeHtml(attachment.name)}" style="max-width:100%; max-height:68vh; border-radius:12px; box-shadow:0 12px 35px rgba(0,0,0,0.85); object-fit:contain;">`;
+    } else if (type === 'application/pdf' || name.endsWith('.pdf')) {
+      bodyEl.innerHTML = `<iframe src="${attachment.data}" style="width:100%; height:65vh; border:none; border-radius:10px; background:#ffffff;"></iframe>`;
+    } else if (type.startsWith('text/') || /\.(txt|json|csv|log|md|xml|js|html|py|css)$/i.test(name)) {
+      try {
+        let textContent = '';
+        if (attachment.data.includes(';base64,')) {
+          const b64 = attachment.data.split(';base64,')[1];
+          textContent = decodeURIComponent(escape(window.atob(b64)));
+        } else {
+          textContent = attachment.data;
+        }
+        bodyEl.innerHTML = `<pre style="width:100%; max-height:65vh; overflow:auto; background:rgba(10,13,22,0.95); padding:1.25rem; border-radius:12px; font-family:var(--font-mono); font-size:0.88rem; color:#f8fafc; border:1px solid rgba(255,255,255,0.1); white-space:pre-wrap; word-break:break-all;">${escapeHtml(textContent)}</pre>`;
+      } catch (e) {
+        bodyEl.innerHTML = `<div style="text-align:center; color:var(--text-muted);"><i class="fa-solid fa-file-lines" style="font-size:3rem; margin-bottom:1rem; color:var(--accent-purple);"></i><p>Text preview unavailable for this binary file format.</p></div>`;
+      }
+    } else {
+      bodyEl.innerHTML = `
+        <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+          <i class="fa-solid fa-file-shield" style="font-size:3.5rem; color:var(--accent-purple); margin-bottom:1rem;"></i>
+          <h4 style="color:#fff; font-size:1.1rem; margin-bottom:0.5rem;">${escapeHtml(attachment.name)}</h4>
+          <p style="font-size:0.85rem; max-width:380px; margin:0 auto 1.5rem auto;">Encrypted binary file attachment (${(attachment.size / 1024).toFixed(1)} KB). Click below to download and view locally.</p>
+        </div>
+      `;
+    }
+
+    modal.classList.add('active');
+  }
+
   // --- PREVIEW MODAL LOGIC (1-Click Card Detail View) ---
   async function openPreviewModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
@@ -868,9 +924,14 @@
               <span style="font-size:0.75rem; color:var(--text-muted);">${(item.attachment.size / 1024).toFixed(1)} KB</span>
             </div>
           </div>
-          <button type="button" class="btn btn-primary btn-sm btn-download-file" style="padding:0.4rem 0.75rem; font-size:0.8rem;">
-            <i class="fa-solid fa-download"></i> Download
-          </button>
+          <div style="display:flex; gap:0.4rem; flex-shrink:0;">
+            <button type="button" class="btn btn-secondary btn-sm btn-preview-file" style="padding:0.4rem 0.75rem; font-size:0.8rem;">
+              <i class="fa-solid fa-eye"></i> Preview
+            </button>
+            <button type="button" class="btn btn-primary btn-sm btn-download-file" style="padding:0.4rem 0.75rem; font-size:0.8rem;">
+              <i class="fa-solid fa-download"></i> Download
+            </button>
+          </div>
         </div>
       `;
     }
@@ -891,6 +952,11 @@
       contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
         btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
       });
+
+      const prevBtn = contentEl.querySelector('.btn-preview-file');
+      if (prevBtn && item.attachment) {
+        prevBtn.addEventListener('click', () => openAttachmentPreview(item.attachment));
+      }
 
       const dlBtn = contentEl.querySelector('.btn-download-file');
       if (dlBtn && item.attachment) {
