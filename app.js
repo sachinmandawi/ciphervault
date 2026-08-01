@@ -1030,7 +1030,7 @@
 
   async function createItemCard(item) {
     const card = document.createElement('div');
-    card.className = `item-card glass-panel color-${item.color || 'default'}`;
+    card.className = 'item-card glass-panel';
 
     let iconHtml = '<i class="fa-solid fa-globe"></i>';
     if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
@@ -1081,7 +1081,7 @@
         <div class="item-title-block" style="cursor:pointer;" title="Click to View Details">
           <div class="item-title" style="display:flex; align-items:center; gap:0.35rem;">
             <span>${escapeHtml(item.title)}</span>
-            
+            ${item.favorite ? '<i class="fa-solid fa-star" style="color:var(--accent-yellow); font-size:0.85rem;" title="Pinned"></i>' : ''}
           </div>
           <div class="item-sub">${escapeHtml(subText)}</div>
         </div>
@@ -1303,13 +1303,25 @@
   function getFilteredAndSortedItems() {
     let items = [...state.vaultItems];
 
-    if (state.currentCategory !== 'all') {
-      if (state.currentCategory === 'favorite') {
-        items = items.filter(i => i.favorite);
-      } else {
-        items = items.filter(i => i.type === state.currentCategory);
-      }
-    }
+    const cat = state.currentCategory;
+    const isTrash = (cat === 'trash');
+    const isArchive = (cat === 'archive');
+
+    items = items.filter(item => {
+      // Trash view logic
+      if (isTrash) return item.deleted === true;
+      if (item.deleted === true) return false;
+
+      // Archive view logic
+      if (isArchive) return item.archived === true;
+      if (item.archived === true && cat !== 'favorite' && !state.selectedTag) return false;
+
+      // Other category logic
+      if (cat === 'favorite') return item.favorite === true;
+      if (cat !== 'all' && cat !== 'trash' && cat !== 'archive') return item.type === cat;
+      
+      return true;
+    });
 
     if (state.selectedTag) {
       items = items.filter(i => i.tags && i.tags.includes(state.selectedTag));
@@ -1343,13 +1355,15 @@
   }
 
   function updateCountsAndStats() {
-    const all = state.vaultItems;
-    const countAll = all.length;
-    const countLogin = all.filter(i => i.type === 'login').length;
-    const countCard = all.filter(i => i.type === 'card').length;
-    const countBank = all.filter(i => i.type === 'bank').length;
-    const countNote = all.filter(i => i.type === 'note').length;
-    const countFav = all.filter(i => i.favorite).length;
+    const notDeleted = state.vaultItems.filter(i => !i.deleted);
+    const countAll = notDeleted.filter(i => !i.archived).length;
+    const countLogin = notDeleted.filter(i => !i.archived && i.type === 'login').length;
+    const countCard = notDeleted.filter(i => !i.archived && i.type === 'card').length;
+    const countBank = notDeleted.filter(i => !i.archived && i.type === 'bank').length;
+    const countNote = notDeleted.filter(i => !i.archived && i.type === 'note').length;
+    const countFav = notDeleted.filter(i => i.favorite).length;
+    const countArchive = notDeleted.filter(i => i.archived).length;
+    const countTrash = state.vaultItems.filter(i => i.deleted).length;
 
     if (DOM.countAll) DOM.countAll.textContent = countAll;
     if (DOM.countLogin) DOM.countLogin.textContent = countLogin;
@@ -1357,6 +1371,9 @@
     if (DOM.countBank) DOM.countBank.textContent = countBank;
     if (DOM.countNote) DOM.countNote.textContent = countNote;
     if (DOM.countFav) DOM.countFav.textContent = countFav;
+    if (DOM.countArchive) DOM.countArchive.textContent = countArchive;
+    if (DOM.countTrash) DOM.countTrash.textContent = countTrash;
+
 
     if (DOM.sidebarTagsContainer) {
       const tagSet = new Set();
@@ -1533,6 +1550,8 @@
       notes: DOM.itemNotes ? DOM.itemNotes.value.trim() : '',
       tags: cleanTags,
       favorite: id ? (state.vaultItems.find(i => i.id === id)?.favorite || false) : false,
+      archived: id ? (state.vaultItems.find(i => i.id === id)?.archived || false) : false,
+      deleted: id ? (state.vaultItems.find(i => i.id === id)?.deleted || false) : false,
       updatedAt: Date.now(),
       createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now()
     };
