@@ -1469,10 +1469,15 @@
       updateItemPasswordStrength(e.target.value);
     });
 
+    const allSidebarButtons = document.querySelectorAll('.sidebar-nav .nav-item');
+    function setActiveSidebarButton(targetBtn) {
+      allSidebarButtons.forEach(b => b.classList.remove('active'));
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+
     DOM.navItems.forEach(btn => {
       btn.addEventListener('click', async () => {
-        DOM.navItems.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        setActiveSidebarButton(btn);
         state.currentCategory = btn.dataset.category;
         switchView(DOM.viewVault);
         await renderVault();
@@ -1481,6 +1486,7 @@
     });
 
     DOM.navAuth.addEventListener('click', () => {
+      setActiveSidebarButton(DOM.navAuth);
       render2FAAuthenticatorView();
       switchView(DOM.viewAuth);
       closeMobileMenu();
@@ -1491,15 +1497,20 @@
     }
 
     DOM.navGen.addEventListener('click', () => {
+      setActiveSidebarButton(DOM.navGen);
       switchView(DOM.viewGen);
       closeMobileMenu();
     });
+
     DOM.navSec.addEventListener('click', () => {
+      setActiveSidebarButton(DOM.navSec);
       renderSecurityAudit();
       switchView(DOM.viewSec);
       closeMobileMenu();
     });
+
     DOM.navSet.addEventListener('click', () => {
+      setActiveSidebarButton(DOM.navSet);
       switchView(DOM.viewSet);
       closeMobileMenu();
     });
@@ -1667,7 +1678,8 @@
 
   function formatDate(timestamp) {
     if (!timestamp || isNaN(timestamp)) return 'Recently';
-    const date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   // --- INITIALIZATION ---
