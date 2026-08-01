@@ -948,7 +948,21 @@
       rowsHtml += createDetailRow('IFSC / Routing Code', item.ifsc);
       rowsHtml += createDetailRow('ATM / UPI PIN', item.pin, true);
     } else if (item.type === 'note') {
-      rowsHtml += createDetailRow('Secure Note', item.notes);
+      if (item.notes) {
+        rowsHtml += `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(139,92,246,0.3); padding:1rem 1.25rem; border-radius:12px; display:flex; flex-direction:column; gap:0.6rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-size:0.75rem; color:var(--accent-purple); text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">
+                <i class="fa-regular fa-note-sticky"></i> Secure Note Content
+              </span>
+              <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(item.notes)}" title="Copy Note Content">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+            <div style="font-family:var(--font-mono); font-size:0.92rem; color:#f8fafc; line-height:1.6; white-space:pre-wrap; word-break:break-word; background:rgba(8,11,18,0.85); padding:1rem 1.15rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08); max-height:450px; overflow-y:auto;">${escapeHtml(item.notes)}</div>
+          </div>
+        `;
+      }
     }
 
     if (item.tags && item.tags.length > 0) {
@@ -1150,22 +1164,26 @@
       </div>
 
       <div class="item-body" title="Click to View Details">
-        <span class="item-pass-hidden" id="pass-text-${item.id}">${displayPass}</span>
-        <div class="item-card-btns">
-          ${item.password || item.pin || item.cvv ? `
-            <button type="button" class="btn-icon btn-toggle-vis" data-id="${item.id}" title="Toggle Show/Hide">
-              <i class="fa-regular fa-eye"></i>
-            </button>
-            <button type="button" class="btn-icon btn-copy-pass" data-id="${item.id}" title="Copy Code">
-              <i class="fa-regular fa-copy"></i>
-            </button>
-          ` : ''}
-          ${item.type === 'login' && item.url ? `
-            <a href="${escapeHtml(item.url)}" target="_blank" class="btn-icon" title="Open Link" onclick="event.stopPropagation();">
-              <i class="fa-solid fa-arrow-up-right-from-square"></i>
-            </a>
-          ` : ''}
-        </div>
+        ${item.type === 'note' && item.notes ? `
+          <div style="font-family:var(--font-mono); font-size:0.85rem; color:#f8fafc; line-height:1.5; white-space:pre-wrap; word-break:break-word; max-height:85px; overflow:hidden; width:100%;">${escapeHtml(item.notes)}</div>
+        ` : `
+          <span class="item-pass-hidden" id="pass-text-${item.id}">${displayPass}</span>
+          <div class="item-card-btns">
+            ${item.password || item.pin || item.cvv ? `
+              <button type="button" class="btn-icon btn-toggle-vis" data-id="${item.id}" title="Toggle Show/Hide">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+              <button type="button" class="btn-icon btn-copy-pass" data-id="${item.id}" title="Copy Code">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            ` : ''}
+            ${item.type === 'login' && item.url ? `
+              <a href="${escapeHtml(item.url)}" target="_blank" class="btn-icon" title="Open Link" onclick="event.stopPropagation();">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </a>
+            ` : ''}
+          </div>
+        `}
       </div>
 
       ${totpHtml}
