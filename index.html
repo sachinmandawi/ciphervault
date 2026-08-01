@@ -183,8 +183,8 @@
       </div>
 
       <div class="sidebar-footer">
-        <button id="btn-lock-now" class="btn btn-outline btn-block">
-          <i class="fa-solid fa-lock"></i> Lock Vault
+        <button id="btn-lock-now" class="btn btn-outline btn-block text-danger-hover" style="border-color: rgba(239, 68, 68, 0.35); color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout Account
         </button>
       </div>
     </aside>
@@ -476,11 +476,11 @@
 
             <div class="setting-card glass-panel">
               <h3><i class="fa-solid fa-clock"></i> Session & Lock Timeout</h3>
-              <p>Configure session lock timeout. By default, stays logged in until you explicitly click "Lock Vault".</p>
+              <p>Configure session lock timeout. By default, stays logged in until you explicitly click "Logout Account".</p>
               <div class="form-group mt-4">
                 <label for="setting-autolock">Auto-Lock Timeout</label>
                 <select id="setting-autolock" class="form-select">
-                  <option value="0" selected>Never (Lock Manually Only)</option>
+                  <option value="0" selected>Never (Logout Manually Only)</option>
                   <option value="1">1 Minute</option>
                   <option value="5">5 Minutes</option>
                   <option value="15">15 Minutes</option>

@@ -630,7 +630,7 @@
     checkMasterStatus();
     if (state.autoLockTimer) clearTimeout(state.autoLockTimer);
     if (state.totpTimer) clearInterval(state.totpTimer);
-    showToast('Vault locked for security', 'info');
+    showToast('Logged out successfully!', 'info');
   }
 
   function resetAutoLockTimer() {
@@ -1580,7 +1580,7 @@
     DOM.settingAutolock.addEventListener('change', (e) => {
       state.autoLockMinutes = parseInt(e.target.value, 10);
       resetAutoLockTimer();
-      const txt = state.autoLockMinutes === 0 ? 'Auto-lock disabled (Manual Lock Only)' : `Auto-lock set to ${state.autoLockMinutes} mins`;
+      const txt = state.autoLockMinutes === 0 ? 'Auto-lock disabled (Manual Logout Only)' : `Auto-lock set to ${state.autoLockMinutes} mins`;
       showToast(txt, 'info');
     });
 
@@ -1667,8 +1667,7 @@
 
   function formatDate(timestamp) {
     if (!timestamp || isNaN(timestamp)) return 'Recently';
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+    const date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   // --- INITIALIZATION ---
