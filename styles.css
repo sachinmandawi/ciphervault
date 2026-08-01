@@ -1406,7 +1406,7 @@ input:focus, textarea:focus, select:focus {
 .toast.error i { color: var(--accent-red); }
 .toast.info i { color: var(--accent-purple); }
 
-/* --- RESPONSIVE MEDIA QUERIES --- */
+/* --- FULL MULTI-DEVICE RESPONSIVE BREAKPOINTS --- */
 .mobile-only { display: none !important; }
 
 .mobile-backdrop {
@@ -1425,6 +1425,14 @@ input:focus, textarea:focus, select:focus {
   pointer-events: auto;
 }
 
+/* Laptops & Compact Desktops (max-width: 1280px) */
+@media (max-width: 1280px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablets & iPads (max-width: 1024px) */
 @media (max-width: 1024px) {
   .settings-grid { grid-template-columns: 1fr; }
   .gen-metrics { grid-template-columns: 1fr; }
