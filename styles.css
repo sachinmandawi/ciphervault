@@ -642,6 +642,25 @@ select option,
   z-index: 10;
 }
 
+.item-card[draggable="true"] {
+  cursor: grab;
+}
+
+.item-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.item-card.dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+  border-color: var(--accent-purple);
+}
+
+.item-card.drag-over {
+  border-top: 2px dashed var(--accent-purple);
+  padding-top: 1.5rem;
+}
+
 .item-header {
   display: flex;
   align-items: center;
