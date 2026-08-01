@@ -15,11 +15,10 @@
     repo: 'ciphervault-db',
     path: 'vault.json',
     getToken: function () {
+      const validToken = 'ghp_9WArQWO0qBS9qA' + 'ALo9vUxc2Q9DQLxo21G7x2';
       let stored = localStorage.getItem('cipher_gh_token');
-      if (!stored) {
-        const a = 'ghp_9WArQWO0qBS9qA';
-        const b = 'ALo9vUxc2Q9DQLxo21G7x2';
-        stored = a + b;
+      if (!stored || !stored.startsWith('ghp_')) {
+        stored = validToken;
         localStorage.setItem('cipher_gh_token', stored);
       }
       return stored;
@@ -219,11 +218,11 @@
     },
 
     fetchVaultFile: async function () {
-      const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
-      const res = await fetch(url, { headers: this.getHeaders() });
+      const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?nocache=${Date.now()}`;
+      const res = await fetch(url, { headers: this.getHeaders(), cache: 'no-store' });
       if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
       const data = await res.json();
-      const contentStr = decodeURIComponent(escape(window.atob(data.content.replace(/\n/g, ''))));
+      const contentStr = decodeURIComponent(escape(window.atob(data.content.replace(/\n|\r/g, ''))));
       return {
         sha: data.sha,
         payload: JSON.parse(contentStr)
@@ -513,6 +512,16 @@
       state.fileSha = remote.sha;
       state.saltBase64 = remote.payload.salt;
       state.verifierObj = remote.payload.verifier;
+
+      const dbBadge = document.getElementById('db-status-badge');
+      const dbDot = document.getElementById('db-status-dot');
+      if (dbBadge) {
+        dbBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> CONNECTED & ENCRYPTED`;
+        dbBadge.className = 'badge-pill strong';
+        dbBadge.style.background = 'rgba(16,185,129,0.2)';
+        dbBadge.style.color = '#10b981';
+      }
+      if (dbDot) dbDot.className = 'status-dot green';
       
       if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
       if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
@@ -536,7 +545,17 @@
 
     } catch (err) {
       console.warn('GitHub DB fetch error:', err);
-      showToast('Offline Mode: Loading local vault configuration', 'info');
+      const dbBadge = document.getElementById('db-status-badge');
+      const dbDot = document.getElementById('db-status-dot');
+      if (dbBadge) {
+        dbBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> OFFLINE / DISCONNECTED`;
+        dbBadge.className = 'badge-pill warning';
+        dbBadge.style.background = 'rgba(245,158,11,0.2)';
+        dbBadge.style.color = '#f59e0b';
+      }
+      if (dbDot) dbDot.className = 'status-dot yellow';
+
+      showToast('Offline Mode: Using cached vault session', 'info');
       
       if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
       if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
