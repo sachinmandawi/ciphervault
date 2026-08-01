@@ -1150,6 +1150,10 @@
               <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
               <span>${item.favorite ? 'Unfavorite' : 'Mark Favorite'}</span>
             </button>
+            <button type="button" class="dropdown-item btn-manage-labels">
+              <i class="fa-solid fa-tags"></i>
+              <span>Manage Labels</span>
+            </button>
             <button type="button" class="dropdown-item btn-edit">
               <i class="fa-solid fa-pen-to-square"></i>
               <span>Edit Item</span>
@@ -1238,6 +1242,15 @@
         e.stopPropagation();
         if (menuDropdown) menuDropdown.classList.add('hidden');
         toggleFavorite(item.id);
+      });
+    }
+
+    const btnManageLabels = card.querySelector('.btn-manage-labels');
+    if (btnManageLabels) {
+      btnManageLabels.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        openManageLabelsModal(item.id);
       });
     }
 
@@ -1553,6 +1566,132 @@
     }
   }
 
+  // --- INTERACTIVE LABEL & TAG MANAGEMENT POPUP ---
+  let tempManageTags = [];
+  let currentManageItemId = null;
+
+  function openManageLabelsModal(itemId) {
+    const item = state.vaultItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    currentManageItemId = itemId;
+    tempManageTags = [...(item.tags || [])];
+
+    const input = document.getElementById('input-new-label-name');
+    if (input) input.value = '';
+
+    renderLabelCheckmarksList();
+
+    const modal = document.getElementById('modal-manage-labels');
+    if (modal) modal.classList.add('active');
+  }
+
+  function renderLabelCheckmarksList() {
+    const container = document.getElementById('labels-checkmark-list');
+    if (!container) return;
+
+    const allTags = new Set();
+    state.vaultItems.forEach(i => {
+      if (i.tags && Array.isArray(i.tags)) {
+        i.tags.forEach(t => allTags.add(t));
+      }
+    });
+    tempManageTags.forEach(t => allTags.add(t));
+
+    const tagsArray = Array.from(allTags);
+    container.innerHTML = '';
+
+    if (tagsArray.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;">
+          <i class="fa-solid fa-tags" style="font-size:1.5rem; margin-bottom:0.5rem; color:var(--text-dim);"></i><br>
+          No labels created yet. Type a label name above to create your first label!
+        </div>
+      `;
+      return;
+    }
+
+    tagsArray.forEach(tag => {
+      const isChecked = tempManageTags.includes(tag);
+      const row = document.createElement('div');
+      row.className = 'label-checkmark-row';
+      row.style.cssText = `
+        display:flex; align-items:center; justify-content:space-between;
+        padding:0.65rem 0.85rem; border-radius:10px;
+        background:${isChecked ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.03)'};
+        border:1px solid ${isChecked ? 'rgba(139,92,246,0.35)' : 'rgba(255,255,255,0.08)'};
+        cursor:pointer; transition:all 0.15s ease;
+      `;
+
+      row.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden;">
+          <input type="checkbox" class="label-checkbox" data-tag="${escapeHtml(tag)}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--accent-purple); cursor:pointer;">
+          <span style="font-size:0.9rem; font-weight:600; color:${isChecked ? '#fff' : 'var(--text-muted)'};">#${escapeHtml(tag)}</span>
+        </div>
+        <span class="badge-pill" style="font-size:0.7rem; background:${isChecked ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
+      `;
+
+      row.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'INPUT') {
+          const cb = row.querySelector('.label-checkbox');
+          if (cb) {
+            cb.checked = !cb.checked;
+            toggleTagSelection(tag, cb.checked);
+          }
+        }
+      });
+
+      const cb = row.querySelector('.label-checkbox');
+      if (cb) {
+        cb.addEventListener('change', (e) => {
+          toggleTagSelection(tag, e.target.checked);
+        });
+      }
+
+      container.appendChild(row);
+    });
+  }
+
+  function toggleTagSelection(tag, isChecked) {
+    if (isChecked) {
+      if (!tempManageTags.includes(tag)) tempManageTags.push(tag);
+    } else {
+      tempManageTags = tempManageTags.filter(t => t !== tag);
+    }
+    renderLabelCheckmarksList();
+  }
+
+  function handleAddNewLabel() {
+    const input = document.getElementById('input-new-label-name');
+    if (!input) return;
+    const rawVal = input.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (!rawVal) {
+      showToast('Please type a valid label name!', 'error');
+      return;
+    }
+
+    if (!tempManageTags.includes(rawVal)) {
+      tempManageTags.push(rawVal);
+    }
+    input.value = '';
+    renderLabelCheckmarksList();
+    showToast(`Added label #${rawVal}`, 'info');
+  }
+
+  async function handleSaveItemLabels() {
+    if (!currentManageItemId) return;
+    const item = state.vaultItems.find(i => i.id === currentManageItemId);
+    if (!item) return;
+
+    item.tags = [...tempManageTags];
+    item.updatedAt = Date.now();
+
+    await renderVault();
+    closeModal();
+    await saveVaultToGitHub();
+    showToast(`Labels updated for ${item.title}!`, 'success');
+  }
+
   // --- SECURITY AUDIT VIEW GENERATION ---
   function renderSecurityAudit() {
     if (!DOM.viewSec) return;
@@ -1748,6 +1887,22 @@
     }
 
     if (DOM.btnDangerWipe) DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
+
+    const btnAddTagAction = document.getElementById('btn-add-label-action');
+    if (btnAddTagAction) btnAddTagAction.addEventListener('click', handleAddNewLabel);
+
+    const inputNewTagAction = document.getElementById('input-new-label-name');
+    if (inputNewTagAction) {
+      inputNewTagAction.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleAddNewLabel();
+        }
+      });
+    }
+
+    const btnSaveTagsAction = document.getElementById('btn-save-labels-action');
+    if (btnSaveTagsAction) btnSaveTagsAction.addEventListener('click', handleSaveItemLabels);
 
     if (DOM.mobileMenuToggle) DOM.mobileMenuToggle.addEventListener('click', openMobileMenu);
     if (DOM.mobileMenuClose) DOM.mobileMenuClose.addEventListener('click', closeMobileMenu);

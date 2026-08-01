@@ -740,6 +740,48 @@
         </div>
       </div>
     </div>
+  <!-- MANAGE LABELS MODAL -->
+  <div id="modal-manage-labels" class="modal-overlay">
+    <div class="modal-card glass-panel" style="max-width: 460px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <i class="fa-solid fa-tags" style="color:var(--accent-purple); font-size:1.2rem;"></i>
+          <h3 style="margin:0; font-size:1.1rem; color:#fff;">Manage Item Labels</h3>
+        </div>
+        <button class="btn-icon close-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body" style="gap:1.25rem;">
+        <!-- Top Section: Create New Label -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(139,92,246,0.25); padding:1rem; border-radius:12px;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--accent-purple); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:0.5rem;">
+            <i class="fa-solid fa-plus"></i> Create New Label
+          </label>
+          <div style="display:flex; gap:0.5rem;">
+            <input type="text" id="input-new-label-name" class="form-control" placeholder="Type label name (e.g. work, crypto)..." style="font-size:0.88rem;">
+            <button type="button" id="btn-add-label-action" class="btn btn-primary" style="padding:0.55rem 1rem; flex-shrink:0;">
+              <i class="fa-solid fa-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Section: Existing Labels with Checkmarks -->
+        <div>
+          <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:0.65rem;">
+            <i class="fa-solid fa-list-check"></i> Assign Existing Labels
+          </label>
+          <div id="labels-checkmark-list" style="display:flex; flex-direction:column; gap:0.5rem; max-height:260px; overflow-y:auto; padding-right:0.25rem;">
+            <!-- Dynamically populated label checkmarks -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="btn-save-labels-action" class="btn btn-primary" style="width:100%;">
+          <i class="fa-solid fa-check"></i> Save & Apply Labels
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- TOAST NOTIFICATION CONTAINER -->
