@@ -1,7 +1,7 @@
 /**
  * CIPHERVAULT - Zero-Knowledge Password Manager Engine
  * Database: Private GitHub Repository (`sachinmandawi/ciphervault-db`)
- * Technology: Web Crypto API (SubtleCrypto PBKDF2 + AES-GCM 256-bit), LocalStorage, GitHub REST API
+ * Session Handling: Tab Session Persistence via SessionStorage (Persists on F5 Refresh)
  */
 
 (function () {
@@ -409,7 +409,6 @@
   // --- MASTER LOCK & PRIVATE GITHUB DB SYNC ---
   async function checkMasterStatus() {
     try {
-      showToast('Connecting to Private GitHub DB...', 'info');
       const remote = await GitHubDB.fetchVaultFile();
       state.fileSha = remote.sha;
       state.saltBase64 = remote.payload.salt;
@@ -419,6 +418,21 @@
       DOM.unlockForm.classList.remove('hidden');
       document.getElementById('auth-title').textContent = 'CipherVault Login';
       document.getElementById('auth-subtitle').textContent = 'Private GitHub DB Connected';
+
+      // Check if session exists in SessionStorage (Survives F5 Refresh!)
+      const savedPass = sessionStorage.getItem('cipher_active_pass');
+      if (savedPass) {
+        const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
+        const key = await CryptoEngine.deriveKey(savedPass, new Uint8Array(salt));
+        const isValid = await CryptoEngine.verifyKey(state.verifierObj, key);
+        if (isValid) {
+          state.masterKey = key;
+          await loadVaultFromGitHub(key);
+          unlockVault();
+          return;
+        }
+      }
+
     } catch (err) {
       console.warn('GitHub DB fetch error:', err);
       showToast('Offline Mode: Loading local vault configuration', 'info');
@@ -456,6 +470,8 @@
 
       if (isValid) {
         state.masterKey = key;
+        // Save active pass to SessionStorage for smooth F5 refresh support
+        sessionStorage.setItem('cipher_active_pass', pass);
         await loadVaultFromGitHub(key);
         unlockVault();
         showToast(`Unlocked! Synced with Private Repo (ciphervault-db)`, 'success');
@@ -515,6 +531,7 @@
   function lockVault() {
     state.masterKey = null;
     state.vaultItems = [];
+    sessionStorage.removeItem('cipher_active_pass');
     DOM.authOverlay.classList.add('active');
     DOM.app.classList.add('blur-content');
     checkMasterStatus();
@@ -988,6 +1005,7 @@
   async function wipeVaultData() {
     if (confirm('WARNING: Are you completely sure? This will delete all encrypted passwords and reset your master password!')) {
       localStorage.clear();
+      sessionStorage.clear();
       state.masterKey = null;
       state.vaultItems = [];
       location.reload();
