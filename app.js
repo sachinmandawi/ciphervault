@@ -455,17 +455,18 @@
 
   // --- MOBILE DRAWER HANDLERS ---
   function openMobileMenu() {
-    DOM.sidebar.classList.add('mobile-open');
-    DOM.mobileBackdrop.classList.add('active');
+    if (DOM.sidebar) DOM.sidebar.classList.add('mobile-open');
+    if (DOM.mobileBackdrop) DOM.mobileBackdrop.classList.add('active');
   }
 
   function closeMobileMenu() {
-    DOM.sidebar.classList.remove('mobile-open');
-    DOM.mobileBackdrop.classList.remove('active');
+    if (DOM.sidebar) DOM.sidebar.classList.remove('mobile-open');
+    if (DOM.mobileBackdrop) DOM.mobileBackdrop.classList.remove('active');
   }
 
   // --- TOAST NOTIFICATIONS ---
   function showToast(message, type = 'info') {
+    if (!DOM.toastContainer) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     let iconClass = 'fa-info-circle';
@@ -504,10 +505,12 @@
       state.saltBase64 = remote.payload.salt;
       state.verifierObj = remote.payload.verifier;
       
-      DOM.setupForm.classList.add('hidden');
-      DOM.unlockForm.classList.remove('hidden');
-      document.getElementById('auth-title').textContent = 'CipherVault Login';
-      document.getElementById('auth-subtitle').textContent = 'Private GitHub DB Connected';
+      if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
+      if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
+      const titleEl = document.getElementById('auth-title');
+      const subEl = document.getElementById('auth-subtitle');
+      if (titleEl) titleEl.textContent = 'CipherVault Login';
+      if (subEl) subEl.textContent = 'Private GitHub DB Connected';
 
       // Check if session exists in SessionStorage (Survives F5 Refresh!)
       const savedPass = sessionStorage.getItem('cipher_active_pass');
@@ -527,23 +530,23 @@
       console.warn('GitHub DB fetch error:', err);
       showToast('Offline Mode: Loading local vault configuration', 'info');
       
-      DOM.setupForm.classList.add('hidden');
-      DOM.unlockForm.classList.remove('hidden');
+      if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
+      if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
     }
 
-    DOM.unlockUser.value = '';
-    DOM.unlockPass.value = '';
+    if (DOM.unlockUser) DOM.unlockUser.value = '';
+    if (DOM.unlockPass) DOM.unlockPass.value = '';
   }
 
   async function handleUnlock(e) {
-    e.preventDefault();
-    const user = DOM.unlockUser.value.trim();
-    const pass = DOM.unlockPass.value;
-    DOM.unlockError.classList.add('hidden');
+    if (e) e.preventDefault();
+    const user = DOM.unlockUser ? DOM.unlockUser.value.trim() : '';
+    const pass = DOM.unlockPass ? DOM.unlockPass.value : '';
+    if (DOM.unlockError) DOM.unlockError.classList.add('hidden');
 
     try {
       if (user !== GITHUB_CONFIG.owner) {
-        DOM.unlockError.classList.remove('hidden');
+        if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
         return;
       }
 
@@ -565,10 +568,10 @@
         unlockVault();
         showToast(`Unlocked! Synced with Private Repo (ciphervault-db)`, 'success');
       } else {
-        DOM.unlockError.classList.remove('hidden');
+        if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
       }
     } catch (err) {
-      DOM.unlockError.classList.remove('hidden');
+      if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
     }
   }
 
@@ -613,8 +616,8 @@
   }
 
   function unlockVault() {
-    DOM.authOverlay.classList.remove('active');
-    DOM.app.classList.remove('blur-content');
+    if (DOM.authOverlay) DOM.authOverlay.classList.remove('active');
+    if (DOM.app) DOM.app.classList.remove('blur-content');
     renderVault();
     resetAutoLockTimer();
     startTOTPTimer();
@@ -624,8 +627,8 @@
     state.masterKey = null;
     state.vaultItems = [];
     sessionStorage.removeItem('cipher_active_pass');
-    DOM.authOverlay.classList.add('active');
-    DOM.app.classList.add('blur-content');
+    if (DOM.authOverlay) DOM.authOverlay.classList.add('active');
+    if (DOM.app) DOM.app.classList.add('blur-content');
     checkMasterStatus();
     if (state.autoLockTimer) clearTimeout(state.autoLockTimer);
     if (state.totpTimer) clearInterval(state.totpTimer);
@@ -760,10 +763,10 @@
     if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
     if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
     if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
-    iconEl.innerHTML = iconHtml;
+    if (iconEl) iconEl.innerHTML = iconHtml;
 
-    titleEl.textContent = item.title;
-    catBadge.textContent = (item.type || 'login').toUpperCase();
+    if (titleEl) titleEl.textContent = item.title;
+    if (catBadge) catBadge.textContent = (item.type || 'login').toUpperCase();
 
     let rowsHtml = '';
 
@@ -841,32 +844,37 @@
       </div>
     `;
 
-    contentEl.innerHTML = rowsHtml;
+    if (contentEl) contentEl.innerHTML = rowsHtml;
 
-    contentEl.querySelectorAll('.btn-copy-row-val').forEach(btn => {
-      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Copied to clipboard!'));
-    });
-
-    contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
-      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
-    });
-
-    contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
-      let shown = false;
-      btn.addEventListener('click', () => {
-        shown = !shown;
-        const target = document.getElementById(btn.dataset.target);
-        target.textContent = shown ? btn.dataset.real : '••••••••••••';
-        btn.querySelector('i').className = shown ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+    if (contentEl) {
+      contentEl.querySelectorAll('.btn-copy-row-val').forEach(btn => {
+        btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Copied to clipboard!'));
       });
-    });
 
-    editBtn.onclick = () => {
-      modal.classList.remove('active');
-      openEditModal(item.id);
-    };
+      contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
+        btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
+      });
 
-    modal.classList.add('active');
+      contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
+        let shown = false;
+        btn.addEventListener('click', () => {
+          shown = !shown;
+          const target = document.getElementById(btn.dataset.target);
+          if (target) target.textContent = shown ? btn.dataset.real : '••••••••••••';
+          const icon = btn.querySelector('i');
+          if (icon) icon.className = shown ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+        });
+      });
+    }
+
+    if (editBtn) {
+      editBtn.onclick = () => {
+        if (modal) modal.classList.remove('active');
+        openEditModal(item.id);
+      };
+    }
+
+    if (modal) modal.classList.add('active');
   }
 
   // --- RENDER VAULT ITEMS ---
@@ -874,16 +882,17 @@
     const items = getFilteredAndSortedItems();
     updateCountsAndStats();
 
+    if (!DOM.itemsContainer) return;
     DOM.itemsContainer.innerHTML = '';
 
     if (items.length === 0) {
       DOM.itemsContainer.classList.add('hidden');
-      DOM.emptyState.classList.remove('hidden');
+      if (DOM.emptyState) DOM.emptyState.classList.remove('hidden');
       return;
     }
 
     DOM.itemsContainer.classList.remove('hidden');
-    DOM.emptyState.classList.add('hidden');
+    if (DOM.emptyState) DOM.emptyState.classList.add('hidden');
 
     if (state.currentViewMode === 'list') {
       DOM.itemsContainer.classList.add('list-view');
@@ -1012,49 +1021,66 @@
     const menuBtn = card.querySelector('.btn-card-menu');
     const menuDropdown = card.querySelector('.card-dropdown-menu');
 
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.querySelectorAll('.card-dropdown-menu').forEach(m => {
-        if (m !== menuDropdown) m.classList.add('hidden');
+    if (menuBtn && menuDropdown) {
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.card-dropdown-menu').forEach(m => {
+          if (m !== menuDropdown) m.classList.add('hidden');
+        });
+        menuDropdown.classList.toggle('hidden');
       });
-      menuDropdown.classList.toggle('hidden');
-    });
+    }
 
     // 3-Dots Menu Item Click Actions
-    card.querySelector('.btn-star').addEventListener('click', (e) => {
-      e.stopPropagation();
-      menuDropdown.classList.add('hidden');
-      toggleFavorite(item.id);
-    });
+    const btnStar = card.querySelector('.btn-star');
+    if (btnStar) {
+      btnStar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        toggleFavorite(item.id);
+      });
+    }
 
-    card.querySelector('.btn-edit').addEventListener('click', (e) => {
-      e.stopPropagation();
-      menuDropdown.classList.add('hidden');
-      openEditModal(item.id);
-    });
+    const btnEdit = card.querySelector('.btn-edit');
+    if (btnEdit) {
+      btnEdit.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        openEditModal(item.id);
+      });
+    }
 
-    card.querySelector('.btn-delete').addEventListener('click', (e) => {
-      e.stopPropagation();
-      menuDropdown.classList.add('hidden');
-      deleteItem(item.id);
-    });
+    const btnDel = card.querySelector('.btn-delete');
+    if (btnDel) {
+      btnDel.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        deleteItem(item.id);
+      });
+    }
 
     const secretVal = item.password || item.pin || item.cvv;
     if (secretVal) {
-      card.querySelector('.btn-copy-pass').addEventListener('click', (e) => {
-        e.stopPropagation();
-        copyToClipboard(secretVal, 'Copied to clipboard!');
-      });
+      const copyBtn = card.querySelector('.btn-copy-pass');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          copyToClipboard(secretVal, 'Copied to clipboard!');
+        });
+      }
       
       const toggleVisBtn = card.querySelector('.btn-toggle-vis');
-      let isVis = false;
-      toggleVisBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        isVis = !isVis;
-        const targetSpan = document.getElementById(`pass-text-${item.id}`);
-        targetSpan.textContent = isVis ? secretVal : '••••••••••••';
-        toggleVisBtn.querySelector('i').className = isVis ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
-      });
+      if (toggleVisBtn) {
+        let isVis = false;
+        toggleVisBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          isVis = !isVis;
+          const targetSpan = document.getElementById(`pass-text-${item.id}`);
+          if (targetSpan) targetSpan.textContent = isVis ? secretVal : '••••••••••••';
+          const icon = toggleVisBtn.querySelector('i');
+          if (icon) icon.className = isVis ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+        });
+      }
     }
 
     return card;
@@ -1106,12 +1132,12 @@
     const countNote = all.filter(i => i.type === 'note').length;
     const countFav = all.filter(i => i.favorite).length;
 
-    DOM.countAll.textContent = countAll;
-    DOM.countLogin.textContent = countLogin;
-    DOM.countCard.textContent = countCard;
+    if (DOM.countAll) DOM.countAll.textContent = countAll;
+    if (DOM.countLogin) DOM.countLogin.textContent = countLogin;
+    if (DOM.countCard) DOM.countCard.textContent = countCard;
     if (DOM.countBank) DOM.countBank.textContent = countBank;
-    DOM.countNote.textContent = countNote;
-    DOM.countFav.textContent = countFav;
+    if (DOM.countNote) DOM.countNote.textContent = countNote;
+    if (DOM.countFav) DOM.countFav.textContent = countFav;
 
     let weakCount = 0;
     const passMap = {};
@@ -1132,11 +1158,11 @@
 
     const scorePct = countAll === 0 ? 100 : Math.max(0, Math.round(100 - (weakCount * 12) - (reusedCount * 15)));
 
-    DOM.statTotal.textContent = countAll;
-    DOM.statScore.textContent = `${scorePct}%`;
-    DOM.statReused.textContent = reusedCount;
-    DOM.statWeak.textContent = weakCount;
-    DOM.countWeakBadge.textContent = weakCount;
+    if (DOM.statTotal) DOM.statTotal.textContent = countAll;
+    if (DOM.statScore) DOM.statScore.textContent = `${scorePct}%`;
+    if (DOM.statReused) DOM.statReused.textContent = reusedCount;
+    if (DOM.statWeak) DOM.statWeak.textContent = weakCount;
+    if (DOM.countWeakBadge) DOM.countWeakBadge.textContent = weakCount;
 
     const catTitles = {
       all: 'All Items',
@@ -1146,42 +1172,43 @@
       note: 'Secure Notes',
       favorite: 'Favorite Items'
     };
-    DOM.currentCatTitle.textContent = catTitles[state.currentCategory] || 'Vault Items';
-    DOM.itemsCounter.textContent = `${getFilteredAndSortedItems().length} items displayed`;
+    if (DOM.currentCatTitle) DOM.currentCatTitle.textContent = catTitles[state.currentCategory] || 'Vault Items';
+    if (DOM.itemsCounter) DOM.itemsCounter.textContent = `${getFilteredAndSortedItems().length} items displayed`;
   }
 
   // --- ITEM CRUD & MODAL ---
   function openAddModal() {
-    DOM.modalItemTitle.textContent = 'Add New Vault Item';
-    DOM.itemId.value = '';
-    DOM.itemForm.reset();
-    DOM.itemType.value = 'login';
+    if (!DOM.modalItem) return;
+    if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Add New Vault Item';
+    if (DOM.itemId) DOM.itemId.value = '';
+    if (DOM.itemForm) DOM.itemForm.reset();
+    if (DOM.itemType) DOM.itemType.value = 'login';
     switchCategoryFields('login');
-    DOM.itemStrengthBar.className = 'strength-bar';
+    if (DOM.itemStrengthBar) DOM.itemStrengthBar.className = 'strength-bar';
     DOM.modalItem.classList.add('active');
   }
 
   function openEditModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
-    if (!item) return;
+    if (!item || !DOM.modalItem) return;
 
-    DOM.modalItemTitle.textContent = 'Edit Vault Item';
-    DOM.itemId.value = item.id;
-    DOM.itemType.value = item.type || 'login';
-    DOM.itemTitleInput.value = item.title || '';
-    DOM.itemUsername.value = item.username || '';
-    DOM.itemPassword.value = item.password || '';
+    if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Edit Vault Item';
+    if (DOM.itemId) DOM.itemId.value = item.id;
+    if (DOM.itemType) DOM.itemType.value = item.type || 'login';
+    if (DOM.itemTitleInput) DOM.itemTitleInput.value = item.title || '';
+    if (DOM.itemUsername) DOM.itemUsername.value = item.username || '';
+    if (DOM.itemPassword) DOM.itemPassword.value = item.password || '';
     if (DOM.itemTotp) DOM.itemTotp.value = item.totp || '';
-    DOM.itemUrl.value = item.url || '';
-    DOM.itemCardholder.value = item.cardholder || '';
-    DOM.itemCardnumber.value = item.cardnumber || '';
-    DOM.itemExp.value = item.exp || '';
-    DOM.itemCvv.value = item.cvv || '';
+    if (DOM.itemUrl) DOM.itemUrl.value = item.url || '';
+    if (DOM.itemCardholder) DOM.itemCardholder.value = item.cardholder || '';
+    if (DOM.itemCardnumber) DOM.itemCardnumber.value = item.cardnumber || '';
+    if (DOM.itemExp) DOM.itemExp.value = item.exp || '';
+    if (DOM.itemCvv) DOM.itemCvv.value = item.cvv || '';
     if (DOM.itemBankname) DOM.itemBankname.value = item.bankname || '';
     if (DOM.itemAccountno) DOM.itemAccountno.value = item.accountno || '';
     if (DOM.itemIfsc) DOM.itemIfsc.value = item.ifsc || '';
     if (DOM.itemPin) DOM.itemPin.value = item.pin || '';
-    DOM.itemNotes.value = item.notes || '';
+    if (DOM.itemNotes) DOM.itemNotes.value = item.notes || '';
 
     switchCategoryFields(item.type || 'login');
     if (item.password) updateItemPasswordStrength(item.password);
@@ -1190,23 +1217,28 @@
   }
 
   function closeModal() {
-    DOM.modalItem.classList.remove('active');
+    if (DOM.modalItem) DOM.modalItem.classList.remove('active');
     const prevModal = document.getElementById('modal-preview');
     if (prevModal) prevModal.classList.remove('active');
   }
 
   function switchCategoryFields(type) {
-    document.getElementById('fields-login').classList.toggle('hidden', type !== 'login');
-    document.getElementById('fields-card').classList.toggle('hidden', type !== 'card');
-    document.getElementById('fields-bank').classList.toggle('hidden', type !== 'bank');
-    document.getElementById('fields-note').classList.toggle('hidden', type !== 'note');
+    const fLogin = document.getElementById('fields-login');
+    const fCard = document.getElementById('fields-card');
+    const fBank = document.getElementById('fields-bank');
+    const fNote = document.getElementById('fields-note');
+
+    if (fLogin) fLogin.classList.toggle('hidden', type !== 'login');
+    if (fCard) fCard.classList.toggle('hidden', type !== 'card');
+    if (fBank) fBank.classList.toggle('hidden', type !== 'bank');
+    if (fNote) fNote.classList.toggle('hidden', type !== 'note');
   }
 
   async function handleSaveItem(e) {
-    e.preventDefault();
-    const id = DOM.itemId.value;
-    const type = DOM.itemType.value;
-    const title = DOM.itemTitleInput.value.trim();
+    if (e) e.preventDefault();
+    const id = DOM.itemId ? DOM.itemId.value : '';
+    const type = DOM.itemType ? DOM.itemType.value : 'login';
+    const title = DOM.itemTitleInput ? DOM.itemTitleInput.value.trim() : '';
 
     if (!title) {
       showToast('Please enter a title for this item!', 'error');
@@ -1217,19 +1249,19 @@
       id: id || 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
       type: type,
       title: title,
-      username: DOM.itemUsername.value.trim(),
-      password: DOM.itemPassword.value,
+      username: DOM.itemUsername ? DOM.itemUsername.value.trim() : '',
+      password: DOM.itemPassword ? DOM.itemPassword.value : '',
       totp: DOM.itemTotp ? DOM.itemTotp.value.trim().toUpperCase() : '',
-      url: DOM.itemUrl.value.trim(),
-      cardholder: DOM.itemCardholder.value.trim(),
-      cardnumber: DOM.itemCardnumber.value.trim(),
-      exp: DOM.itemExp.value.trim(),
-      cvv: DOM.itemCvv.value.trim(),
+      url: DOM.itemUrl ? DOM.itemUrl.value.trim() : '',
+      cardholder: DOM.itemCardholder ? DOM.itemCardholder.value.trim() : '',
+      cardnumber: DOM.itemCardnumber ? DOM.itemCardnumber.value.trim() : '',
+      exp: DOM.itemExp ? DOM.itemExp.value.trim() : '',
+      cvv: DOM.itemCvv ? DOM.itemCvv.value.trim() : '',
       bankname: DOM.itemBankname ? DOM.itemBankname.value.trim() : '',
       accountno: DOM.itemAccountno ? DOM.itemAccountno.value.trim() : '',
       ifsc: DOM.itemIfsc ? DOM.itemIfsc.value.trim() : '',
       pin: DOM.itemPin ? DOM.itemPin.value.trim() : '',
-      notes: DOM.itemNotes.value.trim(),
+      notes: DOM.itemNotes ? DOM.itemNotes.value.trim() : '',
       favorite: id ? (state.vaultItems.find(i => i.id === id)?.favorite || false) : false,
       updatedAt: Date.now(),
       createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now()
@@ -1243,7 +1275,7 @@
     }
 
     await renderVault();
-    if (DOM.viewAuth.classList.contains('active')) render2FAAuthenticatorView();
+    if (DOM.viewAuth && DOM.viewAuth.classList.contains('active')) render2FAAuthenticatorView();
 
     closeModal();
     await saveVaultToGitHub();
@@ -1253,7 +1285,7 @@
     if (confirm('Are you sure you want to delete this vault item?')) {
       state.vaultItems = state.vaultItems.filter(i => i.id !== id);
       await renderVault();
-      if (DOM.viewAuth.classList.contains('active')) render2FAAuthenticatorView();
+      if (DOM.viewAuth && DOM.viewAuth.classList.contains('active')) render2FAAuthenticatorView();
 
       await saveVaultToGitHub();
       showToast('Item deleted from vault.', 'info');
@@ -1271,7 +1303,9 @@
 
   // --- SECURITY AUDIT VIEW GENERATION ---
   function renderSecurityAudit() {
+    if (!DOM.viewSec) return;
     const container = DOM.viewSec.querySelector('#security-audit-container');
+    if (!container) return;
     const all = state.vaultItems;
 
     let weakItems = [];
@@ -1488,10 +1522,10 @@
     showToast('Cleaned up all 100 test items!', 'info');
   };
 
-  // --- EVENT LISTENERS SETUP ---
+  // --- SAFE EVENT LISTENERS SETUP ---
   function setupEventListeners() {
-    DOM.unlockForm.addEventListener('submit', handleUnlock);
-    DOM.btnLockNow.addEventListener('click', lockVault);
+    if (DOM.unlockForm) DOM.unlockForm.addEventListener('submit', handleUnlock);
+    if (DOM.btnLockNow) DOM.btnLockNow.addEventListener('click', lockVault);
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.card-dropdown-wrapper')) {
@@ -1502,19 +1536,21 @@
     if (DOM.dangerWipeInput) {
       DOM.dangerWipeInput.addEventListener('input', (e) => {
         const val = e.target.value.trim();
-        DOM.btnDangerWipe.disabled = (val !== 'DELETE');
+        if (DOM.btnDangerWipe) DOM.btnDangerWipe.disabled = (val !== 'DELETE');
       });
     }
 
-    DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
+    if (DOM.btnDangerWipe) DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
 
     if (DOM.mobileMenuToggle) DOM.mobileMenuToggle.addEventListener('click', openMobileMenu);
     if (DOM.mobileMenuClose) DOM.mobileMenuClose.addEventListener('click', closeMobileMenu);
     if (DOM.mobileBackdrop) DOM.mobileBackdrop.addEventListener('click', closeMobileMenu);
 
-    DOM.itemPassword.addEventListener('input', (e) => {
-      updateItemPasswordStrength(e.target.value);
-    });
+    if (DOM.itemPassword) {
+      DOM.itemPassword.addEventListener('input', (e) => {
+        updateItemPasswordStrength(e.target.value);
+      });
+    }
 
     const allSidebarButtons = document.querySelectorAll('.sidebar-nav .nav-item');
     function setActiveSidebarButton(targetBtn) {
@@ -1532,115 +1568,145 @@
       });
     });
 
-    DOM.navAuth.addEventListener('click', () => {
-      setActiveSidebarButton(DOM.navAuth);
-      render2FAAuthenticatorView();
-      switchView(DOM.viewAuth);
-      closeMobileMenu();
-    });
+    if (DOM.navAuth) {
+      DOM.navAuth.addEventListener('click', () => {
+        setActiveSidebarButton(DOM.navAuth);
+        render2FAAuthenticatorView();
+        switchView(DOM.viewAuth);
+        closeMobileMenu();
+      });
+    }
 
     if (DOM.btnAdd2fa) {
       DOM.btnAdd2fa.addEventListener('click', openAddModal);
     }
 
-    DOM.navGen.addEventListener('click', () => {
-      setActiveSidebarButton(DOM.navGen);
-      switchView(DOM.viewGen);
-      closeMobileMenu();
-    });
+    if (DOM.navGen) {
+      DOM.navGen.addEventListener('click', () => {
+        setActiveSidebarButton(DOM.navGen);
+        switchView(DOM.viewGen);
+        closeMobileMenu();
+      });
+    }
 
-    DOM.navSec.addEventListener('click', () => {
-      setActiveSidebarButton(DOM.navSec);
-      renderSecurityAudit();
-      switchView(DOM.viewSec);
-      closeMobileMenu();
-    });
+    if (DOM.navSec) {
+      DOM.navSec.addEventListener('click', () => {
+        setActiveSidebarButton(DOM.navSec);
+        renderSecurityAudit();
+        switchView(DOM.viewSec);
+        closeMobileMenu();
+      });
+    }
 
-    DOM.navSet.addEventListener('click', () => {
-      setActiveSidebarButton(DOM.navSet);
-      switchView(DOM.viewSet);
-      closeMobileMenu();
-    });
+    if (DOM.navSet) {
+      DOM.navSet.addEventListener('click', () => {
+        setActiveSidebarButton(DOM.navSet);
+        switchView(DOM.viewSet);
+        closeMobileMenu();
+      });
+    }
 
-    DOM.searchInput.addEventListener('input', async (e) => {
-      state.searchQuery = e.target.value;
-      DOM.clearSearch.classList.toggle('hidden', !state.searchQuery);
-      await renderVault();
-    });
+    if (DOM.searchInput) {
+      DOM.searchInput.addEventListener('input', async (e) => {
+        state.searchQuery = e.target.value;
+        if (DOM.clearSearch) DOM.clearSearch.classList.toggle('hidden', !state.searchQuery);
+        await renderVault();
+      });
+    }
 
-    DOM.clearSearch.addEventListener('click', async () => {
-      DOM.searchInput.value = '';
-      state.searchQuery = '';
-      DOM.clearSearch.classList.add('hidden');
-      await renderVault();
-    });
+    if (DOM.clearSearch) {
+      DOM.clearSearch.addEventListener('click', async () => {
+        if (DOM.searchInput) DOM.searchInput.value = '';
+        state.searchQuery = '';
+        DOM.clearSearch.classList.add('hidden');
+        await renderVault();
+      });
+    }
 
-    DOM.sortSelect.addEventListener('change', async (e) => {
-      state.sortBy = e.target.value;
-      await renderVault();
-    });
+    if (DOM.sortSelect) {
+      DOM.sortSelect.addEventListener('change', async (e) => {
+        state.sortBy = e.target.value;
+        await renderVault();
+      });
+    }
 
-    DOM.btnViewGrid.addEventListener('click', async () => {
-      state.currentViewMode = 'grid';
-      DOM.btnViewGrid.classList.add('active');
-      DOM.btnViewList.classList.remove('active');
-      await renderVault();
-    });
+    if (DOM.btnViewGrid) {
+      DOM.btnViewGrid.addEventListener('click', async () => {
+        state.currentViewMode = 'grid';
+        DOM.btnViewGrid.classList.add('active');
+        if (DOM.btnViewList) DOM.btnViewList.classList.remove('active');
+        await renderVault();
+      });
+    }
 
-    DOM.btnViewList.addEventListener('click', async () => {
-      state.currentViewMode = 'list';
-      DOM.btnViewList.classList.add('active');
-      DOM.btnViewGrid.classList.remove('active');
-      await renderVault();
-    });
+    if (DOM.btnViewList) {
+      DOM.btnViewList.addEventListener('click', async () => {
+        state.currentViewMode = 'list';
+        DOM.btnViewList.classList.add('active');
+        if (DOM.btnViewGrid) DOM.btnViewGrid.classList.remove('active');
+        await renderVault();
+      });
+    }
 
-    DOM.btnAddItem.addEventListener('click', openAddModal);
-    DOM.btnEmptyAdd.addEventListener('click', openAddModal);
-    DOM.btnQuickGen.addEventListener('click', () => {
-      updateGeneratorView();
-      switchView(DOM.viewGen);
-    });
+    if (DOM.btnAddItem) DOM.btnAddItem.addEventListener('click', openAddModal);
+    if (DOM.btnEmptyAdd) DOM.btnEmptyAdd.addEventListener('click', openAddModal);
+    if (DOM.btnQuickGen) {
+      DOM.btnQuickGen.addEventListener('click', () => {
+        updateGeneratorView();
+        switchView(DOM.viewGen);
+      });
+    }
 
-    DOM.genLength.addEventListener('input', (e) => {
-      DOM.genLengthVal.textContent = e.target.value;
-      updateGeneratorView();
-    });
+    if (DOM.genLength) {
+      DOM.genLength.addEventListener('input', (e) => {
+        if (DOM.genLengthVal) DOM.genLengthVal.textContent = e.target.value;
+        updateGeneratorView();
+      });
+    }
 
     [DOM.genUpper, DOM.genLower, DOM.genNum, DOM.genSym, DOM.genAvoid].forEach(chk => {
-      chk.addEventListener('change', updateGeneratorView);
+      if (chk) chk.addEventListener('change', updateGeneratorView);
     });
 
-    DOM.btnRegen.addEventListener('click', updateGeneratorView);
-    DOM.btnCopyGen.addEventListener('click', () => {
-      copyToClipboard(DOM.genResult.textContent, 'Generated password copied!');
-    });
-
-    DOM.btnModalGen.addEventListener('click', () => {
-      const pass = Generator.generate({
-        length: 20, uppercase: true, lowercase: true, numbers: true, symbols: true
+    if (DOM.btnRegen) DOM.btnRegen.addEventListener('click', updateGeneratorView);
+    if (DOM.btnCopyGen) {
+      DOM.btnCopyGen.addEventListener('click', () => {
+        if (DOM.genResult) copyToClipboard(DOM.genResult.textContent, 'Generated password copied!');
       });
-      DOM.itemPassword.value = pass;
-      updateItemPasswordStrength(pass);
-      showToast('Generated strong password!', 'info');
-    });
+    }
 
-    DOM.itemForm.addEventListener('submit', handleSaveItem);
+    if (DOM.btnModalGen) {
+      DOM.btnModalGen.addEventListener('click', () => {
+        const pass = Generator.generate({
+          length: 20, uppercase: true, lowercase: true, numbers: true, symbols: true
+        });
+        if (DOM.itemPassword) DOM.itemPassword.value = pass;
+        updateItemPasswordStrength(pass);
+        showToast('Generated strong password!', 'info');
+      });
+    }
+
+    if (DOM.itemForm) DOM.itemForm.addEventListener('submit', handleSaveItem);
     document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', closeModal));
-    DOM.itemType.addEventListener('change', (e) => switchCategoryFields(e.target.value));
+    if (DOM.itemType) DOM.itemType.addEventListener('change', (e) => switchCategoryFields(e.target.value));
 
-    DOM.btnExportEncrypted.addEventListener('click', exportEncryptedBackup);
-    DOM.btnExportCsv.addEventListener('click', exportCSV);
-    DOM.btnTriggerImport.addEventListener('click', () => DOM.importFileInput.click());
-    DOM.importFileInput.addEventListener('change', (e) => {
-      if (e.target.files[0]) handleImportFile(e.target.files[0]);
-    });
+    if (DOM.btnExportEncrypted) DOM.btnExportEncrypted.addEventListener('click', exportEncryptedBackup);
+    if (DOM.btnExportCsv) DOM.btnExportCsv.addEventListener('click', exportCSV);
+    if (DOM.btnTriggerImport && DOM.importFileInput) {
+      DOM.btnTriggerImport.addEventListener('click', () => DOM.importFileInput.click());
+      DOM.importFileInput.addEventListener('change', (e) => {
+        if (e.target.files[0]) handleImportFile(e.target.files[0]);
+      });
+    }
 
-    DOM.settingAutolock.addEventListener('change', (e) => {
-      state.autoLockMinutes = parseInt(e.target.value, 10);
-      resetAutoLockTimer();
-      const txt = state.autoLockMinutes === 0 ? 'Auto-lock disabled (Manual Logout Only)' : `Auto-lock set to ${state.autoLockMinutes} mins`;
-      showToast(txt, 'info');
-    });
+    if (DOM.settingAutolock) {
+      DOM.settingAutolock.addEventListener('change', (e) => {
+        state.autoLockMinutes = parseInt(e.target.value, 10);
+        resetAutoLockTimer();
+        const txt = state.autoLockMinutes === 0 ? 'Auto-lock disabled (Manual Logout Only)' : `Auto-lock set to ${state.autoLockMinutes} mins`;
+        showToast(txt, 'info');
+      });
+    }
 
     document.querySelectorAll('.toggle-pass').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1660,36 +1726,41 @@
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === '/') {
         e.preventDefault();
-        DOM.searchInput.focus();
+        if (DOM.searchInput) DOM.searchInput.focus();
       }
     });
   }
 
   function switchView(targetView) {
+    if (!targetView) return;
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     targetView.classList.add('active');
   }
 
   function updateGeneratorView() {
+    if (!DOM.genResult) return;
     const opts = {
-      length: parseInt(DOM.genLength.value, 10),
-      uppercase: DOM.genUpper.checked,
-      lowercase: DOM.genLower.checked,
-      numbers: DOM.genNum.checked,
-      symbols: DOM.genSym.checked,
-      avoidSimilar: DOM.genAvoid.checked
+      length: DOM.genLength ? parseInt(DOM.genLength.value, 10) : 20,
+      uppercase: DOM.genUpper ? DOM.genUpper.checked : true,
+      lowercase: DOM.genLower ? DOM.genLower.checked : true,
+      numbers: DOM.genNum ? DOM.genNum.checked : true,
+      symbols: DOM.genSym ? DOM.genSym.checked : true,
+      avoidSimilar: DOM.genAvoid ? DOM.genAvoid.checked : false
     };
     const pass = Generator.generate(opts);
     DOM.genResult.textContent = pass;
 
     const metrics = Generator.calculateStrength(pass);
-    DOM.genStrengthBadge.textContent = metrics.text;
-    DOM.genStrengthBadge.className = `badge-pill ${metrics.score}`;
-    DOM.genEntropyVal.textContent = `${metrics.entropy} bits`;
-    DOM.genCrackTime.textContent = metrics.crackTime;
+    if (DOM.genStrengthBadge) {
+      DOM.genStrengthBadge.textContent = metrics.text;
+      DOM.genStrengthBadge.className = `badge-pill ${metrics.score}`;
+    }
+    if (DOM.genEntropyVal) DOM.genEntropyVal.textContent = `${metrics.entropy} bits`;
+    if (DOM.genCrackTime) DOM.crackTime = metrics.crackTime;
   }
 
   function updateItemPasswordStrength(pass) {
+    if (!DOM.itemStrengthBar) return;
     const st = Generator.calculateStrength(pass);
     DOM.itemStrengthBar.className = `strength-bar ${st.score}`;
   }
