@@ -1030,7 +1030,7 @@
 
   async function createItemCard(item) {
     const card = document.createElement('div');
-    card.className = 'item-card glass-panel';
+    card.className = `item-card glass-panel color-${item.color || 'default'}`;
 
     let iconHtml = '<i class="fa-solid fa-globe"></i>';
     if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
@@ -1090,23 +1090,35 @@
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </button>
           <div class="card-dropdown-menu hidden">
-            <button type="button" class="dropdown-item btn-star ${item.favorite ? 'active' : ''}">
-              <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
-              <span>${item.favorite ? 'Unfavorite' : 'Mark Favorite'}</span>
-            </button>
-            <button type="button" class="dropdown-item btn-manage-labels">
-              <i class="fa-solid fa-tags"></i>
-              <span>Manage Labels</span>
-            </button>
-            <button type="button" class="dropdown-item btn-edit">
-              <i class="fa-solid fa-pen-to-square"></i>
-              <span>Edit Item</span>
-            </button>
-            <div class="dropdown-divider"></div>
-            <button type="button" class="dropdown-item btn-delete text-danger">
-              <i class="fa-solid fa-trash"></i>
-              <span>Delete Item</span>
-            </button>
+            ${item.deleted ? `
+              <button type="button" class="dropdown-item btn-restore"><i class="fa-solid fa-rotate-left"></i> Restore Item</button>
+              <div class="dropdown-divider"></div>
+              <button type="button" class="dropdown-item btn-wipe text-danger"><i class="fa-solid fa-fire"></i> Delete Forever</button>
+            ` : `
+              <button type="button" class="dropdown-item btn-star ${item.favorite ? 'active' : ''}">
+                <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
+                <span>${item.favorite ? 'Unpin from Top' : 'Pin to Top'}</span>
+              </button>
+              <button type="button" class="dropdown-item btn-manage-labels">
+                <i class="fa-solid fa-tags"></i>
+                <span>Manage Labels</span>
+              </button>
+              <button type="button" class="dropdown-item btn-edit">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Edit Item</span>
+              </button>
+              ${item.type === 'login' && item.username ? `<button type="button" class="dropdown-item btn-copy-username" data-val="${escapeHtml(item.username)}"><i class="fa-regular fa-copy"></i> Copy Username</button>` : ''}
+              ${item.type === 'login' && item.url ? `<button type="button" class="dropdown-item btn-launch-url" data-val="${escapeHtml(item.url)}"><i class="fa-solid fa-arrow-up-right-from-square"></i> Launch URL</button>` : ''}
+              <div class="dropdown-divider"></div>
+              <button type="button" class="dropdown-item btn-archive">
+                <i class="fa-solid fa-box-archive"></i>
+                <span>${item.archived ? 'Unarchive Item' : 'Archive Item'}</span>
+              </button>
+              <button type="button" class="dropdown-item btn-delete text-danger">
+                <i class="fa-solid fa-trash"></i>
+                <span>Move to Trash</span>
+              </button>
+            `}
           </div>
         </div>
       </div>
@@ -1212,7 +1224,52 @@
       btnDel.addEventListener('click', (e) => {
         e.stopPropagation();
         if (menuDropdown) menuDropdown.classList.add('hidden');
+        moveToTrash(item.id);
+      });
+    }
+
+    const btnArchive = card.querySelector('.btn-archive');
+    if (btnArchive) {
+      btnArchive.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        toggleArchive(item.id);
+      });
+    }
+
+    const btnRestore = card.querySelector('.btn-restore');
+    if (btnRestore) {
+      btnRestore.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        restoreFromTrash(item.id);
+      });
+    }
+
+    const btnWipe = card.querySelector('.btn-wipe');
+    if (btnWipe) {
+      btnWipe.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
         deleteItem(item.id);
+      });
+    }
+
+    const btnCopyUser = card.querySelector('.btn-copy-username');
+    if (btnCopyUser) {
+      btnCopyUser.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        copyToClipboard(btnCopyUser.dataset.val, 'Username copied!');
+      });
+    }
+
+    const btnLaunch = card.querySelector('.btn-launch-url');
+    if (btnLaunch) {
+      btnLaunch.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        window.open(btnLaunch.dataset.val, '_blank');
       });
     }
 

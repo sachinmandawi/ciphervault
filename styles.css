@@ -639,6 +639,7 @@ select option,
 .item-card:hover {
   border-color: rgba(139, 92, 246, 0.4);
   box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.15);
+  z-index: 10;
 }
 
 .item-header {
@@ -699,7 +700,7 @@ select option,
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-xl);
   min-width: 160px;
-  z-index: 50;
+  z-index: 100;
   padding: 0.4rem;
   display: flex;
   flex-direction: column;
