@@ -1,7 +1,7 @@
 /**
  * CIPHERVAULT - Zero-Knowledge Password Manager Engine
  * Technology: Web Crypto API (SubtleCrypto PBKDF2 + AES-GCM 256-bit), LocalStorage, Vanilla JS
- * Optimized for High Performance & 100% Cross-Device Responsiveness (Mobile, Tablet, Desktop)
+ * Pre-configured Login: Username (sachinmandawi), Master Password (sachinmandawi?8103968334?sachinmandawi)
  */
 
 (function () {
@@ -249,8 +249,10 @@
     authOverlay: document.getElementById('auth-overlay'),
     setupForm: document.getElementById('setup-form'),
     unlockForm: document.getElementById('unlock-form'),
+    setupUser: document.getElementById('setup-username'),
     setupPass: document.getElementById('setup-password'),
     setupConfirm: document.getElementById('setup-confirm'),
+    unlockUser: document.getElementById('unlock-username'),
     unlockPass: document.getElementById('unlock-password'),
     unlockError: document.getElementById('unlock-error'),
     masterBar: document.getElementById('master-strength-bar'),
@@ -392,21 +394,29 @@
     if (!saltBase64 || !verifierStr) {
       DOM.setupForm.classList.remove('hidden');
       DOM.unlockForm.classList.add('hidden');
-      document.getElementById('auth-title').textContent = 'Create Vault';
-      document.getElementById('auth-subtitle').textContent = 'Set up your Master Password to encrypt your vault';
+      document.getElementById('auth-title').textContent = 'CipherVault Setup';
+      document.getElementById('auth-subtitle').textContent = 'Set up your Username & Master Password';
     } else {
       DOM.setupForm.classList.add('hidden');
       DOM.unlockForm.classList.remove('hidden');
-      document.getElementById('auth-title').textContent = 'Vault Locked';
-      document.getElementById('auth-subtitle').textContent = 'Enter Master Password to unlock';
+      document.getElementById('auth-title').textContent = 'CipherVault Login';
+      document.getElementById('auth-subtitle').textContent = 'Enter credentials to unlock vault';
+      
+      const storedUser = localStorage.getItem('cipher_username');
+      if (storedUser) DOM.unlockUser.value = storedUser;
     }
   }
 
   async function handleSetup(e) {
     e.preventDefault();
+    const user = DOM.setupUser.value.trim();
     const pass = DOM.setupPass.value;
     const confirm = DOM.setupConfirm.value;
 
+    if (!user) {
+      showToast('Please enter a username!', 'error');
+      return;
+    }
     if (pass.length < 8) {
       showToast('Master password must be at least 8 characters!', 'error');
       return;
@@ -421,23 +431,31 @@
     const key = await CryptoEngine.deriveKey(pass, salt);
     const verifier = await CryptoEngine.createKeyVerifier(key);
 
+    localStorage.setItem('cipher_username', user);
     localStorage.setItem('cipher_salt', saltBase64);
     localStorage.setItem('cipher_verifier', JSON.stringify(verifier));
 
     state.masterKey = key;
-    state.vaultItems = [...SAMPLE_ITEMS]; // Pre-populate with sachinmandawi login item
+    state.vaultItems = [...SAMPLE_ITEMS];
     await saveVaultToStorage();
 
     unlockVault();
-    showToast('Vault initialized with credentials!', 'success');
+    showToast(`Welcome ${user}! Vault encrypted and ready.`, 'success');
   }
 
   async function handleUnlock(e) {
     e.preventDefault();
+    const user = DOM.unlockUser.value.trim();
     const pass = DOM.unlockPass.value;
     DOM.unlockError.classList.add('hidden');
 
     try {
+      const storedUser = localStorage.getItem('cipher_username');
+      if (storedUser && storedUser !== user) {
+        DOM.unlockError.classList.remove('hidden');
+        return;
+      }
+
       const saltBase64 = localStorage.getItem('cipher_salt');
       const verifier = JSON.parse(localStorage.getItem('cipher_verifier'));
       const salt = CryptoEngine.base64ToBuffer(saltBase64);
@@ -449,10 +467,9 @@
         state.masterKey = key;
         await loadVaultFromStorage();
         unlockVault();
-        showToast('Vault unlocked!', 'success');
+        showToast(`Welcome back, ${user}!`, 'success');
       } else {
         DOM.unlockError.classList.remove('hidden');
-        DOM.unlockPass.value = '';
       }
     } catch (err) {
       DOM.unlockError.classList.remove('hidden');
@@ -462,7 +479,6 @@
   function unlockVault() {
     DOM.authOverlay.classList.remove('active');
     DOM.app.classList.remove('blur-content');
-    DOM.unlockPass.value = '';
     renderVault();
     resetAutoLockTimer();
   }
@@ -1180,7 +1196,7 @@
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, function (m) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      return { '&': '&amp;', '<': '&lt;'>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
   }
 
