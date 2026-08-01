@@ -3,7 +3,7 @@
  * Database: Private GitHub Repository (`sachinmandawi/ciphervault-db`)
  * Session Handling: Tab Session Persistence via SessionStorage (Persists on F5 Refresh)
  * Features: AES-256-GCM Zero-Knowledge, Dedicated Live 2FA Authenticator Section, 1-Click Preview,
- * 2FA Mobile QR Sync, Encrypted File Attachments, Custom Tags System
+ * Encrypted File Attachments (Max 10MB), Custom Tags System
  */
 
 (function () {
@@ -458,41 +458,9 @@
     btnModalGen: document.getElementById('btn-modal-gen'),
     itemStrengthBar: document.getElementById('item-strength-bar'),
 
-    // QR Code Sync Modal
-    modalQr: document.getElementById('modal-qr'),
-    qrCodeContainer: document.getElementById('qr-code-container'),
-
     // Toast
     toastContainer: document.getElementById('toast-container')
   };
-
-  // --- 2FA MOBILE QR CODE GENERATOR & SYNC ---
-  function openQRCodeModal(totpSecret, title, username) {
-    if (!totpSecret) return;
-    if (!DOM.qrCodeContainer || !DOM.modalQr) return;
-
-    DOM.qrCodeContainer.innerHTML = '';
-    const otpauthUrl = `otpauth://totp/CipherVault:${encodeURIComponent(title || 'Account')}:${encodeURIComponent(username || '')}?secret=${encodeURIComponent(totpSecret)}&issuer=CipherVault`;
-
-    try {
-      if (window.QRCode) {
-        new QRCode(DOM.qrCodeContainer, {
-          text: otpauthUrl,
-          width: 180,
-          height: 180,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      } else {
-        DOM.qrCodeContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(otpauthUrl)}" alt="QR Code" style="width:180px; height:180px; border-radius:12px;">`;
-      }
-    } catch (e) {
-      DOM.qrCodeContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(otpauthUrl)}" alt="QR Code" style="width:180px; height:180px; border-radius:12px;">`;
-    }
-
-    DOM.modalQr.classList.add('active');
-  }
 
   // --- MOBILE DRAWER HANDLERS ---
   function openMobileMenu() {
@@ -768,14 +736,9 @@
 
         <div style="background:rgba(8,11,18,0.9); border:1px solid rgba(6,182,212,0.25); padding:1rem 1.25rem; border-radius:12px; display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; width:100%;">
           <span class="totp-code-display" style="font-size:1.6rem; color:#ffffff; font-family:var(--font-mono); letter-spacing:0.12em;">${codeDisplay}</span>
-          <div style="display:flex; gap:0.4rem;">
-            <button type="button" class="btn btn-secondary btn-qr-sync" title="Show QR Code for Phone Sync" style="padding:0.4rem 0.65rem;">
-              <i class="fa-solid fa-qrcode"></i>
-            </button>
-            <button type="button" class="btn btn-primary btn-copy-totp-dedicated" data-val="${rawCode}" style="padding:0.4rem 0.85rem; font-size:0.85rem;">
-              <i class="fa-regular fa-copy"></i> Copy
-            </button>
-          </div>
+          <button type="button" class="btn btn-primary btn-copy-totp-dedicated" data-val="${rawCode}" style="padding:0.4rem 0.85rem; font-size:0.85rem;">
+            <i class="fa-regular fa-copy"></i> Copy
+          </button>
         </div>
 
         <div class="totp-progress-bg">
@@ -786,11 +749,6 @@
       card.querySelector('.btn-copy-totp-dedicated').addEventListener('click', (e) => {
         e.stopPropagation();
         copyToClipboard(rawCode, '2FA OTP Code copied!');
-      });
-
-      card.querySelector('.btn-qr-sync').addEventListener('click', (e) => {
-        e.stopPropagation();
-        openQRCodeModal(item.totp, item.title, item.username);
       });
 
       container.appendChild(card);
@@ -862,14 +820,9 @@
             </div>
             <div class="totp-code-row">
               <span class="totp-code-display">${codeDisplay}</span>
-              <div style="display:flex; gap:0.4rem;">
-                <button type="button" class="btn-icon btn-qr-sync-prev" title="Show QR Code for Mobile Sync">
-                  <i class="fa-solid fa-qrcode"></i>
-                </button>
-                <button type="button" class="btn-icon btn-copy-totp-val" data-val="${rawCode}" title="Copy 2FA Code">
-                  <i class="fa-regular fa-copy"></i>
-                </button>
-              </div>
+              <button type="button" class="btn-icon btn-copy-totp-val" data-val="${rawCode}" title="Copy 2FA Code">
+                <i class="fa-regular fa-copy"></i>
+              </button>
             </div>
             <div class="totp-progress-bg">
               <div class="totp-progress-fill" style="width:${pctLeft}%;"></div>
@@ -893,7 +846,6 @@
       rowsHtml += createDetailRow('Secure Note', item.notes);
     }
 
-    // Render Tags if present
     if (item.tags && item.tags.length > 0) {
       const tagBadges = item.tags.map(t => `<span class="tag-badge">#${escapeHtml(t)}</span>`).join(' ');
       rowsHtml += `
@@ -904,7 +856,6 @@
       `;
     }
 
-    // Render Encrypted Attachment Card if present
     if (item.attachment && item.attachment.name) {
       rowsHtml += `
         <div style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.3); padding:0.85rem 1rem; border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-top:0.35rem;">
@@ -940,11 +891,6 @@
       contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
         btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
       });
-
-      const qrBtnPrev = contentEl.querySelector('.btn-qr-sync-prev');
-      if (qrBtnPrev) {
-        qrBtnPrev.addEventListener('click', () => openQRCodeModal(item.totp, item.title, item.username));
-      }
 
       const dlBtn = contentEl.querySelector('.btn-download-file');
       if (dlBtn && item.attachment) {
@@ -1033,14 +979,9 @@
           </div>
           <div class="totp-code-row">
             <span class="totp-code-display">${codeDisplay}</span>
-            <div style="display:flex; gap:0.25rem;">
-              <button type="button" class="btn-icon btn-qr-sync-card" title="Show QR Code for Mobile Sync">
-                <i class="fa-solid fa-qrcode"></i>
-              </button>
-              <button type="button" class="btn-icon btn-copy-totp-card" data-val="${rawCode}" title="Copy 2FA Code">
-                <i class="fa-regular fa-copy"></i>
-              </button>
-            </div>
+            <button type="button" class="btn-icon btn-copy-totp-card" data-val="${rawCode}" title="Copy 2FA Code">
+              <i class="fa-regular fa-copy"></i>
+            </button>
           </div>
           <div class="totp-progress-bg">
             <div class="totp-progress-fill" style="width:${pctLeft}%;"></div>
@@ -1142,14 +1083,6 @@
       totpCopyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         copyToClipboard(totpCopyBtn.dataset.val, '2FA Code copied!');
-      });
-    }
-
-    const qrSyncCardBtn = card.querySelector('.btn-qr-sync-card');
-    if (qrSyncCardBtn) {
-      qrSyncCardBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openQRCodeModal(item.totp, item.title, item.username);
       });
     }
 
@@ -1278,7 +1211,6 @@
     if (DOM.countNote) DOM.countNote.textContent = countNote;
     if (DOM.countFav) DOM.countFav.textContent = countFav;
 
-    // Render Dynamic Tags in Sidebar
     if (DOM.sidebarTagsContainer) {
       const tagSet = new Set();
       all.forEach(item => {
@@ -1400,7 +1332,6 @@
     if (DOM.modalItem) DOM.modalItem.classList.remove('active');
     const prevModal = document.getElementById('modal-preview');
     if (prevModal) prevModal.classList.remove('active');
-    if (DOM.modalQr) DOM.modalQr.classList.remove('active');
   }
 
   function switchCategoryFields(type) {
@@ -1693,13 +1624,13 @@
       });
     }
 
-    // Encrypted File Attachment Input Listener
+    // Encrypted File Attachment Input Listener (Max 10MB)
     if (DOM.itemAttachmentInput) {
       DOM.itemAttachmentInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        if (file.size > 3 * 1024 * 1024) {
-          showToast('File size limit exceeded (Max 3MB)', 'error');
+        if (file.size > 10 * 1024 * 1024) {
+          showToast('File size limit exceeded (Max 10MB)', 'error');
           e.target.value = '';
           return;
         }
