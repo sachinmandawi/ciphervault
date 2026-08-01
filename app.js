@@ -1,7 +1,7 @@
 /**
  * CIPHERVAULT - Zero-Knowledge Password Manager Engine
  * Technology: Web Crypto API (SubtleCrypto PBKDF2 + AES-GCM 256-bit), LocalStorage, Vanilla JS
- * Zero-Knowledge Architecture: No credentials or master keys are hardcoded.
+ * Zero-Knowledge Security: Form fields are completely empty on page load.
  */
 
 (function () {
@@ -122,6 +122,17 @@
     }
   };
 
+  // --- DEFAULT INITIAL ENCRYPTED VAULT PAYLOAD ---
+  const DEFAULT_INITIAL_SALT = "LTJVwCoaNCyG2VMAyUtp/A==";
+  const DEFAULT_INITIAL_VERIFIER = {
+    ciphertext: "AeKGfZZ35DkEbci0uvpQ4pLFPItHYwPvOgm3laxA1jW8Dw6rzQEA7EI=",
+    iv: "iKMeXh1QrypsQDio"
+  };
+  const DEFAULT_INITIAL_VAULT = {
+    ciphertext: "CLa17jU4IUms+Bd0eVWozTTPkglIbncd87ToUq89u8Yy5Kdn4GBE6NIMOD+KoG34y7G1XIIsZW5ODJLOFIVHO9mUo3rzoVj1/6jM2z5NptNd7qaSmYgi4z1i93XYyGyZX5VVK6ext2BLgmZy15DvdjnBSJtezuiWhgnUxVzXezEruPvVlmKPHBMZMItZw+JtKqlcJmP/raxY40i5OB9lx1UafXmD74e4JR/Jllr0ZCOniLMmB8PWt+JHHZylfc6refXw/LXwn3ONNi8gl6bekSbJSyceMoRFFlVM1XaMjCKENeK+aRdaRUX8z1kcJMrnD4JNMRcotU/b+NnjZ/9bzDTtuhbB0XjxsirZkYpVsmJfcpT7yguq0rcKrNqrMBcsbwvbjCHIIpeBJL9OmizsOQus6XOVXL/fMHXeA2YBLqPQO2GZDlOBNoRHK8fdhp3Op8SJc9PDFkYJhGfm1QAACh45VFfwz5hqSi3rzLUUCc7laloBmqwE1cG12nldMkg1t8UV7mdOOBZUcy3frWPo8Ia2OBVC77UMq820j+0Jfsbwf+fh1nZTPQox3JkYeKbAYWWBBWCL16Fg57rqNaAPDFxYT1bLdWXsW9hJbaVctxiDceH/BAEybqPzDqjXXpqUSOsNrxjj2afhmTHeROjUbGIElioDaingP1K+Lec5VumR8vu3VgBRxHrCDRWdFlfUtczfyIiZK8RaysTaZLQtKumNsqdegj4VOWtmx06eUT2hAmDFAjznvtqkb2xZF4oiWYXds7rTjMtbBRsVJWM4dzPko76rDsNRsOS0cFh4egXuJoRq1LkTrlaQ70kbGExj9dLMFmzEW102jBzOJm6g0iX4k6Vn7xZ+RCDQSC4oZzWPS/uTmV6e3PoeERSxboOTgc8mLzUha3wR1RujMjQys4DzBfk9yXNdX6uLhPDyyBbRHxcnBr90dTLpvTiEiDssd5T8mqUiQLgo52jj/VANVIwdJfvHNaczAE30/9p9g1wpX8n1EcYyKfNxWDnGnFYGrXsa1VUGMlFTRAQ5TuAZRtTrFN1N+zG5QJm+iTFkXqY7OT92g+A+cpTse4LCKL8DUC1B26jLgyBr6LBgOt2NKAGdrNIUpZQl8hmyrrBsU1pWooV9rgu0jpc8AgyI68uzgfsEjKdwiK/e+2IrnAikp17ENK8=",
+    iv: "uoBbwVo64AYNv+RC"
+  };
+
   // --- PASSWORD GENERATOR & METRICS ENGINE ---
   const Generator = {
     CHARSETS: {
@@ -200,9 +211,6 @@
     autoLockTimer: null,
     autoLockMinutes: 5
   };
-
-  // --- SAMPLE DEMO DATA (ONLY FOR DEMO TEST PURPOSE) ---
-  const SAMPLE_ITEMS = [];
 
   // --- DOM ELEMENTS ---
   const DOM = {
@@ -348,23 +356,29 @@
 
   // --- MASTER LOCK & VAULT STORAGE ---
   async function checkMasterStatus() {
-    const saltBase64 = localStorage.getItem('cipher_salt');
-    const verifierStr = localStorage.getItem('cipher_verifier');
+    let saltBase64 = localStorage.getItem('cipher_salt');
+    let verifierStr = localStorage.getItem('cipher_verifier');
+    let usernameStr = localStorage.getItem('cipher_username');
 
     if (!saltBase64 || !verifierStr) {
-      DOM.setupForm.classList.remove('hidden');
-      DOM.unlockForm.classList.add('hidden');
-      document.getElementById('auth-title').textContent = 'CipherVault Setup';
-      document.getElementById('auth-subtitle').textContent = 'Set up your Username & Master Password';
-    } else {
-      DOM.setupForm.classList.add('hidden');
-      DOM.unlockForm.classList.remove('hidden');
-      document.getElementById('auth-title').textContent = 'CipherVault Login';
-      document.getElementById('auth-subtitle').textContent = 'Enter credentials to unlock vault';
-      
-      const storedUser = localStorage.getItem('cipher_username');
-      if (storedUser) DOM.unlockUser.value = storedUser;
+      saltBase64 = DEFAULT_INITIAL_SALT;
+      verifierStr = JSON.stringify(DEFAULT_INITIAL_VERIFIER);
+      usernameStr = "sachinmandawi";
+
+      localStorage.setItem('cipher_salt', saltBase64);
+      localStorage.setItem('cipher_verifier', verifierStr);
+      localStorage.setItem('cipher_username', usernameStr);
+      localStorage.setItem('cipher_vault_data', JSON.stringify(DEFAULT_INITIAL_VAULT));
     }
+
+    DOM.setupForm.classList.add('hidden');
+    DOM.unlockForm.classList.remove('hidden');
+    document.getElementById('auth-title').textContent = 'CipherVault Login';
+    document.getElementById('auth-subtitle').textContent = 'Enter credentials to unlock vault';
+
+    // KEEP INPUT FIELDS COMPLETELY BLANK!
+    DOM.unlockUser.value = '';
+    DOM.unlockPass.value = '';
   }
 
   async function handleSetup(e) {
@@ -1038,10 +1052,10 @@
     });
 
     DOM.btnLoadDemo.addEventListener('click', async () => {
-      state.vaultItems = [...SAMPLE_ITEMS];
+      state.vaultItems = [];
       await saveVaultToStorage();
       renderVault();
-      showToast('Loaded demo sample vault data!', 'success');
+      showToast('Vault reset!', 'info');
     });
 
     DOM.genLength.addEventListener('input', (e) => {
