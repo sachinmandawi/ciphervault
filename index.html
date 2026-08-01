@@ -454,16 +454,16 @@
             </div>
 
             <div class="setting-card glass-panel">
-              <h3><i class="fa-solid fa-clock"></i> Auto-Lock Security</h3>
-              <p>Automatically lock your vault after a period of inactivity to prevent unauthorized access.</p>
+              <h3><i class="fa-solid fa-clock"></i> Session & Lock Timeout</h3>
+              <p>Configure session lock timeout. By default, stays logged in until you explicitly click "Lock Vault".</p>
               <div class="form-group mt-4">
                 <label for="setting-autolock">Auto-Lock Timeout</label>
                 <select id="setting-autolock" class="form-select">
+                  <option value="0" selected>Never (Lock Manually Only)</option>
                   <option value="1">1 Minute</option>
-                  <option value="5" selected>5 Minutes</option>
+                  <option value="5">5 Minutes</option>
                   <option value="15">15 Minutes</option>
                   <option value="30">30 Minutes</option>
-                  <option value="0">Never (Not Recommended)</option>
                 </select>
               </div>
             </div>

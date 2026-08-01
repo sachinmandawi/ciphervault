@@ -327,7 +327,7 @@
     searchQuery: '',
     sortBy: 'updated',
     autoLockTimer: null,
-    autoLockMinutes: 5,
+    autoLockMinutes: 0, // Default 0 (Never - Lock Manually Only!)
     fileSha: null,
     saltBase64: null,
     verifierObj: null,
@@ -1486,7 +1486,8 @@
     DOM.settingAutolock.addEventListener('change', (e) => {
       state.autoLockMinutes = parseInt(e.target.value, 10);
       resetAutoLockTimer();
-      showToast(`Auto-lock updated to ${state.autoLockMinutes} mins`, 'info');
+      const txt = state.autoLockMinutes === 0 ? 'Auto-lock disabled (Manual Lock Only)' : `Auto-lock set to ${state.autoLockMinutes} mins`;
+      showToast(txt, 'info');
     });
 
     document.querySelectorAll('.toggle-pass').forEach(btn => {
