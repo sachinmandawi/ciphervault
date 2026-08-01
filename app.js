@@ -2,7 +2,7 @@
  * CIPHERVAULT - Zero-Knowledge Password Manager Engine
  * Database: Private GitHub Repository (`sachinmandawi/ciphervault-db`)
  * Session Handling: Tab Session Persistence via SessionStorage (Persists on F5 Refresh)
- * Features: AES-256-GCM Zero-Knowledge, Live TOTP 2FA Authenticator, 1-Click Preview
+ * Features: AES-256-GCM Zero-Knowledge, Dedicated Live 2FA Authenticator Section, 1-Click Preview
  */
 
 (function () {
@@ -327,7 +327,7 @@
     searchQuery: '',
     sortBy: 'updated',
     autoLockTimer: null,
-    autoLockMinutes: 0, // Default 0 (Never - Lock Manually Only!)
+    autoLockMinutes: 0,
     fileSha: null,
     saltBase64: null,
     verifierObj: null,
@@ -357,6 +357,7 @@
 
     // Nav
     navItems: document.querySelectorAll('.sidebar-nav .nav-item[data-category]'),
+    navAuth: document.getElementById('nav-authenticator'),
     navGen: document.getElementById('nav-generator'),
     navSec: document.getElementById('nav-security'),
     navSet: document.getElementById('nav-settings'),
@@ -364,6 +365,7 @@
 
     // Views
     viewVault: document.getElementById('view-vault'),
+    viewAuth: document.getElementById('view-authenticator'),
     viewGen: document.getElementById('view-generator'),
     viewSec: document.getElementById('view-security'),
     viewSet: document.getElementById('view-settings'),
@@ -397,6 +399,7 @@
 
     // Quick actions
     btnAddItem: document.getElementById('btn-add-item'),
+    btnAdd2fa: document.getElementById('btn-add-2fa'),
     btnQuickGen: document.getElementById('btn-quick-gen'),
 
     // Generator elements
@@ -660,9 +663,86 @@
             fillEl.style.width = `${result.percentLeft}%`;
             fillEl.classList.toggle('warning', result.secondsLeft <= 5);
           }
+
+          const btnCopy = el.querySelector('.btn-copy-totp-dedicated, .btn-copy-totp-card, .btn-copy-totp-val');
+          if (btnCopy) btnCopy.dataset.val = result.rawCode;
         }
       }
     }, 1000);
+  }
+
+  // --- DEDICATED 2FA AUTHENTICATOR VIEW RENDERER ---
+  async function render2FAAuthenticatorView() {
+    const container = document.getElementById('authenticator-grid-container');
+    if (!container) return;
+
+    const totpItems = state.vaultItems.filter(i => i.totp && i.totp.trim() !== '');
+    container.innerHTML = '';
+
+    if (totpItems.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state glass-panel" style="grid-column: 1 / -1; padding: 3rem 1.5rem; text-align: center; border-radius: var(--radius-xl); width: 100%;">
+          <div class="empty-icon" style="font-size: 2.5rem; color: var(--accent-cyan); margin-bottom: 1rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h3 style="font-size: 1.25rem; color: #fff;">No 2FA Keys Configured Yet</h3>
+          <p class="sub-text mt-2" style="max-width: 420px; margin: 0.5rem auto 0 auto;">Add a 2FA Secret Key (e.g. JBSWY3DPEHPK3PXP) to any Login item or click below to create one.</p>
+          <button class="btn btn-primary mt-4" id="btn-empty-2fa-add">
+            <i class="fa-solid fa-plus"></i> Add First 2FA Key
+          </button>
+        </div>
+      `;
+      const btn = container.querySelector('#btn-empty-2fa-add');
+      if (btn) btn.addEventListener('click', openAddModal);
+      return;
+    }
+
+    for (let item of totpItems) {
+      const totpData = await TOTPEngine.generateTOTP(item.totp);
+      const codeDisplay = totpData ? totpData.code : '------';
+      const rawCode = totpData ? totpData.rawCode : '';
+      const pctLeft = totpData ? totpData.percentLeft : 100;
+      const secLeft = totpData ? totpData.secondsLeft : 30;
+
+      const card = document.createElement('div');
+      card.className = 'setting-card glass-panel';
+      card.style.border = '1px solid rgba(6, 182, 212, 0.35)';
+      card.style.background = 'rgba(6, 182, 212, 0.05)';
+      card.setAttribute('data-totp-secret', item.totp);
+
+      card.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; width:100%;">
+          <div style="display:flex; align-items:center; gap:0.75rem; flex:1; overflow:hidden;">
+            <div style="width:40px; height:40px; border-radius:10px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.3); color:var(--accent-cyan); display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div style="overflow:hidden; min-width:0;">
+              <h4 style="margin:0; font-size:1.05rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(item.title)}</h4>
+              <span style="font-size:0.8rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${escapeHtml(item.username || 'No Username')}</span>
+            </div>
+          </div>
+          <span class="totp-sec-countdown badge-pill good" style="font-size:0.78rem; flex-shrink:0; padding:0.25rem 0.65rem;">${secLeft}s</span>
+        </div>
+
+        <div style="background:rgba(8,11,18,0.9); border:1px solid rgba(6,182,212,0.25); padding:1rem 1.25rem; border-radius:12px; display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; width:100%;">
+          <span class="totp-code-display" style="font-size:1.6rem; color:#ffffff; font-family:var(--font-mono); letter-spacing:0.12em;">${codeDisplay}</span>
+          <button type="button" class="btn btn-primary btn-copy-totp-dedicated" data-val="${rawCode}" style="padding:0.4rem 0.85rem; font-size:0.85rem;">
+            <i class="fa-regular fa-copy"></i> Copy
+          </button>
+        </div>
+
+        <div class="totp-progress-bg">
+          <div class="totp-progress-fill" style="width:${pctLeft}%;"></div>
+        </div>
+      `;
+
+      card.querySelector('.btn-copy-totp-dedicated').addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyToClipboard(rawCode, '2FA OTP Code copied!');
+      });
+
+      container.appendChild(card);
+    }
   }
 
   // --- PREVIEW MODAL LOGIC (Method 1: 1-Click Card Preview) ---
@@ -1165,6 +1245,8 @@
     }
 
     await renderVault();
+    if (DOM.viewAuth.classList.contains('active')) render2FAAuthenticatorView();
+
     closeModal();
     await saveVaultToGitHub();
   }
@@ -1173,6 +1255,8 @@
     if (confirm('Are you sure you want to delete this vault item?')) {
       state.vaultItems = state.vaultItems.filter(i => i.id !== id);
       await renderVault();
+      if (DOM.viewAuth.classList.contains('active')) render2FAAuthenticatorView();
+
       await saveVaultToGitHub();
       showToast('Item deleted from vault.', 'info');
     }
@@ -1395,6 +1479,16 @@
         closeMobileMenu();
       });
     });
+
+    DOM.navAuth.addEventListener('click', () => {
+      render2FAAuthenticatorView();
+      switchView(DOM.viewAuth);
+      closeMobileMenu();
+    });
+
+    if (DOM.btnAdd2fa) {
+      DOM.btnAdd2fa.addEventListener('click', openAddModal);
+    }
 
     DOM.navGen.addEventListener('click', () => {
       switchView(DOM.viewGen);

@@ -162,6 +162,10 @@
       <div class="sidebar-section">
         <span class="sidebar-label">TOOLS & AUDIT</span>
         <nav class="sidebar-nav">
+          <button class="nav-item" id="nav-authenticator">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>2FA Authenticator</span>
+          </button>
           <button class="nav-item" id="nav-generator">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>Generator</span>
@@ -304,6 +308,23 @@
             </button>
           </div>
 
+        </section>
+
+        <!-- DEDICATED 2FA AUTHENTICATOR VIEW -->
+        <section id="view-authenticator" class="view-section">
+          <div class="section-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <h2>Live 2FA Authenticator</h2>
+              <p class="sub-text">Google Authenticator replacement. Real-time 30-second 6-digit TOTP codes for all your accounts.</p>
+            </div>
+            <button id="btn-add-2fa" class="btn btn-primary">
+              <i class="fa-solid fa-plus"></i> Add 2FA Key
+            </button>
+          </div>
+
+          <div id="authenticator-grid-container" class="items-grid mt-4">
+            <!-- Dynamic 2FA Cards Rendered in app.js -->
+          </div>
         </section>
 
         <!-- PASSWORD GENERATOR VIEW -->
