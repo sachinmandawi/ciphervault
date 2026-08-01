@@ -446,7 +446,6 @@
     itemIfsc: document.getElementById('item-ifsc'),
     itemPin: document.getElementById('item-pin'),
     itemNotes: document.getElementById('item-notes'),
-    itemFavorite: document.getElementById('item-favorite'),
     btnModalGen: document.getElementById('btn-modal-gen'),
     itemStrengthBar: document.getElementById('item-strength-bar'),
 
@@ -1183,7 +1182,6 @@
     if (DOM.itemIfsc) DOM.itemIfsc.value = item.ifsc || '';
     if (DOM.itemPin) DOM.itemPin.value = item.pin || '';
     DOM.itemNotes.value = item.notes || '';
-    DOM.itemFavorite.checked = !!item.favorite;
 
     switchCategoryFields(item.type || 'login');
     if (item.password) updateItemPasswordStrength(item.password);
@@ -1232,7 +1230,7 @@
       ifsc: DOM.itemIfsc ? DOM.itemIfsc.value.trim() : '',
       pin: DOM.itemPin ? DOM.itemPin.value.trim() : '',
       notes: DOM.itemNotes.value.trim(),
-      favorite: DOM.itemFavorite.checked,
+      favorite: id ? (state.vaultItems.find(i => i.id === id)?.favorite || false) : false,
       updatedAt: Date.now(),
       createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now()
     };
