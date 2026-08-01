@@ -385,7 +385,7 @@
     navSec: document.getElementById('nav-security'),
     navSet: document.getElementById('nav-settings'),
     btnLockNow: document.getElementById('btn-lock-now'),
-    sidebarTagsContainer: document.getElementById('sidebar-tags-container'),
+    sidebarTagsContainer: document.getElementById('sidebar-tags-nav'),
     sidebarTagsNav: document.getElementById('sidebar-tags-nav'),
 
     // Views
