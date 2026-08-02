@@ -1016,19 +1016,6 @@
       let rawNum = (item.cardnumber || '').replace(/\s+/g, '');
       let displayNum = rawNum.replace(/(.{4})/g, '$1 ').trim();
       if (!displayNum) displayNum = '•••• •••• •••• ••••';
-      
-      let cardLogo = '';
-      if (rawNum.startsWith('4')) {
-        cardLogo = '<i class="fa-brands fa-cc-visa" style="font-size:2rem; color:#fff;"></i>';
-      } else if (rawNum.startsWith('5') || rawNum.startsWith('2')) {
-        cardLogo = '<i class="fa-brands fa-cc-mastercard" style="font-size:2rem; color:#fff;"></i>';
-      } else if (rawNum.startsWith('34') || rawNum.startsWith('37')) {
-        cardLogo = '<i class="fa-brands fa-cc-amex" style="font-size:2rem; color:#fff;"></i>';
-      } else if (rawNum.startsWith('6')) {
-        cardLogo = '<i class="fa-brands fa-cc-discover" style="font-size:2rem; color:#fff;"></i>';
-      } else {
-        cardLogo = '<div style="font-size:1.1rem; font-weight:700; color:rgba(255,255,255,0.7); font-style:italic;">BANK</div>';
-      }
 
       rowsHtml += `
         <div class="cc-3d-wrapper" onclick="this.classList.toggle('flipped')">
@@ -1045,12 +1032,9 @@
                     <div class="cc-label">Cardholder</div>
                     <div class="cc-value">${escapeHtml(item.cardholder || 'YOUR NAME')}</div>
                   </div>
-                  <div style="text-align:center; padding:0 0.5rem; margin-right:0.5rem;">
+                  <div style="text-align:center; padding:0 0.5rem;">
                     <div class="cc-label">Valid Thru</div>
                     <div class="cc-value">${escapeHtml(item.exp || 'MM/YY')}</div>
-                  </div>
-                  <div style="text-align:right;">
-                    ${cardLogo}
                   </div>
                 </div>
               </div>
