@@ -2854,7 +2854,7 @@
     const sharedData = urlParams.get('share');
     
     if (sharedData) {
-      document.getElementById('auth-view').classList.add('hidden');
+      document.getElementById('auth-overlay').classList.remove('active');
       document.getElementById('shared-credential-overlay').classList.add('active');
       const shareKey = window.location.hash.substring(1);
       
