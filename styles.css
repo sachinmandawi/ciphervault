@@ -3114,7 +3114,7 @@ html, body {
 
   .stats-grid {
 
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: 1fr !important; /* Stacked for mobile */
 
     gap: 0.65rem;
 
@@ -3444,4 +3444,35 @@ html, body {
   .labelforsearch {
     padding: 0px 10px;
   }
+}
+
+
+/* STRICT MOBILE LAYOUT ENFORCEMENT */
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100vw !important;
+}
+
+.content-scroll {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+  padding-right: 1.25rem !important;
+  padding-left: 1.25rem !important;
+}
+
+.item-card, .stat-card {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  word-wrap: break-word;
 }
