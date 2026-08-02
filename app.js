@@ -2870,8 +2870,7 @@
           ['encrypt', 'decrypt']
         );
         
-        const decryptedStr = await CryptoEngine.decryptData(JSON.parse(decodeURIComponent(sharedData)), cryptoKey);
-        const item = JSON.parse(decryptedStr);
+        const item = await CryptoEngine.decryptData(JSON.parse(decodeURIComponent(sharedData)), cryptoKey);
         
         if (Date.now() > item.expiresAt) {
           throw new Error('Link Expired');
