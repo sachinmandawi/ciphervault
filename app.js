@@ -462,6 +462,7 @@
     itemTitleInput: document.getElementById('item-title-input'),
     itemUsername: document.getElementById('item-username'),
     itemEmail: document.getElementById('item-email'),
+    itemMobile: document.getElementById('item-mobile'),
     itemPassword: document.getElementById('item-password'),
     itemTotp: document.getElementById('item-totp'),
     itemUrl: document.getElementById('item-url'),
@@ -936,6 +937,7 @@
     if (item.type === 'login') {
       if (item.username || (!item.username && !item.email)) rowsHtml += createDetailRow('Username', item.username || '');
       if (item.email) rowsHtml += createDetailRow('Email', item.email);
+      if (item.mobile) rowsHtml += createDetailRow('Mobile Number', item.mobile);
       rowsHtml += createDetailRow('Password', item.password, true);
       
       if (item.totp) {
@@ -1479,6 +1481,7 @@
         (i.title && i.title.toLowerCase().includes(q)) ||
         (i.username && i.username.toLowerCase().includes(q)) ||
         (i.email && i.email.toLowerCase().includes(q)) ||
+        (i.mobile && i.mobile.toLowerCase().includes(q)) ||
         (i.bankname && i.bankname.toLowerCase().includes(q)) ||
         (i.accountno && i.accountno.toLowerCase().includes(q)) ||
         (i.url && i.url.toLowerCase().includes(q)) ||
@@ -1635,6 +1638,7 @@
     if (DOM.itemTitleInput) DOM.itemTitleInput.value = item.title || '';
     if (DOM.itemUsername) DOM.itemUsername.value = item.username || '';
     if (DOM.itemEmail) DOM.itemEmail.value = item.email || '';
+    if (DOM.itemMobile) DOM.itemMobile.value = item.mobile || '';
     if (DOM.itemPassword) DOM.itemPassword.value = item.password || '';
     if (DOM.itemTotp) DOM.itemTotp.value = item.totp || '';
     if (DOM.itemUrl) DOM.itemUrl.value = item.url || '';
@@ -1720,6 +1724,7 @@
       title: title,
       username: DOM.itemUsername ? DOM.itemUsername.value.trim() : '',
       email: DOM.itemEmail ? DOM.itemEmail.value.trim() : '',
+      mobile: DOM.itemMobile ? DOM.itemMobile.value.trim() : '',
       password: DOM.itemPassword ? DOM.itemPassword.value : '',
       totp: DOM.itemTotp ? DOM.itemTotp.value.trim().toUpperCase() : '',
       url: DOM.itemUrl ? DOM.itemUrl.value.trim() : '',
