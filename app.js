@@ -923,13 +923,15 @@
       
       if (item.backupCodes) {
         rowsHtml += `
-          <div class="detail-row">
-            <span class="detail-label">2FA BACKUP / RECOVERY CODES</span>
-            <div class="detail-value-wrapper" style="align-items: flex-start;">
-              <span class="detail-value" style="white-space: pre-wrap; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.4; padding-top: 2px;">${escapeHtml(item.backupCodes)}</span>
-              <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(item.backupCodes)}" title="Copy Codes">
-                <i class="fa-regular fa-copy"></i>
-              </button>
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:0.75rem 1rem; border-radius:12px; display:flex; flex-direction:column; gap:0.25rem;">
+            <span style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:600; letter-spacing:0.05em;">2FA BACKUP / RECOVERY CODES</span>
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:0.5rem;">
+              <span style="font-family:var(--font-mono); font-size:0.95rem; color:#f8fafc; white-space:pre-wrap; word-break:break-all; line-height:1.5;">${escapeHtml(item.backupCodes)}</span>
+              <div style="display:flex; gap:0.25rem; flex-shrink:0;">
+                <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(item.backupCodes)}" title="Copy All Codes">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
             </div>
           </div>
         `;
