@@ -3114,7 +3114,7 @@ html, body {
 
   .stats-grid {
 
-    grid-template-columns: 1fr !important; /* Stacked for mobile */
+    grid-template-columns: repeat(2, 1fr) !important; /* Restored to 2x2 grid */
 
     gap: 0.65rem;
 
