@@ -3622,28 +3622,32 @@ html, body {
 }
 
 .cc-front {
-  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-  backdrop-filter: blur(15px);
+  background: radial-gradient(circle at 100% 0%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%),
+              linear-gradient(135deg, rgba(20,25,35,0.85), rgba(40,50,70,0.95)),
+              url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+  background-blend-mode: overlay, normal, overlay;
   border: 1px solid rgba(255,255,255,0.15);
   padding: 1.5rem;
   justify-content: space-between;
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
 }
 
 .cc-back {
-  background: linear-gradient(135deg, rgba(15,20,32,0.9), rgba(30,41,59,0.95));
+  background: linear-gradient(135deg, rgba(15,20,32,0.95), rgba(30,41,59,0.98));
   border: 1px solid rgba(139, 92, 246, 0.3);
   transform: rotateY(180deg);
-  padding: 1.5rem 0;
+  padding: 1.5rem 0 0 0;
 }
 
 .cc-chip {
   width: 45px;
   height: 35px;
-  background: linear-gradient(135deg, #d4af37, #f3e5ab);
+  background: linear-gradient(135deg, #e4c275, #f3e5ab, #d4af37);
   border-radius: 6px;
   margin-bottom: 1rem;
   position: relative;
   overflow: hidden;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.4), 0 1px 2px rgba(255,255,255,0.2);
 }
 
 .cc-chip::after {
@@ -3653,7 +3657,8 @@ html, body {
   left: 0;
   width: 100%;
   height: 1px;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.2);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.4);
 }
 
 .cc-chip::before {
@@ -3663,16 +3668,17 @@ html, body {
   top: 0;
   height: 100%;
   width: 1px;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.2);
+  box-shadow: 1px 0 0 rgba(255,255,255,0.4);
 }
 
 .cc-number {
   font-family: var(--font-mono);
-  font-size: 1.4rem;
-  letter-spacing: 0.15em;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  margin-bottom: 0.5rem;
+  font-size: 1.45rem;
+  letter-spacing: 0.18em;
+  color: #f8f8f8;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8), -1px -1px 1px rgba(255,255,255,0.3);
+  margin-bottom: 0.8rem;
 }
 
 .cc-details {
@@ -3684,17 +3690,19 @@ html, body {
 .cc-label {
   font-size: 0.55rem;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.7);
   letter-spacing: 0.1em;
   margin-bottom: 0.2rem;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
 }
 
 .cc-value {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #fff;
+  color: #f8f8f8;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8), -1px -1px 1px rgba(255,255,255,0.2);
 }
 
 .cc-stripe {
