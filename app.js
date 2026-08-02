@@ -1100,21 +1100,44 @@
     
     if (!draggedCard || !targetCard) return;
     
+    // Move in DOM
     if (draggedIdx < targetIdx) {
       targetCard.parentNode.insertBefore(draggedCard, targetCard.nextSibling);
     } else {
       targetCard.parentNode.insertBefore(draggedCard, targetCard);
     }
     
+    // Ensure the global array is sorted by current orderIndex first
+    state.vaultItems.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+    
+    // Find the actual items
+    const dItemIndex = state.vaultItems.findIndex(i => String(i.id) === draggedId);
+    if (dItemIndex === -1) return;
+    const [draggedItem] = state.vaultItems.splice(dItemIndex, 1);
+    
+    let tItemIndex = state.vaultItems.findIndex(i => String(i.id) === targetId);
+    
+    // Determine if we should insert before or after target in the global array
+    // We can just check the new DOM order of dragged vs target
+    const newCards = Array.from(container.querySelectorAll('.item-card'));
+    const newDraggedIdx = newCards.indexOf(draggedCard);
+    const newTargetIdx = newCards.indexOf(targetCard);
+    
+    if (newDraggedIdx > newTargetIdx) {
+       // Insert AFTER target
+       state.vaultItems.splice(tItemIndex + 1, 0, draggedItem);
+    } else {
+       // Insert BEFORE target
+       state.vaultItems.splice(tItemIndex, 0, draggedItem);
+    }
+    
     await saveCustomOrder();
   }
   
   async function saveCustomOrder() {
-    const cards = Array.from(DOM.itemsContainer.querySelectorAll('.item-card'));
-    cards.forEach((c, index) => {
-      const id = c.dataset.id;
-      const vItem = state.vaultItems.find(i => String(i.id) === id);
-      if (vItem) vItem.orderIndex = index;
+    // Re-assign orderIndex globally based on the new array order
+    state.vaultItems.forEach((item, index) => {
+      item.orderIndex = index;
     });
     
     state.sortBy = 'custom';
@@ -1166,7 +1189,7 @@
     card.className = 'item-card glass-panel';
     card.dataset.id = item.id;
     
-    if (state.currentCategory === 'all' && !state.searchQuery && !state.selectedTag) {
+    if (true) {
       card.setAttribute('draggable', 'true');
       
       card.addEventListener('dragstart', (e) => {
