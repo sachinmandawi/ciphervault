@@ -587,10 +587,17 @@
           <div id="fields-login" class="category-fields">
             <div class="form-row">
               <div class="form-group flex-1">
-                <label for="item-username">Username / Email</label>
-                <input type="text" id="item-username" placeholder="name@example.com">
+                <label for="item-username">Username</label>
+                <input type="text" id="item-username" placeholder="e.g. johndoe">
               </div>
 
+              <div class="form-group flex-1">
+                <label for="item-email">Email</label>
+                <input type="email" id="item-email" placeholder="name@example.com">
+              </div>
+            </div>
+
+            <div class="form-row mt-2">
               <div class="form-group flex-1">
                 <label for="item-password">Password</label>
                 <div class="password-input-wrapper has-gen">
@@ -603,14 +610,14 @@
                   </button>
                 </div>
               </div>
-            </div>
 
-            <div class="form-row mt-2">
               <div class="form-group flex-1">
                 <label for="item-totp">2FA Key <span class="sub-text">(TOTP)</span></label>
                 <input type="text" id="item-totp" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" style="font-family:var(--font-mono); text-transform:uppercase;">
               </div>
+            </div>
 
+            <div class="form-row mt-2">
               <div class="form-group flex-1">
                 <label for="item-url">Website URL</label>
                 <input type="url" id="item-url" placeholder="https://example.com">

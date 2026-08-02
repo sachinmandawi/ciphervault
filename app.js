@@ -461,6 +461,7 @@
     itemType: document.getElementById('item-type'),
     itemTitleInput: document.getElementById('item-title-input'),
     itemUsername: document.getElementById('item-username'),
+    itemEmail: document.getElementById('item-email'),
     itemPassword: document.getElementById('item-password'),
     itemTotp: document.getElementById('item-totp'),
     itemUrl: document.getElementById('item-url'),
@@ -1113,7 +1114,7 @@
     if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
     if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
 
-    let subText = item.username || item.cardnumber || item.accountno || item.bankname || 'Secure Item';
+    let subText = [item.username, item.email].filter(Boolean).join(' • ') || item.cardnumber || item.accountno || item.bankname || 'Secure Item';
     let displayPass = item.password ? '••••••••••••' : (item.cvv ? '•••' : (item.pin ? '••••' : 'Encrypted Data'));
 
     let totpHtml = '';
@@ -1408,6 +1409,7 @@
       items = items.filter(i => 
         (i.title && i.title.toLowerCase().includes(q)) ||
         (i.username && i.username.toLowerCase().includes(q)) ||
+        (i.email && i.email.toLowerCase().includes(q)) ||
         (i.bankname && i.bankname.toLowerCase().includes(q)) ||
         (i.accountno && i.accountno.toLowerCase().includes(q)) ||
         (i.url && i.url.toLowerCase().includes(q)) ||
@@ -1558,6 +1560,7 @@
     if (DOM.itemType) DOM.itemType.value = item.type || 'login';
     if (DOM.itemTitleInput) DOM.itemTitleInput.value = item.title || '';
     if (DOM.itemUsername) DOM.itemUsername.value = item.username || '';
+    if (DOM.itemEmail) DOM.itemEmail.value = item.email || '';
     if (DOM.itemPassword) DOM.itemPassword.value = item.password || '';
     if (DOM.itemTotp) DOM.itemTotp.value = item.totp || '';
     if (DOM.itemUrl) DOM.itemUrl.value = item.url || '';
@@ -1620,6 +1623,7 @@
       type: type,
       title: title,
       username: DOM.itemUsername ? DOM.itemUsername.value.trim() : '',
+      email: DOM.itemEmail ? DOM.itemEmail.value.trim() : '',
       password: DOM.itemPassword ? DOM.itemPassword.value : '',
       totp: DOM.itemTotp ? DOM.itemTotp.value.trim().toUpperCase() : '',
       url: DOM.itemUrl ? DOM.itemUrl.value.trim() : '',
