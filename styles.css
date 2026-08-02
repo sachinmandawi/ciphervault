@@ -1228,6 +1228,7 @@ input[type="text"],
 input[type="password"],
 input[type="url"],
 input[type="email"],
+input[type="tel"],
 textarea,
 .form-control {
   width: 100%;
