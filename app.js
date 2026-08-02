@@ -2680,6 +2680,16 @@
         if(m) m.style.display = 'none';
       });
     });
+
+    // Listen for form resets to sync custom UI
+    document.addEventListener('reset', (e) => {
+      setTimeout(() => {
+        const selectsInForm = e.target.querySelectorAll('select.form-select');
+        selectsInForm.forEach(select => {
+          select.dispatchEvent(new Event('change'));
+        });
+      }, 0);
+    });
   }
 
   // --- INITIALIZATION ---

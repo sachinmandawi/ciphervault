@@ -2882,31 +2882,22 @@ input:focus, textarea:focus, select:focus {
 /* --- TAG BADGES & PILLS --- */
 
 .tag-badge {
-
   display: inline-flex;
-
   align-items: center;
-
   gap: 0.25rem;
-
   padding: 0.2rem 0.6rem;
-
   border-radius: 99px;
-
   font-size: 0.72rem;
-
   font-weight: 600;
-
   background: rgba(99, 102, 241, 0.15);
-
   color: var(--accent-purple);
-
   border: 1px solid rgba(99, 102, 241, 0.3);
-
   cursor: pointer;
-
   transition: all var(--transition-fast);
-
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
