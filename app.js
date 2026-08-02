@@ -1081,10 +1081,14 @@
         `;
       }).join('');
       
+      const accordionId = 'hist_acc_' + Math.random().toString(36).substr(2, 6);
       rowsHtml += `
         <div class="preview-row" style="margin-top:0.75rem;">
-          <span style="font-size:0.65rem; color:var(--text-muted); opacity:0.6; text-transform:uppercase; font-weight:600; letter-spacing:0.05em; display:block; margin-bottom:0.25rem;">PASSWORD HISTORY</span>
-          <div style="background:rgba(0,0,0,0.15); border-radius:var(--radius-sm); padding:0 0.5rem;">
+          <button type="button" onclick="const b = document.getElementById('${accordionId}'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; const i = this.querySelector('i.chevron'); i.style.transform = b.style.display === 'none' ? 'rotate(0deg)' : 'rotate(180deg)';" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); padding:0.6rem 0.75rem; border-radius:var(--radius-md); color:var(--text-light); font-size:0.8rem; font-weight:500; cursor:pointer; transition:all 0.2s ease;">
+            <span><i class="fa-solid fa-clock-rotate-left" style="margin-right:0.4rem; color:var(--text-muted);"></i> View Password History (${item.passwordHistory.length})</span>
+            <i class="fa-solid fa-chevron-down chevron" style="color:var(--text-muted); transition:transform 0.2s ease;"></i>
+          </button>
+          <div id="${accordionId}" style="display:none; background:rgba(0,0,0,0.2); border-radius:var(--radius-sm); padding:0 0.5rem; margin-top:0.35rem; border:1px solid rgba(255,255,255,0.02);">
             ${historyRows}
           </div>
         </div>
