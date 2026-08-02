@@ -1313,7 +1313,7 @@
 
       <div class="item-body" title="Click to View Details">
         ${item.type === 'note' && item.notes ? `
-          <div style="font-family:var(--font-mono); font-size:0.85rem; color:#f8fafc; line-height:1.5; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere; max-height:85px; overflow:hidden; width:100%;">${escapeHtml(item.notes)}</div>
+          <div style="font-family:var(--font-mono); font-size:0.85rem; color:#f8fafc; line-height:1.5; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere; max-height:85px; overflow:hidden; width:100%; flex: 1; min-width: 0;">${escapeHtml(item.notes)}</div>
         ` : `
           <span class="item-pass-hidden" id="pass-text-${item.id}">${displayPass}</span>
           <div class="item-card-btns">
