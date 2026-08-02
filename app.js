@@ -920,6 +920,20 @@
       }
 
       rowsHtml += createDetailRow('Website URL', item.url);
+      
+      if (item.backupCodes) {
+        rowsHtml += `
+          <div class="detail-row">
+            <span class="detail-label">2FA BACKUP / RECOVERY CODES</span>
+            <div class="detail-value-wrapper" style="align-items: flex-start;">
+              <span class="detail-value" style="white-space: pre-wrap; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.4; padding-top: 2px;">${escapeHtml(item.backupCodes)}</span>
+              <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(item.backupCodes)}" title="Copy Codes">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }
     } else if (item.type === 'card') {
       rowsHtml += createDetailRow('Cardholder Name', item.cardholder);
       rowsHtml += createDetailRow('Card Number', item.cardnumber);
