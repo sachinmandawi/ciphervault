@@ -2248,6 +2248,19 @@
     if (DOM.unlockForm) DOM.unlockForm.addEventListener('submit', handleUnlock);
     if (DOM.btnLockNow) DOM.btnLockNow.addEventListener('click', lockVault);
 
+    // Dashboard Stat Cards Click Handlers
+    const cardStatTotal = document.getElementById('card-stat-total');
+    if (cardStatTotal) cardStatTotal.addEventListener('click', () => { if (DOM.navAllItems) DOM.navAllItems.click(); });
+    
+    const cardStatScore = document.getElementById('card-stat-score');
+    if (cardStatScore) cardStatScore.addEventListener('click', () => { if (DOM.navAudit) DOM.navAudit.click(); });
+    
+    const cardStatReused = document.getElementById('card-stat-reused');
+    if (cardStatReused) cardStatReused.addEventListener('click', () => { if (DOM.navAudit) DOM.navAudit.click(); });
+    
+    const cardStatWeak = document.getElementById('card-stat-weak');
+    if (cardStatWeak) cardStatWeak.addEventListener('click', () => { if (DOM.navAudit) DOM.navAudit.click(); });
+
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.card-dropdown-wrapper')) {
