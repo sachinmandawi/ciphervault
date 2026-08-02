@@ -1017,7 +1017,7 @@
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.92rem; color:#f8fafc; line-height:1.6; white-space:pre-wrap; word-break:break-word; background:rgba(8,11,18,0.85); padding:1rem 1.15rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08); max-height:450px; overflow-y:auto;">${escapeHtml(item.notes)}</div>
+            <div style="font-family:var(--font-mono); font-size:0.92rem; color:#f8fafc; line-height:1.6; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere; background:rgba(8,11,18,0.85); padding:1rem 1.15rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08); max-height:450px; overflow-y:auto;">${escapeHtml(item.notes)}</div>
           </div>
         `;
       }
@@ -1293,7 +1293,7 @@
 
       <div class="item-body" title="Click to View Details">
         ${item.type === 'note' && item.notes ? `
-          <div style="font-family:var(--font-mono); font-size:0.85rem; color:#f8fafc; line-height:1.5; white-space:pre-wrap; word-break:break-word; max-height:85px; overflow:hidden; width:100%;">${escapeHtml(item.notes)}</div>
+          <div style="font-family:var(--font-mono); font-size:0.85rem; color:#f8fafc; line-height:1.5; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere; max-height:85px; overflow:hidden; width:100%;">${escapeHtml(item.notes)}</div>
         ` : `
           <span class="item-pass-hidden" id="pass-text-${item.id}">${displayPass}</span>
           <div class="item-card-btns">
