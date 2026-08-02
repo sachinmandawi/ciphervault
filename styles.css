@@ -3478,6 +3478,6 @@ html, body {
 .item-card, .stat-card {
   max-width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   word-wrap: break-word;
 }
