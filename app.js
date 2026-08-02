@@ -917,27 +917,7 @@
 
 
 
-  // --- PREVIEW MODAL LOGIC (1-Click Card Detail View) ---
-  async function openPreviewModal(id) {
-    const item = state.vaultItems.find(i => i.id === id);
-    if (!item) return;
-
-    const modal = document.getElementById('modal-preview');
-    const iconEl = document.getElementById('preview-icon');
-    const titleEl = document.getElementById('preview-title');
-    const catBadge = document.getElementById('preview-cat-badge');
-    const contentEl = document.getElementById('preview-body-content');
-    const editBtn = document.getElementById('btn-preview-edit');
-
-    let iconHtml = '<i class="fa-solid fa-globe"></i>';
-    if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
-    if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
-    if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
-    if (iconEl) iconEl.innerHTML = iconHtml;
-
-    if (titleEl) titleEl.textContent = item.title;
-    if (catBadge) catBadge.textContent = (item.type || 'login').toUpperCase();
-
+  async function generateItemPreviewHtml(item) {
     let rowsHtml = '';
 
     function createDetailRow(label, value, isSecret = false) {
@@ -1127,38 +1107,64 @@
       `;
     }
 
+    if (item.updatedAt) {
+      rowsHtml += `
+        <div style="font-size:0.75rem; color:#64748b; margin-top:0.5rem; text-align:right;">
+          Last modified: ${formatDate(item.updatedAt)}
+        </div>
+      `;
+    }
+    
+    return rowsHtml;
+  }
 
-    rowsHtml += `
-      <div style="font-size:0.75rem; color:#64748b; margin-top:0.5rem; text-align:right;">
-        Last modified: ${formatDate(item.updatedAt)}
-      </div>
-    `;
+  function bindPreviewActionListeners(contentEl) {
+    if (!contentEl) return;
+    
+    contentEl.querySelectorAll('.btn-copy-row-val').forEach(btn => {
+      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Copied to clipboard!'));
+    });
 
-    if (contentEl) contentEl.innerHTML = rowsHtml;
+    contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
+      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
+    });
+
+    contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
+      let shown = false;
+      btn.addEventListener('click', () => {
+        shown = !shown;
+        const target = document.getElementById(btn.dataset.target);
+        if (target) target.textContent = shown ? btn.dataset.real : '••••••••••••';
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = shown ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+      });
+    });
+  }
+
+  // --- PREVIEW MODAL LOGIC (1-Click Card Detail View) ---
+  async function openPreviewModal(id) {
+    const item = state.vaultItems.find(i => i.id === id);
+    if (!item) return;
+
+    const modal = document.getElementById('modal-preview');
+    const iconEl = document.getElementById('preview-icon');
+    const titleEl = document.getElementById('preview-title');
+    const catBadge = document.getElementById('preview-cat-badge');
+    const contentEl = document.getElementById('preview-body-content');
+    const editBtn = document.getElementById('btn-preview-edit');
+
+    let iconHtml = '<i class="fa-solid fa-globe"></i>';
+    if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
+    if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
+    if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
+    if (iconEl) iconEl.innerHTML = iconHtml;
+
+    if (titleEl) titleEl.textContent = item.title;
+    if (catBadge) catBadge.textContent = (item.type || 'login').toUpperCase();
 
     if (contentEl) {
-      contentEl.querySelectorAll('.btn-copy-row-val').forEach(btn => {
-        btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Copied to clipboard!'));
-      });
-
-      contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
-        btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
-      });
-
-      const prevBtn = contentEl.querySelector('.btn-preview-file');
-
-      const dlBtn = contentEl.querySelector('.btn-download-file');
-
-      contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
-        let shown = false;
-        btn.addEventListener('click', () => {
-          shown = !shown;
-          const target = document.getElementById(btn.dataset.target);
-          if (target) target.textContent = shown ? btn.dataset.real : '••••••••••••';
-          const icon = btn.querySelector('i');
-          if (icon) icon.className = shown ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
-        });
-      });
+      contentEl.innerHTML = await generateItemPreviewHtml(item);
+      bindPreviewActionListeners(contentEl);
     }
 
     if (editBtn) {
@@ -2255,25 +2261,10 @@
     const rawKey = window.crypto.getRandomValues(new Uint8Array(32));
     const shareKeyHex = Array.from(rawKey).map(b => b.toString(16).padStart(2, '0')).join('');
     
-    const sharePayload = {
-      title: item.title,
-      type: item.type,
-      username: item.username,
-      email: item.email,
-      password: item.password,
-      url: item.url,
-      notes: item.notes,
-      cardholder: item.cardholder,
-      cardnumber: item.cardnumber,
-      exp: item.exp,
-      cvv: item.cvv,
-      bankname: item.bankname,
-      accountno: item.accountno,
-      ifsc: item.ifsc,
-      pin: item.pin,
-      totp: item.totp,
-      expiresAt: Date.now() + 86400000 // 24 hours
-    };
+    // Create a complete payload excluding internal metadata that isn't needed for preview
+    const sharePayload = { ...item };
+    delete sharePayload.id; // Optional: delete internal id if you don't want to expose it
+    sharePayload.expiresAt = Date.now() + 86400000; // 24 hours
 
     try {
       const cryptoKey = await window.crypto.subtle.importKey(
@@ -2878,15 +2869,18 @@
         
         document.getElementById('shared-credential-status').innerHTML = `<i class="fa-solid fa-circle-check text-green"></i> Decrypted successfully.`;
         
-        let html = `<div style="font-size:1.2rem; font-weight:700; color:#fff; margin-bottom:1rem;">${escapeHtml(item.title)}</div>`;
-        if (item.username) html += `<div style="margin-bottom:0.5rem;"><span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; font-weight:700;">Username</span><div style="font-family:var(--font-mono); color:#fff; font-size:1.1rem; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; margin-top:0.25rem;">${escapeHtml(item.username)}</div></div>`;
-        if (item.password) html += `<div style="margin-bottom:0.5rem;"><span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; font-weight:700;">Password</span><div style="font-family:var(--font-mono); color:#fff; font-size:1.1rem; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; margin-top:0.25rem;">${escapeHtml(item.password)}</div></div>`;
-        if (item.cardnumber) html += `<div style="margin-bottom:0.5rem;"><span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; font-weight:700;">Card Number</span><div style="font-family:var(--font-mono); color:#fff; font-size:1.1rem; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; margin-top:0.25rem;">${escapeHtml(item.cardnumber)}</div></div>`;
-        if (item.notes) html += `<div style="margin-bottom:0.5rem;"><span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; font-weight:700;">Notes</span><div style="color:#fff; font-size:0.95rem; line-height:1.5; white-space:pre-wrap; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; margin-top:0.25rem;">${escapeHtml(item.notes)}</div></div>`;
+        let html = `<div style="font-size:1.2rem; font-weight:700; color:#fff; margin-bottom:1rem; text-align:center;">
+          ${item.type === 'card' ? '<i class="fa-regular fa-credit-card"></i>' : (item.type === 'bank' ? '<i class="fa-solid fa-building-columns"></i>' : (item.type === 'note' ? '<i class="fa-regular fa-note-sticky"></i>' : '<i class="fa-solid fa-globe"></i>'))} 
+          ${escapeHtml(item.title)}
+          <div style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; margin-top:0.25rem;">${escapeHtml(item.type || 'login')}</div>
+        </div>`;
         
-        const contentBox = document.getElementById('shared-credential-content');
-        contentBox.innerHTML = html;
-        contentBox.style.display = 'block';
+        html += await generateItemPreviewHtml(item);
+
+        const contentEl = document.getElementById('shared-credential-content');
+        contentEl.innerHTML = html;
+        contentEl.style.display = 'block';
+        bindPreviewActionListeners(contentEl);
         
       } catch (err) {
         document.getElementById('shared-credential-status').innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Invalid or Expired Link</span>`;
