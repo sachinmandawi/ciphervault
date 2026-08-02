@@ -1688,3 +1688,40 @@ html, body {
 @media (max-width: 900px) {
   .hide-mobile { display: none !important; }
 }
+
+
+/* COMPACT PILL SEARCH BAR OVERRIDE */
+.search-box.pill-search {
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.35rem 1rem;
+  max-width: 320px;
+}
+
+.search-box.pill-search input {
+  font-size: 0.85rem;
+  padding: 0.1rem 0;
+}
+
+.search-box.pill-search:focus-within {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+}
+
+.search-box.pill-search .search-icon {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-left: 0.25rem;
+}
+
+@media (max-width: 600px) {
+  .search-box.pill-search {
+    max-width: 100%;
+    padding: 0.25rem 0.85rem;
+  }
+  .search-box.pill-search input {
+    font-size: 0.8rem;
+  }
+}
