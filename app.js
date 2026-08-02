@@ -346,7 +346,7 @@
     selectedTag: null,
     currentViewMode: 'grid',
     searchQuery: '',
-    sortBy: 'updated',
+    sortBy: 'custom',
     autoLockTimer: null,
     autoLockMinutes: 0,
     fileSha: null,
@@ -743,12 +743,13 @@
 
   async function saveVaultToGitHub() {
     if (!state.masterKey) return;
+    let payload = null;
     try {
       showToast('Syncing with Private GitHub Repo...', 'info');
       const vaultData = { items: state.vaultItems, customOrders: state.customOrders };
       const encryptedVault = await CryptoEngine.encryptData(vaultData, state.masterKey);
       
-      const payload = {
+      payload = {
         version: '1.0',
         updatedAt: new Date().toISOString(),
         salt: state.saltBase64,
@@ -766,9 +767,11 @@
     } catch (err) {
       console.error('GitHub Sync Error:', err);
       // Fallback: save to local cache so offline changes are preserved temporarily
-      state.cachedPayload = payload;
-      localStorage.setItem('cipher_offline_vault', JSON.stringify(payload));
-      showToast('Saved locally (GitHub Sync Pending)', 'warning');
+      if (payload) {
+        state.cachedPayload = payload;
+        localStorage.setItem('cipher_offline_vault', JSON.stringify(payload));
+      }
+      showToast('Saved offline. Sync failed!', 'warning');
     }
   }
 
@@ -932,18 +935,19 @@
     function createDetailRow(label, value, isSecret = false) {
       if (!value) return '';
       const rowId = 'prev_val_' + Math.random().toString(36).substr(2, 6);
+      const isMonospace = isSecret || label.toLowerCase().includes('pin');
       return `
-        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:0.75rem 1rem; border-radius:12px; display:flex; flex-direction:column; gap:0.25rem;">
-          <span style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:600; letter-spacing:0.05em;">${escapeHtml(label)}</span>
+        <div class="preview-row">
+          <span style="font-size:0.65rem; color:var(--text-muted); opacity:0.6; text-transform:uppercase; font-weight:600; letter-spacing:0.05em; display:block; margin-bottom:0.15rem;">${escapeHtml(label)}</span>
           <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
-            <span id="${rowId}" style="font-family:var(--font-mono); font-size:0.95rem; color:#f8fafc; word-break:break-all;">${isSecret ? '••••••••••••' : escapeHtml(value)}</span>
-            <div style="display:flex; gap:0.25rem; flex-shrink:0;">
+            <span id="${rowId}" style="font-family:${isMonospace ? 'var(--font-mono)' : 'inherit'}; font-size:1.1rem; color:var(--text-light); word-break:break-all;">${isSecret ? '••••••••••••' : escapeHtml(value)}</span>
+            <div class="preview-actions" style="display:flex; gap:0.25rem; flex-shrink:0;">
               ${isSecret ? `
-                <button type="button" class="btn-icon btn-toggle-row-vis" data-target="${rowId}" data-real="${escapeHtml(value)}" title="Show/Hide">
+                <button type="button" class="btn-icon btn-toggle-row-vis" data-target="${rowId}" data-real="${escapeHtml(value)}" title="Show/Hide" style="background:transparent; border:none; color:var(--text-muted);">
                   <i class="fa-regular fa-eye"></i>
                 </button>
               ` : ''}
-              <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(value)}" title="Copy">
+              <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(value)}" title="Copy" style="background:transparent; border:none; color:var(--text-muted);">
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
@@ -962,23 +966,22 @@
         const totpData = await TOTPEngine.generateTOTP(item.totp);
         const codeDisplay = totpData ? totpData.code : '------';
         const rawCode = totpData ? totpData.rawCode : '';
-        const pctLeft = totpData ? totpData.percentLeft : 100;
         const secLeft = totpData ? totpData.secondsLeft : 30;
 
         rowsHtml += `
-          <div class="totp-box" data-totp-secret="${escapeHtml(item.totp)}">
-            <div class="totp-header">
-              <span><i class="fa-solid fa-shield-halved"></i> Live 2FA Authenticator</span>
-              <span class="totp-sec-countdown">${secLeft}s</span>
+          <div data-totp-secret="${escapeHtml(item.totp)}" class="preview-row">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.15rem;">
+              <span style="font-size:0.65rem; color:var(--text-muted); opacity:0.6; text-transform:uppercase; font-weight:600; letter-spacing:0.05em;">
+                LIVE 2FA <span class="totp-sec-countdown" style="font-weight:400; text-transform:none;">(${secLeft}s)</span>
+              </span>
             </div>
-            <div class="totp-code-row">
-              <span class="totp-code-display">${codeDisplay}</span>
-              <button type="button" class="btn-icon btn-copy-totp-val" data-val="${rawCode}" title="Copy 2FA Code">
-                <i class="fa-regular fa-copy"></i>
-              </button>
-            </div>
-            <div class="totp-progress-bg">
-              <div class="totp-progress-fill" style="width:${pctLeft}%;"></div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+              <span class="totp-code-display" style="font-family:var(--font-mono); font-size:1.25rem; color:var(--text-light); font-weight:600; letter-spacing:0.15em; word-break:break-all;">${codeDisplay}</span>
+              <div class="preview-actions" style="display:flex; gap:0.25rem; flex-shrink:0;">
+                <button type="button" class="btn-icon btn-copy-totp-val" data-val="${rawCode}" title="Copy 2FA Code" style="background:transparent; border:none; color:var(--text-muted);">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -988,12 +991,12 @@
       
       if (item.backupCodes) {
         rowsHtml += `
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:0.75rem 1rem; border-radius:12px; display:flex; flex-direction:column; gap:0.25rem;">
-            <span style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:600; letter-spacing:0.05em;">2FA BACKUP / RECOVERY CODES</span>
+          <div class="preview-row">
+            <span style="font-size:0.65rem; color:var(--text-muted); opacity:0.6; text-transform:uppercase; font-weight:600; letter-spacing:0.05em; display:block; margin-bottom:0.15rem;">BACKUP CODES</span>
             <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:0.5rem;">
-              <span style="font-family:var(--font-mono); font-size:0.95rem; color:#f8fafc; white-space:pre-wrap; word-break:break-all; line-height:1.5;">${escapeHtml(item.backupCodes)}</span>
-              <div style="display:flex; gap:0.25rem; flex-shrink:0;">
-                <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(item.backupCodes)}" title="Copy All Codes">
+              <span style="font-family:var(--font-mono); font-size:1rem; color:var(--text-light); white-space:pre-wrap; word-break:break-all; line-height:1.5;">${escapeHtml(item.backupCodes)}</span>
+              <div class="preview-actions" style="display:flex; gap:0.25rem; flex-shrink:0;">
+                <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(item.backupCodes)}" title="Copy All Codes" style="background:transparent; border:none; color:var(--text-muted);">
                   <i class="fa-regular fa-copy"></i>
                 </button>
               </div>
@@ -1014,16 +1017,16 @@
     } else if (item.type === 'note') {
       if (item.notes) {
         rowsHtml += `
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(139,92,246,0.3); padding:1rem 1.25rem; border-radius:12px; display:flex; flex-direction:column; gap:0.6rem;">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-              <span style="font-size:0.75rem; color:var(--accent-purple); text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">
-                <i class="fa-regular fa-note-sticky"></i> Secure Note Content
+          <div class="preview-row">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.25rem;">
+              <span style="font-size:0.65rem; color:var(--text-muted); opacity:0.6; text-transform:uppercase; font-weight:600; letter-spacing:0.05em;">
+                SECURE NOTE
               </span>
-              <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(item.notes)}" title="Copy Note Content">
+              <button type="button" class="btn-icon btn-copy-row-val preview-actions" data-val="${escapeHtml(item.notes)}" title="Copy Note Content" style="background:transparent; border:none; color:var(--text-muted);">
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.92rem; color:#f8fafc; line-height:1.6; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere; background:rgba(8,11,18,0.85); padding:1rem 1.15rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08); max-height:450px; overflow-y:auto;">${escapeHtml(item.notes)}</div>
+            <div style="font-family:inherit; font-size:1.05rem; color:var(--text-light); line-height:1.6; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere; max-height:450px; overflow-y:auto;">${escapeHtml(item.notes)}</div>
           </div>
         `;
       }
@@ -1174,7 +1177,7 @@
     card.className = 'item-card glass-panel';
     card.dataset.id = item.id;
     
-    if (true) {
+    if (!state.searchQuery) {
       card.setAttribute('draggable', 'true');
       
       card.addEventListener('dragstart', (e) => {
@@ -1362,9 +1365,21 @@
       menuBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         document.querySelectorAll('.card-dropdown-menu').forEach(m => {
-          if (m !== menuDropdown) m.classList.add('hidden');
+          if (m !== menuDropdown) {
+            m.classList.add('hidden');
+            const parentCard = m.closest('.item-card');
+            if (parentCard) parentCard.classList.remove('dropdown-open');
+          }
         });
-        menuDropdown.classList.toggle('hidden');
+        const isHidden = menuDropdown.classList.toggle('hidden');
+        const parentCard = card;
+        if (parentCard) {
+          if (!isHidden) {
+            parentCard.classList.add('dropdown-open');
+          } else {
+            parentCard.classList.remove('dropdown-open');
+          }
+        }
       });
     }
 
@@ -1600,6 +1615,8 @@
           b.addEventListener('click', () => {
             const tag = b.dataset.tag;
             state.selectedTag = state.selectedTag === tag ? null : tag;
+            if (typeof switchView === 'function' && DOM.viewVault) switchView(DOM.viewVault);
+            if (typeof closeMobileMenu === 'function') closeMobileMenu();
             renderVault();
           });
         });
@@ -2153,8 +2170,20 @@
         if (file.name.endsWith('.json')) {
           const imported = JSON.parse(content);
           if (imported.vault) {
-            let decItems = await CryptoEngine.decryptData(imported.vault, state.masterKey);
-            if (decItems && !Array.isArray(decItems) && decItems.items) decItems = decItems.items;
+            let decData = await CryptoEngine.decryptData(imported.vault, state.masterKey);
+            let decItems = [];
+            if (decData && !Array.isArray(decData) && decData.items) {
+              decItems = decData.items;
+              if (decData.customOrders) {
+                if (!state.customOrders) state.customOrders = {};
+                for (let key in decData.customOrders) {
+                  if (!state.customOrders[key]) state.customOrders[key] = [];
+                  state.customOrders[key] = [...new Set([...state.customOrders[key], ...decData.customOrders[key]])];
+                }
+              }
+            } else {
+              decItems = decData || [];
+            }
             state.vaultItems = [...state.vaultItems, ...decItems];
             await renderVault();
             await saveVaultToGitHub();
@@ -2208,7 +2237,11 @@
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.card-dropdown-wrapper')) {
-        document.querySelectorAll('.card-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.card-dropdown-menu').forEach(m => {
+          m.classList.add('hidden');
+          const card = m.closest('.item-card');
+          if (card) card.classList.remove('dropdown-open');
+        });
       }
     });
 

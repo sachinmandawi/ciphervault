@@ -54,7 +54,7 @@
 
   --border-color: rgba(255, 255, 255, 0.08);
 
-  --border-glow: rgba(99, 102, 241, 0.35);
+  --border-glow: transparent;
 
 
 
@@ -90,9 +90,9 @@
 
   --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
-  --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.35);
+  --shadow-glow: none;
 
-  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  --shadow-xl: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 
 }
 
@@ -1338,6 +1338,14 @@ select option,
 
 
 
+.item-card.dropdown-open {
+
+  z-index: 50;
+
+}
+
+
+
 .item-card.drag-over {
 
   border-top: 2px dashed var(--accent-purple);
@@ -2202,7 +2210,7 @@ select option,
 
   color: #ffffff;
 
-  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 
 }
 
@@ -2212,7 +2220,7 @@ select option,
 
   transform: translateY(-1px);
 
-  box-shadow: 0 6px 25px rgba(168, 85, 247, 0.55);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
 }
 
@@ -2220,7 +2228,7 @@ select option,
 
 .glow-btn {
 
-  box-shadow: 0 0 25px rgba(168, 85, 247, 0.6);
+  box-shadow: none;
 
 }
 
@@ -2506,7 +2514,7 @@ input:focus, textarea:focus, select:focus {
 
   background: rgba(255, 255, 255, 0.08);
 
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  box-shadow: none;
 
 }
 
@@ -2696,9 +2704,9 @@ input:focus, textarea:focus, select:focus {
 
 .modal-header {
 
-  padding: 1.15rem 1.5rem;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
 
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: none;
 
   display: flex;
 
@@ -2706,7 +2714,7 @@ input:focus, textarea:focus, select:focus {
 
   justify-content: space-between;
 
-  background: rgba(10, 13, 22, 0.8);
+  background: transparent;
 
   flex-shrink: 0;
 
@@ -2732,11 +2740,11 @@ input:focus, textarea:focus, select:focus {
 
 .modal-footer {
 
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
 
-  border-top: 1px solid var(--border-color);
+  border-top: none;
 
-  background: rgba(10, 13, 22, 0.85);
+  background: transparent;
 
   display: flex;
 
@@ -3481,3 +3489,10 @@ html, body {
   overflow: visible;
   word-wrap: break-word;
 }
+
+/* Extreme Focus Mode Styles */
+.preview-row { margin-bottom: 1.25rem; transition: all 0.2s ease; }
+.preview-row .preview-actions { opacity: 0; transition: opacity 0.2s ease; pointer-events: none; }
+.preview-row:hover .preview-actions, .preview-row:focus-within .preview-actions { opacity: 1; pointer-events: auto; }
+@media (max-width: 768px) { .preview-row .preview-actions { opacity: 1; pointer-events: auto; } }
+
