@@ -2250,16 +2250,19 @@
 
     // Dashboard Stat Cards Click Handlers
     const cardStatTotal = document.getElementById('card-stat-total');
-    if (cardStatTotal) cardStatTotal.addEventListener('click', () => { if (DOM.navAllItems) DOM.navAllItems.click(); });
+    if (cardStatTotal) cardStatTotal.addEventListener('click', () => { 
+      const navAll = document.querySelector('.nav-item[data-category="all"]');
+      if (navAll) navAll.click(); 
+    });
     
     const cardStatScore = document.getElementById('card-stat-score');
-    if (cardStatScore) cardStatScore.addEventListener('click', () => { if (DOM.navAudit) DOM.navAudit.click(); });
+    if (cardStatScore) cardStatScore.addEventListener('click', () => { if (DOM.navSec) DOM.navSec.click(); });
     
     const cardStatReused = document.getElementById('card-stat-reused');
-    if (cardStatReused) cardStatReused.addEventListener('click', () => { if (DOM.navAudit) DOM.navAudit.click(); });
+    if (cardStatReused) cardStatReused.addEventListener('click', () => { if (DOM.navSec) DOM.navSec.click(); });
     
     const cardStatWeak = document.getElementById('card-stat-weak');
-    if (cardStatWeak) cardStatWeak.addEventListener('click', () => { if (DOM.navAudit) DOM.navAudit.click(); });
+    if (cardStatWeak) cardStatWeak.addEventListener('click', () => { if (DOM.navSec) DOM.navSec.click(); });
 
 
     document.addEventListener('click', (e) => {
