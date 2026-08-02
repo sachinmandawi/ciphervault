@@ -1154,6 +1154,7 @@
     const card = document.createElement('div');
     card.className = 'item-card glass-panel';
     card.dataset.id = item.id;
+    if (item.color) card.dataset.color = item.color;
     
     if (state.currentCategory === 'all' && !state.searchQuery && !state.selectedTag) {
       card.setAttribute('draggable', 'true');
