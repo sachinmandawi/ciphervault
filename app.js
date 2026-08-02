@@ -888,7 +888,8 @@
     }
 
     if (item.type === 'login') {
-      rowsHtml += createDetailRow('Username / Email', item.username);
+      if (item.username || (!item.username && !item.email)) rowsHtml += createDetailRow('Username', item.username || '');
+      if (item.email) rowsHtml += createDetailRow('Email', item.email);
       rowsHtml += createDetailRow('Password', item.password, true);
       
       if (item.totp) {
