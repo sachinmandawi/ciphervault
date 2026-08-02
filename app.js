@@ -1054,7 +1054,13 @@
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
-            <div style="font-family:inherit; font-size:1.05rem; color:var(--text-light); line-height:1.6; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere;">${escapeHtml(item.notes)}</div>
+            <div style="font-family:inherit; font-size:1.05rem; color:var(--text-light); line-height:1.6; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere;">${(function(t) {
+              const escaped = escapeHtml(t);
+              const urlRegex = /(https?:\/\/[^\s]+)/g;
+              return escaped.replace(urlRegex, function(url) {
+                return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent-purple); text-decoration:underline;">' + url + '</a>';
+              });
+            })(item.notes)}</div>
           </div>
         `;
       }
