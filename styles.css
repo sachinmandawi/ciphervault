@@ -3703,6 +3703,27 @@ html, body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.8), -1px -1px 1px rgba(255,255,255,0.2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 380px) {
+  .cc-number {
+    font-size: 1.25rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+  }
+  .cc-value {
+    font-size: 0.75rem;
+  }
+  .cc-label {
+    font-size: 0.45rem;
+  }
+  .cc-3d-wrapper {
+    max-width: 100%;
+    margin: 0.5rem auto 1rem auto;
+  }
 }
 
 .cc-stripe {

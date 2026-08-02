@@ -1126,11 +1126,11 @@
     if (!contentEl) return;
     
     contentEl.querySelectorAll('.btn-copy-row-val').forEach(btn => {
-      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Copied to clipboard!'));
+      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Copied to clipboard!', btn));
     });
 
     contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
-      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!'));
+      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!', btn));
     });
 
     contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
@@ -1865,6 +1865,7 @@
 
     if (!title) {
       showToast('Please enter a title for this item!', 'error');
+      if (DOM.itemTitleInput) DOM.itemTitleInput.focus();
       return;
     }
 
@@ -2658,6 +2659,10 @@
         e.preventDefault();
         if (DOM.searchInput) DOM.searchInput.focus();
       }
+      if (e.key === 'Escape') {
+        const activeModals = document.querySelectorAll('.modal-overlay.active');
+        if (activeModals.length > 0) closeModal();
+      }
     });
   }
 
@@ -2695,9 +2700,21 @@
     DOM.itemStrengthBar.className = `strength-bar ${st.score}`;
   }
 
-  function copyToClipboard(text, msg) {
+  function copyToClipboard(text, msg, btnElement = null) {
     navigator.clipboard.writeText(text).then(() => {
       showToast(msg || 'Copied to clipboard!', 'success');
+      if (btnElement) {
+        const icon = btnElement.tagName.toLowerCase() === 'i' ? btnElement : btnElement.querySelector('i');
+        if (icon) {
+          const origClass = icon.className;
+          icon.className = 'fa-solid fa-check';
+          icon.style.color = 'var(--accent-purple)';
+          setTimeout(() => { 
+            icon.className = origClass; 
+            icon.style.color = '';
+          }, 2000);
+        }
+      }
     }).catch(() => {
       showToast('Failed to copy text', 'error');
     });
