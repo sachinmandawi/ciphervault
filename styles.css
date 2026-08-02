@@ -3124,7 +3124,7 @@ html, body {
 
   .stats-grid {
 
-    grid-template-columns: repeat(2, 1fr) !important; /* Restored to 2x2 grid */
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Force equal columns */
 
     gap: 0.65rem;
 
