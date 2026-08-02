@@ -532,6 +532,8 @@ body {
 
 .stat-details {
   display: flex;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
 }
 
@@ -544,6 +546,9 @@ body {
 
 .stat-label {
   font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--text-muted);
   margin-top: 0.2rem;
 }
@@ -690,6 +695,7 @@ select option,
 
 .item-title-block {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -1681,3 +1687,6 @@ html, body {
  
  
  
+@media (max-width: 900px) {
+  .hide-mobile { display: none !important; }
+}
