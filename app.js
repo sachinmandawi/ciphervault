@@ -712,20 +712,25 @@
       }
 
       if (payload && payload.vault && payload.vault.ciphertext) {
-        let items = await CryptoEngine.decryptData(payload.vault, key);
-        if (Array.isArray(items)) {
-          items.forEach(i => {
-            if (typeof i.tags === 'string') {
-              i.tags = i.tags.split(/[,#\\s]+/).map(t => t.trim()).filter(Boolean);
-            }
-            if (!Array.isArray(i.tags)) {
-              i.tags = [];
-            }
-          });
-          state.vaultItems = items;
-        } else {
-          state.vaultItems = [];
+        let decrypted = await CryptoEngine.decryptData(payload.vault, key);
+        let items = [];
+        if (Array.isArray(decrypted)) {
+          items = decrypted;
+          state.customOrders = {};
+        } else if (decrypted && Array.isArray(decrypted.items)) {
+          items = decrypted.items;
+          state.customOrders = decrypted.customOrders || {};
         }
+
+        items.forEach(i => {
+          if (typeof i.tags === 'string') {
+            i.tags = i.tags.split(/[,#\s]+/).map(t => t.trim()).filter(Boolean);
+          }
+          if (!Array.isArray(i.tags)) {
+            i.tags = [];
+          }
+        });
+        state.vaultItems = items;
       } else {
         state.vaultItems = [];
       }
@@ -740,7 +745,8 @@
     if (!state.masterKey) return;
     try {
       showToast('Syncing with Private GitHub Repo...', 'info');
-      const encryptedVault = await CryptoEngine.encryptData(state.vaultItems, state.masterKey);
+      const vaultData = { items: state.vaultItems, customOrders: state.customOrders };
+      const encryptedVault = await CryptoEngine.encryptData(vaultData, state.masterKey);
       
       const payload = {
         version: '1.0',
@@ -1100,45 +1106,24 @@
     
     if (!draggedCard || !targetCard) return;
     
-    // Move in DOM
+    // Move in DOM visually
     if (draggedIdx < targetIdx) {
       targetCard.parentNode.insertBefore(draggedCard, targetCard.nextSibling);
     } else {
       targetCard.parentNode.insertBefore(draggedCard, targetCard);
     }
     
-    // Ensure the global array is sorted by current orderIndex first
-    state.vaultItems.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
-    
-    // Find the actual items
-    const dItemIndex = state.vaultItems.findIndex(i => String(i.id) === draggedId);
-    if (dItemIndex === -1) return;
-    const [draggedItem] = state.vaultItems.splice(dItemIndex, 1);
-    
-    let tItemIndex = state.vaultItems.findIndex(i => String(i.id) === targetId);
-    
-    // Determine if we should insert before or after target in the global array
-    // We can just check the new DOM order of dragged vs target
-    const newCards = Array.from(container.querySelectorAll('.item-card'));
-    const newDraggedIdx = newCards.indexOf(draggedCard);
-    const newTargetIdx = newCards.indexOf(targetCard);
-    
-    if (newDraggedIdx > newTargetIdx) {
-       // Insert AFTER target
-       state.vaultItems.splice(tItemIndex + 1, 0, draggedItem);
-    } else {
-       // Insert BEFORE target
-       state.vaultItems.splice(tItemIndex, 0, draggedItem);
+    // Save new DOM order for this specific view
+    let viewKey = 'all';
+    if (state.selectedTag) {
+      viewKey = 'label:' + state.selectedTag;
+    } else if (state.currentCategory !== 'all') {
+      viewKey = 'category:' + state.currentCategory;
     }
     
-    await saveCustomOrder();
-  }
-  
-  async function saveCustomOrder() {
-    // Re-assign orderIndex globally based on the new array order
-    state.vaultItems.forEach((item, index) => {
-      item.orderIndex = index;
-    });
+    const newCards = Array.from(container.querySelectorAll('.item-card'));
+    if (!state.customOrders) state.customOrders = {};
+    state.customOrders[viewKey] = newCards.map(c => String(c.dataset.id));
     
     state.sortBy = 'custom';
     const sortSelect = document.getElementById('sort-select');
@@ -2112,7 +2097,8 @@
   // --- EXPORT & IMPORT ---
   async function exportEncryptedBackup() {
     try {
-      const encryptedVault = await CryptoEngine.encryptData(state.vaultItems, state.masterKey);
+      const vaultData = { items: state.vaultItems, customOrders: state.customOrders };
+      const encryptedVault = await CryptoEngine.encryptData(vaultData, state.masterKey);
       const backupObj = {
         version: '1.0',
         exportedAt: new Date().toISOString(),
@@ -2151,7 +2137,8 @@
         if (file.name.endsWith('.json')) {
           const imported = JSON.parse(content);
           if (imported.vault) {
-            const decItems = await CryptoEngine.decryptData(imported.vault, state.masterKey);
+            let decItems = await CryptoEngine.decryptData(imported.vault, state.masterKey);
+            if (decItems && !Array.isArray(decItems) && decItems.items) decItems = decItems.items;
             state.vaultItems = [...state.vaultItems, ...decItems];
             await renderVault();
             await saveVaultToGitHub();
