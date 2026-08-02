@@ -356,6 +356,15 @@
     totpTimer: null,
   };
 
+  // Auto-resize notes textarea
+  const itemNotesEl = document.getElementById('item-notes');
+  if (itemNotesEl) {
+    itemNotesEl.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+    });
+  }
+
   // --- DOM ELEMENTS ---
   const DOM = {
     authOverlay: document.getElementById('auth-overlay'),
@@ -1026,7 +1035,7 @@
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
-            <div style="font-family:inherit; font-size:1.05rem; color:var(--text-light); line-height:1.6; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere; max-height:450px; overflow-y:auto;">${escapeHtml(item.notes)}</div>
+            <div style="font-family:inherit; font-size:1.05rem; color:var(--text-light); line-height:1.6; white-space:pre-wrap; word-break:break-all; overflow-wrap:anywhere;">${escapeHtml(item.notes)}</div>
           </div>
         `;
       }
