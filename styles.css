@@ -384,7 +384,7 @@ body {
 
   color: #fff;
 
-  box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+  box-shadow: none;
 
 }
 
@@ -552,7 +552,7 @@ body {
 
   font-size: 1.15rem;
 
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+  box-shadow: none;
 
 }
 
@@ -614,7 +614,7 @@ body {
 
   background-color: var(--accent-green);
 
-  box-shadow: 0 0 8px var(--accent-green);
+  box-shadow: none;
 
 }
 
@@ -880,7 +880,7 @@ body {
 
   background: rgba(255, 255, 255, 0.08);
 
-  box-shadow: 0 0 18px rgba(139, 92, 246, 0.25);
+  box-shadow: none;
 
 }
 
@@ -1302,7 +1302,7 @@ select option,
 
   border-color: rgba(139, 92, 246, 0.4);
 
-  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6);
 
   z-index: 10;
 
@@ -1676,7 +1676,7 @@ select option,
 
   border-color: rgba(139, 92, 246, 0.35);
 
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 20px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
 
 }
 
@@ -2326,7 +2326,7 @@ select option,
 
   border: none !important;
 
-  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
 
   cursor: pointer !important;
 
@@ -2342,7 +2342,7 @@ select option,
 
   transform: translateY(-1px);
 
-  box-shadow: 0 6px 25px rgba(239, 68, 68, 0.65) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
 
 }
 
@@ -2838,7 +2838,7 @@ input:focus, textarea:focus, select:focus {
 
   border: none;
 
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+  box-shadow: var(--shadow-xl);
 
 }
 
@@ -3282,7 +3282,7 @@ html, body {
 
 
 
-.color-swatch.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); transform: scale(1.15); }
+.color-swatch.active { border-color: #fff; box-shadow: none; transform: scale(1.15); }
 
 
 
@@ -3406,7 +3406,7 @@ html, body {
 .InputContainer:focus-within {
   background-color: rgba(255, 255, 255, 0.08);
   border-color: rgba(139, 92, 246, 0.4);
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+  box-shadow: none;
 }
 
 .InputContainer .input, .InputContainer .input:focus, .InputContainer .input:active {
