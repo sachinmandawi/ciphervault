@@ -1227,6 +1227,7 @@ select option,
 input[type="text"],
 input[type="password"],
 input[type="url"],
+input[type="email"],
 textarea,
 .form-control {
   width: 100%;
