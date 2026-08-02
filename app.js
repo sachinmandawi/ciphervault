@@ -427,7 +427,7 @@
     // Quick actions
     btnAddItem: document.getElementById('btn-add-item'),
     btnAdd2fa: document.getElementById('btn-add-2fa'),
-    btnQuickGen: document.getElementById('btn-quick-gen'),
+
 
     // Generator elements
     genResult: document.getElementById('gen-result'),
@@ -1731,6 +1731,7 @@
       id: id || 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
       type: type,
       title: title,
+      color: state.currentColor || 'default',
       username: DOM.itemUsername ? DOM.itemUsername.value.trim() : '',
       email: DOM.itemEmail ? DOM.itemEmail.value.trim() : '',
       mobile: DOM.itemMobile ? DOM.itemMobile.value.trim() : '',
