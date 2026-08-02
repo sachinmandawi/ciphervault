@@ -1596,6 +1596,20 @@ select option,
 
   color: var(--text-muted);
 
+  word-break: break-all;
+
+  overflow-wrap: anywhere;
+
+  white-space: pre-wrap;
+
+  flex: 1;
+
+  min-width: 0;
+
+  line-height: 1.4;
+
+  padding-right: 0.5rem;
+
 }
 
 

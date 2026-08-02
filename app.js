@@ -948,7 +948,7 @@
         <div class="preview-row">
           <span style="font-size:0.65rem; color:var(--text-muted); opacity:0.6; text-transform:uppercase; font-weight:600; letter-spacing:0.05em; display:block; margin-bottom:0.15rem;">${escapeHtml(label)}</span>
           <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
-            <span id="${rowId}" style="font-family:${isMonospace ? 'var(--font-mono)' : 'inherit'}; font-size:1.1rem; color:var(--text-light); word-break:break-all;">${isSecret ? '••••••••••••' : escapeHtml(value)}</span>
+            <span id="${rowId}" style="font-family:${isMonospace ? 'var(--font-mono)' : 'inherit'}; font-size:1.1rem; color:var(--text-light); word-break:break-all; overflow-wrap:anywhere; flex:1; min-width:0; padding-right:0.5rem;">${isSecret ? '••••••••••••' : escapeHtml(value)}</span>
             <div class="preview-actions" style="display:flex; gap:0.25rem; flex-shrink:0;">
               ${isSecret ? `
                 <button type="button" class="btn-icon btn-toggle-row-vis" data-target="${rowId}" data-real="${escapeHtml(value)}" title="Show/Hide" style="background:transparent; border:none; color:var(--text-muted);">
