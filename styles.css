@@ -1669,3 +1669,124 @@ html, body {
  } 
   
  
+/* NATIVE ANDROID UI OVERHAUL */
+@media (max-width: 600px) {
+  /* Hide Sidebar completely on mobile in favor of bottom nav */
+  .sidebar {
+    display: none !important;
+  }
+  
+  .mobile-only { display: flex !important; }
+  .desktop-only { display: none !important; }
+
+  /* Bottom Navigation */
+  .bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65px;
+    background: rgba(10, 13, 22, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    z-index: 990;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .bnav-item {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 1;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .bnav-item i {
+    font-size: 1.25rem;
+    transition: transform 0.2s;
+  }
+
+  .bnav-item span {
+    font-size: 0.65rem;
+    font-weight: 500;
+  }
+
+  .bnav-item.active {
+    color: var(--accent-cyan);
+  }
+
+  .bnav-item.active i {
+    transform: translateY(-2px);
+  }
+
+  /* Floating Action Button (FAB) */
+  .fab-add {
+    display: flex !important;
+    position: fixed;
+    bottom: 80px; /* Above bottom nav */
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    color: #fff;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+    z-index: 995;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .fab-add:active {
+    transform: scale(0.92);
+  }
+
+  /* Make main content clear the bottom nav */
+  .content-scroll {
+    padding-bottom: 90px !important; 
+  }
+
+  /* Full Screen Modals */
+  .modal-card {
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-sizing: border-box;
+  }
+  
+  .modal-overlay {
+    padding: 0 !important;
+  }
+
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+  }
+
+  /* Ensure inputs don't overflow */
+  input, textarea, select {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  
+  .top-header {
+    border-radius: 0;
+  }
+}
