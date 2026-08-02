@@ -465,6 +465,7 @@
     itemPassword: document.getElementById('item-password'),
     itemTotp: document.getElementById('item-totp'),
     itemUrl: document.getElementById('item-url'),
+    itemBackupCodes: document.getElementById('item-backup-codes'),
     itemCardholder: document.getElementById('item-cardholder'),
     itemCardnumber: document.getElementById('item-cardnumber'),
     itemExp: document.getElementById('item-exp'),
@@ -1565,6 +1566,7 @@
     if (DOM.itemPassword) DOM.itemPassword.value = item.password || '';
     if (DOM.itemTotp) DOM.itemTotp.value = item.totp || '';
     if (DOM.itemUrl) DOM.itemUrl.value = item.url || '';
+    if (DOM.itemBackupCodes) DOM.itemBackupCodes.value = item.backupCodes || '';
     if (DOM.itemCardholder) DOM.itemCardholder.value = item.cardholder || '';
     if (DOM.itemCardnumber) DOM.itemCardnumber.value = item.cardnumber || '';
     if (DOM.itemExp) DOM.itemExp.value = item.exp || '';
@@ -1628,6 +1630,7 @@
       password: DOM.itemPassword ? DOM.itemPassword.value : '',
       totp: DOM.itemTotp ? DOM.itemTotp.value.trim().toUpperCase() : '',
       url: DOM.itemUrl ? DOM.itemUrl.value.trim() : '',
+      backupCodes: DOM.itemBackupCodes ? DOM.itemBackupCodes.value.trim() : '',
       cardholder: DOM.itemCardholder ? DOM.itemCardholder.value.trim() : '',
       cardnumber: DOM.itemCardnumber ? DOM.itemCardnumber.value.trim() : '',
       exp: DOM.itemExp ? DOM.itemExp.value.trim() : '',
