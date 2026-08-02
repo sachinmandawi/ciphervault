@@ -2563,8 +2563,112 @@
     return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
+  // --- CUSTOM SELECT UI (Replaces native selects) ---
+  function initCustomSelects() {
+    const selects = document.querySelectorAll('select.form-select');
+    selects.forEach(select => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'custom-select-wrapper';
+      
+      const trigger = document.createElement('div');
+      trigger.className = 'custom-select-trigger';
+      
+      const textSpan = document.createElement('span');
+      textSpan.textContent = select.options[select.selectedIndex]?.text || '';
+      
+      const icon = document.createElement('i');
+      icon.className = 'fa-solid fa-chevron-down';
+      
+      trigger.appendChild(textSpan);
+      trigger.appendChild(icon);
+      
+      const menu = document.createElement('div');
+      menu.className = 'custom-select-menu';
+      menu.style.display = 'none';
+      
+      Array.from(select.options).forEach(opt => {
+        const item = document.createElement('div');
+        item.className = 'custom-select-option';
+        item.textContent = opt.text;
+        item.dataset.value = opt.value;
+        if (opt.selected) item.classList.add('selected');
+        
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          select.value = opt.value;
+          select.dispatchEvent(new Event('change'));
+          textSpan.textContent = opt.text;
+          Array.from(menu.children).forEach(c => c.classList.remove('selected'));
+          item.classList.add('selected');
+          wrapper.classList.remove('open');
+          menu.style.display = 'none';
+        });
+        menu.appendChild(item);
+      });
+      
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = wrapper.classList.contains('open');
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+          w.classList.remove('open');
+          const m = w.querySelector('.custom-select-menu');
+          if(m) m.style.display = 'none';
+        });
+        
+        if (!isOpen) {
+          wrapper.classList.add('open');
+          menu.style.display = 'flex';
+        }
+      });
+      
+      wrapper.appendChild(trigger);
+      wrapper.appendChild(menu);
+      
+      select.parentNode.insertBefore(wrapper, select);
+      wrapper.appendChild(select);
+      select.style.display = 'none';
+      
+      // Override value setter to sync custom UI when changed programmatically
+      const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+      Object.defineProperty(select, 'value', {
+        get: function() { return originalDescriptor.get.call(this); },
+        set: function(val) {
+          originalDescriptor.set.call(this, val);
+          const option = Array.from(this.options).find(o => o.value === val);
+          if (option) {
+            textSpan.textContent = option.text;
+            Array.from(menu.children).forEach(c => {
+              if (c.dataset.value === val) c.classList.add('selected');
+              else c.classList.remove('selected');
+            });
+          }
+        }
+      });
+      
+      select.addEventListener('change', () => {
+        const option = Array.from(select.options).find(o => o.value === select.value);
+        if (option) {
+          textSpan.textContent = option.text;
+          Array.from(menu.children).forEach(c => {
+            if (c.dataset.value === select.value) c.classList.add('selected');
+            else c.classList.remove('selected');
+          });
+        }
+      });
+    });
+    
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+        w.classList.remove('open');
+        const m = w.querySelector('.custom-select-menu');
+        if(m) m.style.display = 'none';
+      });
+    });
+  }
+
   // --- INITIALIZATION ---
   async function init() {
+    initCustomSelects();
     setupEventListeners();
     await checkMasterStatus();
     updateGeneratorView();

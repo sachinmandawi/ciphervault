@@ -1192,6 +1192,77 @@ body {
 
 
 
+/* Custom Select Component (Replaces native select) */
+
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.custom-select-trigger:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.custom-select-trigger i {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.custom-select-wrapper.open .custom-select-trigger i {
+  transform: rotate(180deg);
+}
+
+.custom-select-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  background: rgba(15, 20, 32, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl);
+  z-index: 200;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  animation: fadeIn 0.15s ease-out;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.custom-select-option {
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  transition: all 0.15s ease;
+}
+
+.custom-select-option:hover,
+.custom-select-option.selected {
+  background: rgba(139, 92, 246, 0.15);
+  color: #fff;
+}
+
+
 /* Force All Select & Option Elements to Have Dark Glass Background & Crisp White Text */
 
 select,
@@ -1227,6 +1298,7 @@ select option,
   display: flex;
 
   background: var(--bg-input);
+
 
   border: 1px solid var(--border-color);
 
