@@ -1523,7 +1523,23 @@
     }
 
     items.sort((a, b) => {
-      if (state.sortBy === 'custom') return (a.orderIndex || 0) - (b.orderIndex || 0);
+      if (state.sortBy === 'custom') {
+        let viewKey = 'all';
+        if (state.selectedTag) {
+          viewKey = 'label:' + state.selectedTag;
+        } else if (state.currentCategory !== 'all') {
+          viewKey = 'category:' + state.currentCategory;
+        }
+        const orderList = state.customOrders[viewKey] || [];
+        let idxA = orderList.indexOf(String(a.id));
+        let idxB = orderList.indexOf(String(b.id));
+        if (idxA === -1) idxA = 999999;
+        if (idxB === -1) idxB = 999999;
+        
+        if (idxA !== idxB) return idxA - idxB;
+        // fallback to created date if not found in custom order
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      }
       if (state.sortBy === 'title') return (a.title || '').localeCompare(b.title || '');
       if (state.sortBy === 'created') return (b.createdAt || 0) - (a.createdAt || 0);
       if (state.sortBy === 'strength') {
