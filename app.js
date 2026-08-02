@@ -379,8 +379,6 @@
 
     // Nav
     navItems: document.querySelectorAll('.sidebar-nav .nav-item[data-category]'),
-    bnavItems: document.querySelectorAll('.bnav-item'),
-    btnFabAdd: document.getElementById('btn-fab-add'),
     navAuth: document.getElementById('nav-authenticator'),
     navGen: document.getElementById('nav-generator'),
     navSec: document.getElementById('nav-security'),
@@ -2260,35 +2258,6 @@
       });
     });
 
-    
-    // Mobile Bottom Nav logic
-    if (DOM.bnavItems) {
-      DOM.bnavItems.forEach(btn => {
-        btn.addEventListener('click', () => {
-          // Remove active from all bnav items
-          DOM.bnavItems.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          
-          const target = btn.getAttribute('data-mobile-nav');
-          if (target === 'vault') {
-            state.selectedCategory = 'all';
-            state.selectedTag = null;
-            DOM.searchInput.value = '';
-            state.searchQuery = '';
-            switchView('vault');
-            renderVault();
-          } else if (target === 'generator') {
-            switchView('generator');
-            updateGeneratorView();
-          } else if (target === 'authenticator') {
-            switchView('authenticator');
-          } else if (target === 'settings') {
-            switchView('settings');
-          }
-        });
-      });
-    }
-
     if (DOM.navAuth) {
       DOM.navAuth.addEventListener('click', () => {
         setActiveSidebarButton(DOM.navAuth);
@@ -2370,7 +2339,6 @@
     }
 
     if (DOM.btnAddItem) DOM.btnAddItem.addEventListener('click', openAddModal);
-    if (DOM.btnFabAdd) DOM.btnFabAdd.addEventListener('click', openAddModal);
     if (DOM.btnEmptyAdd) DOM.btnEmptyAdd.addEventListener('click', openAddModal);
     if (DOM.btnQuickGen) {
       DOM.btnQuickGen.addEventListener('click', () => {
