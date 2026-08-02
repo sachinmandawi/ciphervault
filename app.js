@@ -2252,8 +2252,8 @@
     const item = state.vaultItems.find(i => i.id === id);
     if (!item) return;
 
-    const shareKey = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-      .map(b => b.toString(16).padStart(2, '0')).join('');
+    const rawKey = window.crypto.getRandomValues(new Uint8Array(32));
+    const shareKeyHex = Array.from(rawKey).map(b => b.toString(16).padStart(2, '0')).join('');
     
     const sharePayload = {
       title: item.title,
@@ -2276,10 +2276,18 @@
     };
 
     try {
-      const encryptedData = await CryptoEngine.encryptData(sharePayload, shareKey);
+      const cryptoKey = await window.crypto.subtle.importKey(
+        'raw',
+        rawKey,
+        { name: 'AES-GCM' },
+        false,
+        ['encrypt', 'decrypt']
+      );
+
+      const encryptedData = await CryptoEngine.encryptData(sharePayload, cryptoKey);
       
       const baseUrl = window.location.href.split('?')[0].split('#')[0];
-      const shareUrl = `${baseUrl}?share=${encodeURIComponent(JSON.stringify(encryptedData))}#${shareKey}`;
+      const shareUrl = `${baseUrl}?share=${encodeURIComponent(JSON.stringify(encryptedData))}#${shareKeyHex}`;
 
       await navigator.clipboard.writeText(shareUrl);
       showToast('Secure Share Link Copied! (Valid for 24hrs)', 'success');
@@ -2852,7 +2860,17 @@
       
       try {
         if (!shareKey) throw new Error('No decryption key found in URL hash');
-        const decryptedStr = await CryptoEngine.decryptData(JSON.parse(decodeURIComponent(sharedData)), shareKey);
+        
+        const rawKey = new Uint8Array(shareKey.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        const cryptoKey = await window.crypto.subtle.importKey(
+          'raw',
+          rawKey,
+          { name: 'AES-GCM' },
+          false,
+          ['encrypt', 'decrypt']
+        );
+        
+        const decryptedStr = await CryptoEngine.decryptData(JSON.parse(decodeURIComponent(sharedData)), cryptoKey);
         const item = JSON.parse(decryptedStr);
         
         if (Date.now() > item.expiresAt) {
