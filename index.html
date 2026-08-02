@@ -802,6 +802,21 @@
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toast-container" class="toast-container"></div>
 
+  
+  <!-- Mobile Drag and Drop Polyfill -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
+  <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/scroll-behaviour.min.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      MobileDragDrop.polyfill({
+        dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
+      });
+      
+      // Polyfill requirement: avoid touch scrolling while dragging
+      window.addEventListener('touchmove', function() {}, {passive: false});
+    });
+  </script>
   <script src="app.js"></script>
 </body>
 </html>
