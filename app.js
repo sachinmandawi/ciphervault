@@ -476,6 +476,8 @@
     itemPin: document.getElementById('item-pin'),
     itemNotes: document.getElementById('item-notes'),
     itemTags: document.getElementById('item-tags'),
+    customFieldsContainer: document.getElementById('custom-fields-container'),
+    btnAddCustomField: document.getElementById('btn-add-custom-field'),
     btnModalGen: document.getElementById('btn-modal-gen'),
     itemStrengthBar: document.getElementById('item-strength-bar'),
     colorSwatches: document.querySelectorAll('.color-swatch'),
@@ -483,6 +485,49 @@
     // Toast
     toastContainer: document.getElementById('toast-container')
   };
+
+  // --- Custom Fields Logic ---
+  function createCustomFieldRow(label = '', value = '', isSecret = false) {
+    const div = document.createElement('div');
+    div.className = 'custom-field-row';
+    div.innerHTML = `
+      <input type="text" class="cf-label" placeholder="Field Name (e.g. PIN)" value="${escapeHtml(label)}">
+      <input type="${isSecret ? 'password' : 'text'}" class="cf-value" placeholder="Value" value="${escapeHtml(value)}">
+      <div class="cf-controls">
+        <label class="cf-secret-toggle" title="Hide value">
+          <input type="checkbox" class="cf-secret" ${isSecret ? 'checked' : ''}> Secret
+        </label>
+        <button type="button" class="btn-icon text-danger remove-cf" title="Remove Field">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    `;
+    return div;
+  }
+
+  if (DOM.btnAddCustomField) {
+    DOM.btnAddCustomField.addEventListener('click', () => {
+      if (DOM.customFieldsContainer) {
+        DOM.customFieldsContainer.appendChild(createCustomFieldRow());
+      }
+    });
+  }
+
+  if (DOM.customFieldsContainer) {
+    DOM.customFieldsContainer.addEventListener('click', (e) => {
+      const removeBtn = e.target.closest('.remove-cf');
+      if (removeBtn) {
+        removeBtn.closest('.custom-field-row').remove();
+      }
+    });
+    DOM.customFieldsContainer.addEventListener('change', (e) => {
+      if (e.target.classList.contains('cf-secret')) {
+        const row = e.target.closest('.custom-field-row');
+        const valInput = row.querySelector('.cf-value');
+        valInput.type = e.target.checked ? 'password' : 'text';
+      }
+    });
+  }
 
   // --- MOBILE DRAWER HANDLERS ---
   function openMobileMenu() {
@@ -964,6 +1009,12 @@
       }
     }
 
+    if (item.customFields && Array.isArray(item.customFields) && item.customFields.length > 0) {
+      item.customFields.forEach(cf => {
+        rowsHtml += createDetailRow(cf.label || 'Custom Field', cf.value, cf.isSecret);
+      });
+    }
+
     if (item.tags && item.tags.length > 0) {
       const tagBadges = item.tags.map(t => `<span class="tag-badge">#${escapeHtml(t)}</span>`).join(' ');
       rowsHtml += `
@@ -1431,6 +1482,10 @@
         (i.bankname && i.bankname.toLowerCase().includes(q)) ||
         (i.accountno && i.accountno.toLowerCase().includes(q)) ||
         (i.url && i.url.toLowerCase().includes(q)) ||
+        (i.customFields && i.customFields.some(cf => 
+          (cf.label && cf.label.toLowerCase().includes(q)) || 
+          (cf.value && cf.value.toLowerCase().includes(q))
+        )) ||
         (i.notes && i.notes.toLowerCase().includes(q)) ||
         (i.tags && i.tags.some(t => t.toLowerCase().includes(q)))
       );
@@ -1558,6 +1613,7 @@
     if (DOM.itemForm) DOM.itemForm.reset();
     if (DOM.itemType) DOM.itemType.value = 'login';
     if (DOM.itemTags) DOM.itemTags.value = '';
+    if (DOM.customFieldsContainer) DOM.customFieldsContainer.innerHTML = '';
     switchCategoryFields('login');
     if (DOM.itemStrengthBar) DOM.itemStrengthBar.className = 'strength-bar';
     DOM.modalItem.classList.add('active');
@@ -1593,6 +1649,15 @@
     if (DOM.itemPin) DOM.itemPin.value = item.pin || '';
     if (DOM.itemNotes) DOM.itemNotes.value = item.notes || '';
     if (DOM.itemTags) DOM.itemTags.value = item.tags ? item.tags.map(t => `#${t}`).join(', ') : '';
+    
+    if (DOM.customFieldsContainer) {
+      DOM.customFieldsContainer.innerHTML = '';
+      if (item.customFields && Array.isArray(item.customFields)) {
+        item.customFields.forEach(cf => {
+          DOM.customFieldsContainer.appendChild(createCustomFieldRow(cf.label, cf.value, cf.isSecret));
+        });
+      }
+    }
 
 
     switchCategoryFields(item.type || 'login');
@@ -1635,7 +1700,19 @@
     }
 
     const rawTags = DOM.itemTags ? DOM.itemTags.value.split(/[,#\s]+/).map(t => t.trim().toLowerCase()).filter(t => t.length > 0) : [];
-    const cleanTags = [...new Set(rawTags)];
+    
+    const customFields = [];
+    if (DOM.customFieldsContainer) {
+      const rows = DOM.customFieldsContainer.querySelectorAll('.custom-field-row');
+      rows.forEach(row => {
+        const label = row.querySelector('.cf-label').value.trim();
+        const value = row.querySelector('.cf-value').value;
+        const isSecret = row.querySelector('.cf-secret').checked;
+        if (label || value) {
+          customFields.push({ label, value, isSecret });
+        }
+      });
+    }
 
     const itemData = {
       id: id || 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
@@ -1656,7 +1733,8 @@
       ifsc: DOM.itemIfsc ? DOM.itemIfsc.value.trim() : '',
       pin: DOM.itemPin ? DOM.itemPin.value.trim() : '',
       notes: DOM.itemNotes ? DOM.itemNotes.value.trim() : '',
-      tags: cleanTags,
+      tags: Array.from(new Set(rawTags)),
+      customFields: customFields,
       favorite: id ? (state.vaultItems.find(i => i.id === id)?.favorite || false) : false,
       archived: id ? (state.vaultItems.find(i => i.id === id)?.archived || false) : false,
       deleted: id ? (state.vaultItems.find(i => i.id === id)?.deleted || false) : false,
