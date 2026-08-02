@@ -354,7 +354,6 @@
     verifierObj: null,
     cachedPayload: null,
     totpTimer: null,
-    currentColor: 'default',
   };
 
   // --- DOM ELEMENTS ---
@@ -481,7 +480,6 @@
     btnAddCustomField: document.getElementById('btn-add-custom-field'),
     btnModalGen: document.getElementById('btn-modal-gen'),
     itemStrengthBar: document.getElementById('item-strength-bar'),
-    colorSwatches: document.querySelectorAll('.color-swatch'),
 
     // Toast
     toastContainer: document.getElementById('toast-container'),
@@ -1154,7 +1152,6 @@
     const card = document.createElement('div');
     card.className = 'item-card glass-panel';
     card.dataset.id = item.id;
-    if (item.color) card.dataset.color = item.color;
     
     if (state.currentCategory === 'all' && !state.searchQuery && !state.selectedTag) {
       card.setAttribute('draggable', 'true');
@@ -1616,12 +1613,6 @@
   function openAddModal() {
     if (!DOM.modalItem) return;
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Add New Vault Item';
-    state.currentColor = 'default';
-    if (DOM.colorSwatches) {
-      DOM.colorSwatches.forEach(s => s.classList.remove('active'));
-      const def = Array.from(DOM.colorSwatches).find(s => s.dataset.color === 'default');
-      if (def) def.classList.add('active');
-    }
     if (DOM.itemId) DOM.itemId.value = '';
     if (DOM.itemForm) DOM.itemForm.reset();
     if (DOM.itemType) DOM.itemType.value = 'login';
@@ -1637,12 +1628,6 @@
     if (!item || !DOM.modalItem) return;
 
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Edit Vault Item';
-    state.currentColor = item.color || 'default';
-    if (DOM.colorSwatches) {
-      DOM.colorSwatches.forEach(s => s.classList.remove('active'));
-      const activeSwatch = Array.from(DOM.colorSwatches).find(s => s.dataset.color === state.currentColor);
-      if (activeSwatch) activeSwatch.classList.add('active');
-    }
     if (DOM.itemId) DOM.itemId.value = item.id;
     if (DOM.itemType) DOM.itemType.value = item.type || 'login';
     if (DOM.itemTitleInput) DOM.itemTitleInput.value = item.title || '';
@@ -1732,7 +1717,6 @@
       id: id || 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
       type: type,
       title: title,
-      color: state.currentColor || 'default',
       username: DOM.itemUsername ? DOM.itemUsername.value.trim() : '',
       email: DOM.itemEmail ? DOM.itemEmail.value.trim() : '',
       mobile: DOM.itemMobile ? DOM.itemMobile.value.trim() : '',
@@ -2181,15 +2165,7 @@
   function setupEventListeners() {
     if (DOM.unlockForm) DOM.unlockForm.addEventListener('submit', handleUnlock);
     if (DOM.btnLockNow) DOM.btnLockNow.addEventListener('click', lockVault);
-    if (DOM.colorSwatches) {
-      DOM.colorSwatches.forEach(swatch => {
-        swatch.addEventListener('click', (e) => {
-          DOM.colorSwatches.forEach(s => s.classList.remove('active'));
-          e.target.classList.add('active');
-          state.currentColor = e.target.dataset.color || 'default';
-        });
-      });
-    }
+
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.card-dropdown-wrapper')) {
