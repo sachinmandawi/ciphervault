@@ -1505,7 +1505,7 @@
 
     items.sort((a, b) => {
       if (state.sortBy === 'custom') return (a.orderIndex || 0) - (b.orderIndex || 0);
-      if (state.sortBy === 'title') return a.title.localeCompare(b.title);
+      if (state.sortBy === 'title') return (a.title || '').localeCompare(b.title || '');
       if (state.sortBy === 'created') return (b.createdAt || 0) - (a.createdAt || 0);
       if (state.sortBy === 'strength') {
         const strA = a.password ? Generator.calculateStrength(a.password).entropy : 0;
@@ -2483,15 +2483,15 @@
   }
 
   function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"']/g, function (m) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/[&<>"']/g, function (m) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
     });
   }
 
   function csvEscape(str) {
-    if (!str) return '';
-    return str.replace(/"/g, '""').replace(/\n/g, ' ');
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/"/g, '""').replace(/\n/g, ' ');
   }
 
   function formatDate(timestamp) {
