@@ -1058,7 +1058,7 @@
               const escaped = escapeHtml(t);
               const urlRegex = /(https?:\/\/[^\s]+)/g;
               return escaped.replace(urlRegex, function(url) {
-                return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent-purple); text-decoration:underline;">' + url + '</a>';
+                return '<span style="display:inline-block; margin:0.1rem 0;"><a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent-purple); text-decoration:underline; vertical-align:middle;">' + url + '</a><button type="button" class="btn-icon btn-copy-inline-url" data-val="' + url + '" title="Copy Link" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-muted); cursor:pointer; font-size:0.75rem; padding:0.15rem 0.35rem; border-radius:4px; margin-left:0.35rem; vertical-align:middle; transition:all 0.2s ease;"><i class="fa-regular fa-copy"></i></button></span>';
               });
             })(item.notes)}</div>
           </div>
@@ -1137,6 +1137,10 @@
 
     contentEl.querySelectorAll('.btn-copy-totp-val').forEach(btn => {
       btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, '2FA Code copied!', btn));
+    });
+
+    contentEl.querySelectorAll('.btn-copy-inline-url').forEach(btn => {
+      btn.addEventListener('click', () => copyToClipboard(btn.dataset.val, 'Link copied!', btn));
     });
 
     contentEl.querySelectorAll('.btn-toggle-row-vis').forEach(btn => {
