@@ -1203,6 +1203,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-main);
