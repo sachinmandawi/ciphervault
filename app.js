@@ -650,7 +650,7 @@
       try { await fetchPromise; } catch(e){}
     }
 
-    const savedPass = sessionStorage.getItem('cipher_active_pass');
+    const savedPass = localStorage.getItem('cipher_active_pass');
     if (savedPass && state.saltBase64 && state.verifierObj) {
       try {
         const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
@@ -697,7 +697,7 @@
 
       if (isValid) {
         state.masterKey = key;
-        sessionStorage.setItem('cipher_active_pass', pass);
+        localStorage.setItem('cipher_active_pass', pass);
         await loadVaultFromGitHub(key);
         unlockVault();
         showToast(`Unlocked! Synced with Private Repo (ciphervault-db)`, 'success');
@@ -794,7 +794,7 @@
   function lockVault() {
     state.masterKey = null;
     state.vaultItems = [];
-    sessionStorage.removeItem('cipher_active_pass');
+    localStorage.removeItem('cipher_active_pass');
     if (DOM.authOverlay) DOM.authOverlay.classList.add('active');
     if (DOM.app) DOM.app.classList.add('blur-content');
     checkMasterStatus();
@@ -2236,7 +2236,7 @@
   async function wipeVaultData() {
     if (confirm('WARNING: Are you completely sure? This will delete all encrypted passwords and reset your master password!')) {
       localStorage.clear();
-      sessionStorage.clear();
+      // sessionStorage.clear(); // Removed as session keys are now in localStorage
       state.masterKey = null;
       state.vaultItems = [];
       location.reload();
