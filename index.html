@@ -15,6 +15,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- Mobile Drag and Drop Polyfill CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.min.css">
 </head>
 <body>
 
@@ -819,5 +822,16 @@
     });
   </script>
   <script src="app.js"></script>
+
+  <!-- Mobile Drag and Drop Polyfill JS -->
+  <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+  <script>
+    // Enable Hold-to-Drag for mobile devices
+    MobileDragDrop.polyfill({
+      holdToDrag: 400 // 400ms long press to initiate drag
+    });
+    // This listener is required to make the polyfill work gracefully with touch scrolling
+    window.addEventListener('touchmove', function() {}, {passive: false});
+  </script>
 </body>
 </html>
