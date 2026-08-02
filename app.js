@@ -2115,9 +2115,9 @@
 
           ${weakItems.map(item => `
             <div class="item-body mt-2">
-              <div>
-                <strong>${escapeHtml(item.title)}</strong> (${escapeHtml(item.username || 'No user')})
-                <span class="badge-pill weak ml-2">Weak</span>
+              <div style="flex:1; min-width:0; padding-right:1rem; word-break:break-all; overflow-wrap:anywhere;">
+                <strong>${escapeHtml(item.title)}</strong> <span style="color:var(--text-muted); font-size:0.85rem;">(${escapeHtml(item.username || 'No user')})</span>
+                <span class="badge-pill weak ml-2" style="white-space:nowrap;">Weak</span>
               </div>
               <button class="btn btn-outline btn-sm btn-edit" data-id="${item.id}">Fix Password</button>
             </div>
@@ -2125,9 +2125,9 @@
 
           ${reusedItems.map(item => `
             <div class="item-body mt-2">
-              <div>
-                <strong>${escapeHtml(item.title)}</strong> (${escapeHtml(item.username || 'No user')})
-                <span class="badge-pill fair ml-2">Reused</span>
+              <div style="flex:1; min-width:0; padding-right:1rem; word-break:break-all; overflow-wrap:anywhere;">
+                <strong>${escapeHtml(item.title)}</strong> <span style="color:var(--text-muted); font-size:0.85rem;">(${escapeHtml(item.username || 'No user')})</span>
+                <span class="badge-pill fair ml-2" style="white-space:nowrap;">Reused</span>
               </div>
               <button class="btn btn-outline btn-sm btn-edit" data-id="${item.id}">Fix Password</button>
             </div>
