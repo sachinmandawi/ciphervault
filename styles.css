@@ -1250,6 +1250,12 @@ body {
   animation: fadeIn 0.15s ease-out;
   max-height: 250px;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.custom-select-menu::-webkit-scrollbar-track {
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
 }
 
 .custom-select-option {
