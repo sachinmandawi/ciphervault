@@ -356,14 +356,13 @@
     totpTimer: null,
   };
 
-  // Auto-resize notes textarea
-  const itemNotesEl = document.getElementById('item-notes');
-  if (itemNotesEl) {
-    itemNotesEl.addEventListener('input', function() {
+  // Auto-resize textareas
+  document.querySelectorAll('textarea.auto-expand').forEach(textarea => {
+    textarea.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = this.scrollHeight + 'px';
     });
-  }
+  });
 
   // --- DOM ELEMENTS ---
   const DOM = {
@@ -1749,10 +1748,10 @@
     if (fBank) fBank.classList.toggle('hidden', type !== 'bank');
     if (fNote) {
       fNote.classList.toggle('hidden', type !== 'note');
-      if (type === 'note' && DOM.itemNotes) {
-        // Force height recalculation once element is rendered
-        setTimeout(() => DOM.itemNotes.dispatchEvent(new Event('input')), 10);
-      }
+      // Force height recalculation once element is rendered for any visible auto-expand textareas
+      setTimeout(() => {
+        document.querySelectorAll('textarea.auto-expand').forEach(ta => ta.dispatchEvent(new Event('input')));
+      }, 10);
     }
   }
 

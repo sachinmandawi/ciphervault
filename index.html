@@ -633,7 +633,7 @@
             <div class="form-row mt-2">
               <div class="form-group flex-1">
                 <label for="item-backup-codes">2FA Backup / Recovery Codes <span class="sub-text">(Optional, one per line)</span></label>
-                <textarea id="item-backup-codes" placeholder="e.g. 1234-5678&#10;9012-3456" rows="3" style="font-family:var(--font-mono); resize:vertical;"></textarea>
+                <textarea id="item-backup-codes" class="auto-expand" placeholder="e.g. 1234-5678&#10;9012-3456" rows="3" style="font-family:var(--font-mono); resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
               </div>
             </div>
 
@@ -698,7 +698,7 @@
           <div id="fields-note" class="category-fields hidden">
             <div class="form-group">
               <label for="item-notes">Secure Note Content</label>
-              <textarea id="item-notes" rows="4" placeholder="Write sensitive notes, recovery codes, SSH keys..." style="resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
+              <textarea id="item-notes" class="auto-expand" rows="4" placeholder="Write sensitive notes, recovery codes, SSH keys..." style="resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
             </div>
           </div>
 
