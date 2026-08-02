@@ -3401,6 +3401,13 @@ html, body {
   box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
 }
 
+.InputContainer .input, .InputContainer .input:focus, .InputContainer .input:active {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
 .InputContainer .input {
   width: 100%;
   height: 100%;
