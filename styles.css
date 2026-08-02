@@ -3586,3 +3586,135 @@ html, body {
 .preview-row:hover .preview-actions, .preview-row:focus-within .preview-actions { opacity: 1; pointer-events: auto; }
 @media (max-width: 768px) { .preview-row .preview-actions { opacity: 1; pointer-events: auto; } }
 
+/* --- 3D CREDIT CARD VIEW --- */
+.cc-3d-wrapper {
+  perspective: 1000px;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 1.586; /* Credit card standard */
+  margin: 1rem auto 1.5rem auto;
+  cursor: pointer;
+}
+
+.cc-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.cc-3d-wrapper:hover .cc-inner,
+.cc-3d-wrapper.flipped .cc-inner {
+  transform: rotateY(180deg);
+}
+
+.cc-front, .cc-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-front {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 1.5rem;
+  justify-content: space-between;
+}
+
+.cc-back {
+  background: linear-gradient(135deg, rgba(15,20,32,0.9), rgba(30,41,59,0.95));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  transform: rotateY(180deg);
+  padding: 1.5rem 0;
+}
+
+.cc-chip {
+  width: 45px;
+  height: 35px;
+  background: linear-gradient(135deg, #d4af37, #f3e5ab);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.cc-chip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(0,0,0,0.15);
+}
+
+.cc-chip::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  background: rgba(0,0,0,0.15);
+}
+
+.cc-number {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  letter-spacing: 0.15em;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  margin-bottom: 0.5rem;
+}
+
+.cc-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.cc-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.2rem;
+}
+
+.cc-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cc-stripe {
+  width: 100%;
+  height: 20%;
+  background: #000;
+  margin-bottom: 1rem;
+}
+
+.cc-cvv-box {
+  background: #fff;
+  height: 35px;
+  margin: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 1rem;
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 4px;
+}

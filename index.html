@@ -751,10 +751,28 @@
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 0.5rem; flex-shrink: 0; padding-right: 1rem;">
         <button type="button" class="close-modal" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.85rem; font-weight:500;">Close</button>
-        <button id="btn-preview-edit" style="background:transparent; border:none; color:var(--accent-purple); cursor:pointer; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.35rem;">
-          <i class="fa-solid fa-pen-to-square"></i> Edit Details
-        </button>
+        <div style="display:flex; gap:1rem;">
+          <button id="btn-preview-share" style="background:transparent; border:none; color:var(--accent-purple); cursor:pointer; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.35rem;">
+            <i class="fa-solid fa-share-nodes"></i> Share
+          </button>
+          <button id="btn-preview-edit" style="background:transparent; border:none; color:var(--accent-purple); cursor:pointer; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.35rem;">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+          </button>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- SHARED CREDENTIAL OVERLAY -->
+  <div id="shared-credential-overlay" class="modal-overlay" style="z-index:9999; background:rgba(15,20,32,0.98); backdrop-filter:blur(10px);">
+    <div class="modal-card glass-panel" style="max-width: 500px; padding:2rem; text-align:center;">
+      <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:var(--accent-purple); margin-bottom:1rem;"></i>
+      <h2 style="margin-bottom:0.5rem; color:#fff;">Shared Credential</h2>
+      <p id="shared-credential-status" style="color:var(--text-muted); margin-bottom:1.5rem;">Decrypting secure link...</p>
+      <div id="shared-credential-content" style="display:none; text-align:left; background:rgba(0,0,0,0.2); padding:1.5rem; border-radius:var(--radius-md); border:1px solid rgba(255,255,255,0.05); margin-bottom:1.5rem;">
+        <!-- Decrypted data goes here -->
+      </div>
+      <button id="btn-shared-go-home" class="btn btn-primary" style="width:100%;">Go to My Vault</button>
     </div>
   </div>
 

@@ -1013,6 +1013,36 @@
         `;
       }
     } else if (item.type === 'card') {
+      let maskedNum = (item.cardnumber || '').replace(/\s+/g, '').replace(/.(?=.{4})/g, '•').replace(/(.{4})/g, '$1 ').trim();
+      if (!maskedNum) maskedNum = '•••• •••• •••• ••••';
+
+      rowsHtml += `
+        <div class="cc-3d-wrapper" onclick="this.classList.toggle('flipped')">
+          <div class="cc-inner">
+            <div class="cc-front">
+              <div class="cc-chip"></div>
+              <div>
+                <div class="cc-number">${escapeHtml(maskedNum)}</div>
+                <div class="cc-details">
+                  <div>
+                    <div class="cc-label">Cardholder</div>
+                    <div class="cc-value">${escapeHtml(item.cardholder || 'NAME')}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div class="cc-label">Expires</div>
+                    <div class="cc-value">${escapeHtml(item.exp || 'MM/YY')}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="cc-back">
+              <div class="cc-stripe"></div>
+              <div class="cc-cvv-box">${escapeHtml(item.cvv || '•••')}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
       rowsHtml += createDetailRow('Cardholder Name', item.cardholder);
       rowsHtml += createDetailRow('Card Number', item.cardnumber);
       rowsHtml += createDetailRow('Expiry Date', item.exp);
@@ -1038,6 +1068,37 @@
           </div>
         `;
       }
+    }
+
+    if (item.passwordHistory && item.passwordHistory.length > 0) {
+      let historyRows = item.passwordHistory.map(hist => {
+        const hId = 'hist_val_' + Math.random().toString(36).substr(2, 6);
+        return `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.1rem;">${formatDate(hist.date)}</div>
+              <div id="${hId}" style="font-family:var(--font-mono); font-size:0.95rem; color:var(--text-light); word-break:break-all;">••••••••</div>
+            </div>
+            <div class="preview-actions" style="display:flex; gap:0.25rem; flex-shrink:0;">
+              <button type="button" class="btn-icon btn-toggle-row-vis" data-target="${hId}" data-real="${escapeHtml(hist.password)}" title="Show/Hide" style="background:transparent; border:none; color:var(--text-muted);">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+              <button type="button" class="btn-icon btn-copy-row-val" data-val="${escapeHtml(hist.password)}" title="Copy" style="background:transparent; border:none; color:var(--text-muted);">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      rowsHtml += `
+        <div class="preview-row" style="margin-top:0.75rem;">
+          <span style="font-size:0.65rem; color:var(--text-muted); opacity:0.6; text-transform:uppercase; font-weight:600; letter-spacing:0.05em; display:block; margin-bottom:0.25rem;">PASSWORD HISTORY</span>
+          <div style="background:rgba(0,0,0,0.15); border-radius:var(--radius-sm); padding:0 0.5rem;">
+            ${historyRows}
+          </div>
+        </div>
+      `;
     }
 
     if (item.customFields && Array.isArray(item.customFields) && item.customFields.length > 0) {
@@ -1094,6 +1155,14 @@
       editBtn.onclick = () => {
         if (modal) modal.classList.remove('active');
         openEditModal(item.id);
+      };
+    }
+
+    const shareBtn = document.getElementById('btn-preview-share');
+    if (shareBtn) {
+      shareBtn.onclick = () => {
+        if (modal) modal.classList.remove('active');
+        generateShareLink(item.id);
       };
     }
 
@@ -1294,6 +1363,10 @@
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>Edit Item</span>
               </button>
+              <button type="button" class="dropdown-item btn-share">
+                <i class="fa-solid fa-share-nodes"></i>
+                <span>Share Securely</span>
+              </button>
               ${item.type === 'login' && item.username ? `<button type="button" class="dropdown-item btn-copy-username" data-val="${escapeHtml(item.username)}"><i class="fa-regular fa-copy"></i> Copy Username</button>` : ''}
               ${item.type === 'login' && item.url ? `<button type="button" class="dropdown-item btn-launch-url" data-val="${escapeHtml(item.url)}"><i class="fa-solid fa-arrow-up-right-from-square"></i> Launch URL</button>` : ''}
               <div class="dropdown-divider"></div>
@@ -1415,6 +1488,15 @@
         e.stopPropagation();
         if (menuDropdown) menuDropdown.classList.add('hidden');
         openEditModal(item.id);
+      });
+    }
+
+    const btnShare = card.querySelector('.btn-share');
+    if (btnShare) {
+      btnShare.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        generateShareLink(item.id);
       });
     }
 
@@ -1808,12 +1890,26 @@
       deleted: id ? (state.vaultItems.find(i => i.id === id)?.deleted || false) : false,
       orderIndex: id ? (state.vaultItems.find(i => i.id === id)?.orderIndex || 0) : -Date.now(),
       updatedAt: Date.now(),
-      createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now()
+      createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now(),
+      passwordHistory: id ? (state.vaultItems.find(i => i.id === id)?.passwordHistory || []) : []
     };
 
     if (id) {
       const idx = state.vaultItems.findIndex(i => i.id === id);
-      if (idx !== -1) state.vaultItems[idx] = itemData;
+      if (idx !== -1) {
+        const oldItem = state.vaultItems[idx];
+        if (oldItem.password && oldItem.password !== itemData.password) {
+          itemData.passwordHistory.push({
+            password: oldItem.password,
+            date: Date.now()
+          });
+          // Keep only the last 5 passwords
+          if (itemData.passwordHistory.length > 5) {
+            itemData.passwordHistory = itemData.passwordHistory.slice(-5);
+          }
+        }
+        state.vaultItems[idx] = itemData;
+      }
     } else {
       state.vaultItems.unshift(itemData);
     }
@@ -2140,6 +2236,48 @@
       btn.addEventListener('click', () => openEditModal(btn.dataset.id));
     });
   }
+
+  // --- SECURE SHARING ---
+  async function generateShareLink(id) {
+    const item = state.vaultItems.find(i => i.id === id);
+    if (!item) return;
+
+    const shareKey = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    const sharePayload = {
+      title: item.title,
+      type: item.type,
+      username: item.username,
+      email: item.email,
+      password: item.password,
+      url: item.url,
+      notes: item.notes,
+      cardholder: item.cardholder,
+      cardnumber: item.cardnumber,
+      exp: item.exp,
+      cvv: item.cvv,
+      bankname: item.bankname,
+      accountno: item.accountno,
+      ifsc: item.ifsc,
+      pin: item.pin,
+      totp: item.totp,
+      expiresAt: Date.now() + 86400000 // 24 hours
+    };
+
+    try {
+      const encryptedData = await CryptoEngine.encryptData(sharePayload, shareKey);
+      
+      const baseUrl = window.location.href.split('?')[0].split('#')[0];
+      const shareUrl = `${baseUrl}?share=${encodeURIComponent(JSON.stringify(encryptedData))}#${shareKey}`;
+
+      await navigator.clipboard.writeText(shareUrl);
+      showToast('Secure Share Link Copied! (Valid for 24hrs)', 'success');
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to generate share link', 'error');
+    }
+  };
 
   // --- EXPORT & IMPORT ---
   async function exportEncryptedBackup() {
@@ -2694,6 +2832,46 @@
 
   // --- INITIALIZATION ---
   async function init() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedData = urlParams.get('share');
+    
+    if (sharedData) {
+      document.getElementById('auth-view').classList.add('hidden');
+      document.getElementById('shared-credential-overlay').classList.add('active');
+      const shareKey = window.location.hash.substring(1);
+      
+      try {
+        if (!shareKey) throw new Error('No decryption key found in URL hash');
+        const decryptedStr = await CryptoEngine.decryptData(JSON.parse(decodeURIComponent(sharedData)), shareKey);
+        const item = JSON.parse(decryptedStr);
+        
+        if (Date.now() > item.expiresAt) {
+          throw new Error('Link Expired');
+        }
+        
+        document.getElementById('shared-credential-status').innerHTML = `<i class="fa-solid fa-circle-check text-green"></i> Decrypted successfully.`;
+        
+        let html = `<div style="font-size:1.2rem; font-weight:700; color:#fff; margin-bottom:1rem;">${escapeHtml(item.title)}</div>`;
+        if (item.username) html += `<div style="margin-bottom:0.5rem;"><span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; font-weight:700;">Username</span><div style="font-family:var(--font-mono); color:#fff; font-size:1.1rem; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; margin-top:0.25rem;">${escapeHtml(item.username)}</div></div>`;
+        if (item.password) html += `<div style="margin-bottom:0.5rem;"><span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; font-weight:700;">Password</span><div style="font-family:var(--font-mono); color:#fff; font-size:1.1rem; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; margin-top:0.25rem;">${escapeHtml(item.password)}</div></div>`;
+        if (item.cardnumber) html += `<div style="margin-bottom:0.5rem;"><span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; font-weight:700;">Card Number</span><div style="font-family:var(--font-mono); color:#fff; font-size:1.1rem; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; margin-top:0.25rem;">${escapeHtml(item.cardnumber)}</div></div>`;
+        if (item.notes) html += `<div style="margin-bottom:0.5rem;"><span style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; font-weight:700;">Notes</span><div style="color:#fff; font-size:0.95rem; line-height:1.5; white-space:pre-wrap; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; margin-top:0.25rem;">${escapeHtml(item.notes)}</div></div>`;
+        
+        const contentBox = document.getElementById('shared-credential-content');
+        contentBox.innerHTML = html;
+        contentBox.style.display = 'block';
+        
+      } catch (err) {
+        document.getElementById('shared-credential-status').innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Invalid or Expired Link</span>`;
+      }
+      
+      document.getElementById('btn-shared-go-home').addEventListener('click', () => {
+        window.location.href = window.location.href.split('?')[0].split('#')[0];
+      });
+      
+      return;
+    }
+
     initCustomSelects();
     setupEventListeners();
     await checkMasterStatus();
