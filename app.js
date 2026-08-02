@@ -484,7 +484,8 @@
     colorSwatches: document.querySelectorAll('.color-swatch'),
 
     // Toast
-    toastContainer: document.getElementById('toast-container')
+    toastContainer: document.getElementById('toast-container'),
+    vaultStatsGrid: document.querySelector('#view-vault .stats-grid')
   };
 
   // --- Custom Fields Logic ---
@@ -1116,6 +1117,14 @@
   async function renderVault() {
     const items = getFilteredAndSortedItems();
     updateCountsAndStats();
+
+    if (DOM.vaultStatsGrid) {
+      if ((!state.currentCategory || state.currentCategory === 'all') && !state.searchQuery && !state.selectedTag) {
+        DOM.vaultStatsGrid.style.display = '';
+      } else {
+        DOM.vaultStatsGrid.style.display = 'none';
+      }
+    }
 
     if (!DOM.itemsContainer) return;
     DOM.itemsContainer.innerHTML = '';
