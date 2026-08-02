@@ -712,7 +712,20 @@
       }
 
       if (payload && payload.vault && payload.vault.ciphertext) {
-        state.vaultItems = await CryptoEngine.decryptData(payload.vault, key);
+        let items = await CryptoEngine.decryptData(payload.vault, key);
+        if (Array.isArray(items)) {
+          items.forEach(i => {
+            if (typeof i.tags === 'string') {
+              i.tags = i.tags.split(/[,#\\s]+/).map(t => t.trim()).filter(Boolean);
+            }
+            if (!Array.isArray(i.tags)) {
+              i.tags = [];
+            }
+          });
+          state.vaultItems = items;
+        } else {
+          state.vaultItems = [];
+        }
       } else {
         state.vaultItems = [];
       }
