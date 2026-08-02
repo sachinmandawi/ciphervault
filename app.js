@@ -1747,7 +1747,13 @@
     if (fLogin) fLogin.classList.toggle('hidden', type !== 'login');
     if (fCard) fCard.classList.toggle('hidden', type !== 'card');
     if (fBank) fBank.classList.toggle('hidden', type !== 'bank');
-    if (fNote) fNote.classList.toggle('hidden', type !== 'note');
+    if (fNote) {
+      fNote.classList.toggle('hidden', type !== 'note');
+      if (type === 'note' && DOM.itemNotes) {
+        // Force height recalculation once element is rendered
+        setTimeout(() => DOM.itemNotes.dispatchEvent(new Event('input')), 10);
+      }
+    }
   }
 
   async function handleSaveItem(e) {
