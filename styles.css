@@ -1293,7 +1293,8 @@ select option,
   position: relative;
 
   transition: all var(--transition-fast);
-
+  min-width: 0;
+  max-width: 100%;
 }
 
 
@@ -1583,7 +1584,8 @@ select option,
   font-family: var(--font-mono);
 
   font-size: 0.9rem;
-
+  min-width: 0;
+  max-width: 100%;
 }
 
 
