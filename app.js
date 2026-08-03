@@ -801,7 +801,7 @@
 
   function unlockVault() {
     if (DOM.authOverlay) DOM.authOverlay.classList.remove('active');
-    if (DOM.app) DOM.app.classList.remove('blur-content');
+    if (DOM.app) DOM.app.classList.remove('');
 
     renderVault();
     resetAutoLockTimer();
@@ -826,7 +826,7 @@
     state.vaultItems = [];
     localStorage.removeItem('cipher_active_pass');
     if (DOM.authOverlay) DOM.authOverlay.classList.add('active');
-    if (DOM.app) DOM.app.classList.add('blur-content');
+    if (DOM.app) DOM.app.classList.add('');
     checkMasterStatus();
     if (state.autoLockTimer) clearTimeout(state.autoLockTimer);
     if (state.totpTimer) clearInterval(state.totpTimer);
@@ -906,14 +906,14 @@
 
       const card = document.createElement('div');
       card.className = 'setting-card glass-panel';
-      card.style.border = '1px solid rgba(6, 182, 212, 0.35)';
-      card.style.background = 'rgba(6, 182, 212, 0.05)';
+      card.style.border = '1px solid var(--bg-hover)';
+      card.style.background = 'var(--bg-hover)';
       card.setAttribute('data-totp-secret', item.totp);
 
       card.innerHTML = `
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; width:100%;">
           <div style="display:flex; align-items:center; gap:0.75rem; flex:1; overflow:hidden;">
-            <div style="width:40px; height:40px; border-radius:10px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.3); color:var(--accent-cyan); display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;">
+            <div style="width:40px; height:40px; border-radius:10px; background:var(--bg-hover); border:1px solid var(--border-color); color:var(--accent-cyan); display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;">
               <i class="fa-solid fa-shield-halved"></i>
             </div>
             <div style="overflow:hidden; min-width:0;">
@@ -924,7 +924,7 @@
           <span class="totp-sec-countdown badge-pill good" style="font-size:0.78rem; flex-shrink:0; padding:0.25rem 0.65rem;">${secLeft}s</span>
         </div>
 
-        <div style="background:rgba(8,11,18,0.9); border:1px solid rgba(6,182,212,0.25); padding:1rem 1.25rem; border-radius:12px; display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; width:100%;">
+        <div style="background:rgba(8,11,18,0.9); border:1px solid var(--border-color); padding:1rem 1.25rem; border-radius:12px; display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; width:100%;">
           <span class="totp-code-display" style="font-size:1.6rem; color:#ffffff; font-family:var(--font-mono); letter-spacing:0.12em;">${codeDisplay}</span>
           <button type="button" class="btn btn-primary btn-copy-totp-dedicated" data-val="${rawCode}" style="padding:0.4rem 0.85rem; font-size:0.85rem;">
             <i class="fa-regular fa-copy"></i> Copy
@@ -2119,8 +2119,8 @@
       row.style.cssText = `
         display:flex; align-items:center; justify-content:space-between;
         padding:0.65rem 0.85rem; border-radius:10px;
-        background:${isChecked ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.03)'};
-        border:1px solid ${isChecked ? 'rgba(139,92,246,0.35)' : 'rgba(255,255,255,0.08)'};
+        background:${isChecked ? 'var(--bg-hover)' : 'rgba(255,255,255,0.03)'};
+        border:1px solid ${isChecked ? 'var(--bg-hover)' : 'rgba(255,255,255,0.08)'};
         cursor:pointer; transition:all 0.15s ease;
       `;
 
@@ -2130,7 +2130,7 @@
           <span style="font-size:0.9rem; font-weight:600; color:${isChecked ? '#fff' : 'var(--text-muted)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">#${escapeHtml(tag)}</span>
         </div>
         <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
-          <span class="badge-pill label-badge" style="font-size:0.7rem; background:${isChecked ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
+          <span class="badge-pill label-badge" style="font-size:0.7rem; background:${isChecked ? 'var(--bg-hover)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
           <button type="button" class="btn-icon btn-delete-label" style="color:var(--accent-red); font-size:0.9rem; padding:0.3rem;" title="Delete globally"><i class="fa-solid fa-trash"></i></button>
         </div>
       `;
@@ -2143,11 +2143,11 @@
       const updateRowUI = (checked) => {
         if (checked) {
           if (!tempManageTags.includes(tag)) tempManageTags.push(tag);
-          row.style.background = 'rgba(139,92,246,0.15)';
-          row.style.borderColor = 'rgba(139,92,246,0.35)';
+          row.style.background = 'var(--bg-hover)';
+          row.style.borderColor = 'var(--border-color)';
           if (badge) {
             badge.textContent = 'Assigned';
-            badge.style.background = 'rgba(139,92,246,0.25)';
+            badge.style.background = 'var(--bg-hover)';
             badge.style.color = 'var(--accent-purple)';
           }
           if (labelText) labelText.style.color = '#fff';

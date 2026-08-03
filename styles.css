@@ -11,89 +11,47 @@
 
 
 :root {
+  /* Notion-style Dark Mode Color Tokens */
+  --bg-dark: #191919;
+  --bg-card: #202020;
+  --bg-sidebar: #202020;
+  --bg-input: #2a2a2a;
+  --bg-hover: #2f2f2f;
 
-  /* Rich Indigo / Violet / Cyan Color Tokens */
-
-  --bg-dark: #07080e;
-
-  --bg-card: rgba(15, 20, 32, 0.85);
-
-  --bg-sidebar: rgba(10, 13, 22, 0.9);
-
-  --bg-input: rgba(255, 255, 255, 0.05);
-
-  --bg-hover: rgba(255, 255, 255, 0.08);
-
-
-
-  --accent-primary: #6366f1;
-
-  --accent-secondary: #8b5cf6;
-
-  --accent-purple: #a855f7;
-
-  --accent-magenta: #d946ef;
-
-  --accent-cyan: #06b6d4;
-
-  --accent-green: #10b981;
-
+  --accent-primary: #ffffff;
+  --accent-secondary: #e0e0e0;
+  --accent-purple: #ffffff;
+  --accent-magenta: #ffffff;
+  --accent-cyan: #ffffff;
+  --accent-green: #10b981; /* Keep semantic colors for status */
   --accent-yellow: #f59e0b;
-
   --accent-red: #ef4444;
 
+  --text-main: #ebebeb;
+  --text-muted: #9b9b9b;
+  --text-dim: #737373;
 
-
-  --text-main: #f8fafc;
-
-  --text-muted: #94a3b8;
-
-  --text-dim: #64748b;
-
-
-
-  --border-color: rgba(255, 255, 255, 0.08);
-
+  --border-color: rgba(255, 255, 255, 0.09);
   --border-glow: transparent;
 
-
-
   /* Typography */
-
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-
-
   /* Spacing & Layout */
-
-  --sidebar-width: 270px;
-
-  --header-height: 70px;
-
-  --radius-sm: 8px;
-
-  --radius-md: 12px;
-
-  --radius-lg: 16px;
-
-  --radius-xl: 24px;
-
+  --sidebar-width: 260px;
+  --header-height: 60px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-full: 9999px;
 
-
-
-  /* Animations & Shadows */
-
-  --transition-fast: 0.15s ease;
-
-  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
+  /* Animations & Shadows (Flat) */
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.15s ease-out;
   --shadow-glow: none;
-
-  --shadow-xl: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-
+  --shadow-xl: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 
@@ -137,14 +95,6 @@ body {
   min-height: 100vh;
 
   -webkit-font-smoothing: antialiased;
-
-  background-image: 
-
-    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-
-    radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.12) 0%, transparent 45%);
-
-  background-attachment: fixed;
 
 }
 
@@ -215,45 +165,19 @@ body {
 /* Glassmorphism Utilities */
 
 .glass-panel {
-
   background: var(--bg-card);
-
-  backdrop-filter: blur(20px);
-
-  -webkit-backdrop-filter: blur(20px);
-
   border: 1px solid var(--border-color);
-
   border-radius: var(--radius-lg);
-
 }
-
-
 
 .glass-sidebar {
-
   background: var(--bg-sidebar);
-
-  backdrop-filter: blur(24px);
-
-  -webkit-backdrop-filter: blur(24px);
-
   border-right: 1px solid var(--border-color);
-
 }
 
-
-
 .glass-header {
-
-  background: rgba(10, 13, 22, 0.8);
-
-  backdrop-filter: blur(20px);
-
-  -webkit-backdrop-filter: blur(20px);
-
+  background: var(--bg-dark);
   border-bottom: 1px solid var(--border-color);
-
 }
 
 
@@ -286,9 +210,7 @@ body {
 
   inset: 0;
 
-  background: rgba(4, 5, 10, 0.88);
-
-  backdrop-filter: blur(16px);
+  background: var(--bg-dark);
 
   z-index: 9999;
 
@@ -328,15 +250,15 @@ body {
 
   padding: 2.5rem;
 
-  box-shadow: var(--shadow-xl), var(--shadow-glow);
+  box-shadow: none;
 
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid var(--border-color);
 
   border-radius: var(--radius-xl);
 
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
-  background: rgba(15, 20, 32, 0.92);
+  background: var(--bg-card);
 
 }
 
@@ -450,9 +372,9 @@ body {
 
   border-radius: var(--radius-md);
 
-  background: rgba(99, 102, 241, 0.08);
+  background: var(--bg-hover);
 
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  border: 1px solid var(--border-color);
 
   font-size: 0.82rem;
 
@@ -744,13 +666,13 @@ body {
 
 .nav-item.active {
 
-  background: rgba(139, 92, 246, 0.15);
+  background: var(--bg-hover);
 
   color: var(--text-main);
 
   font-weight: 600;
 
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid var(--border-color);
 
 }
 
@@ -1026,9 +948,9 @@ body {
 
   transform: translateY(-3px);
 
-  box-shadow: var(--shadow-lg);
+  box-shadow: none;
 
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
 
 }
 
@@ -1220,7 +1142,7 @@ body {
 }
 
 .custom-select-trigger:hover {
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .custom-select-trigger i {
@@ -1237,11 +1159,10 @@ body {
   top: calc(100% + 0.35rem);
   left: 0;
   right: 0;
-  background: rgba(15, 20, 32, 0.96);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-xl);
+  box-shadow: none;
   z-index: 200;
   padding: 0.4rem;
   display: flex;
@@ -1269,7 +1190,7 @@ body {
 
 .custom-select-option:hover,
 .custom-select-option.selected {
-  background: rgba(139, 92, 246, 0.15);
+  background: var(--bg-hover);
   color: #fff;
 }
 
@@ -1331,7 +1252,7 @@ select option,
 
 .view-toggle .btn-icon.active {
 
-  background: rgba(139, 92, 246, 0.25);
+  background: var(--bg-hover);
 
   color: var(--accent-purple);
 
@@ -1383,13 +1304,10 @@ select option,
 
 
 .item-card:hover {
-
-  border-color: rgba(139, 92, 246, 0.4);
-
-  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6);
-
+  background: var(--bg-hover);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: none;
   z-index: 10;
-
 }
 
 
@@ -1460,9 +1378,9 @@ select option,
 
   border-radius: var(--radius-md);
 
-  background: rgba(139, 92, 246, 0.12);
+  background: var(--bg-hover);
 
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  border: 1px solid var(--border-color);
 
   display: flex;
 
@@ -1546,15 +1464,13 @@ select option,
 
   margin-top: 0.35rem;
 
-  background: rgba(15, 20, 32, 0.96);
+  background: var(--bg-card);
 
-  backdrop-filter: blur(20px);
-
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  border: 1px solid var(--border-color);
 
   border-radius: var(--radius-md);
 
-  box-shadow: var(--shadow-xl);
+  box-shadow: none;
 
   min-width: 160px;
 
@@ -1749,11 +1665,9 @@ select option,
 
   background: var(--bg-card);
 
-  backdrop-filter: blur(20px);
-
   border: 1px solid var(--border-color);
 
-  box-shadow: var(--shadow-xl);
+  box-shadow: none;
 
   display: flex;
 
@@ -1773,7 +1687,7 @@ select option,
 
   transform: translateY(-2px);
 
-  border-color: rgba(139, 92, 246, 0.35);
+  border-color: rgba(255, 255, 255, 0.2);
 
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
 
@@ -1867,7 +1781,7 @@ select option,
 
   background: rgba(8, 11, 18, 0.8);
 
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid var(--border-color);
 
   padding: 1.25rem 1.5rem;
 
@@ -2077,7 +1991,7 @@ select option,
 
   background: rgba(255, 255, 255, 0.06);
 
-  border-color: rgba(139, 92, 246, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
 
 }
 
@@ -2304,23 +2218,14 @@ select option,
 
 
 .btn-primary {
-
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-purple) 50%, var(--accent-magenta) 100%);
-
-  color: #ffffff;
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-
+  background: var(--accent-primary);
+  color: #000000;
+  box-shadow: none;
 }
 
-
-
 .btn-primary:hover {
-
-  transform: translateY(-1px);
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-
+  background: var(--accent-secondary);
+  box-shadow: none;
 }
 
 
@@ -2741,9 +2646,7 @@ input:focus, textarea:focus, select:focus {
 
   inset: 0;
 
-  background: rgba(4, 5, 10, 0.85);
-
-  backdrop-filter: blur(14px);
+  background: var(--bg-dark);
 
   z-index: 1000;
 
@@ -2787,13 +2690,13 @@ input:focus, textarea:focus, select:focus {
 
   flex-direction: column;
 
-  background: rgba(15, 20, 32, 0.94);
+  background: var(--bg-card);
 
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid var(--border-color);
 
   border-radius: var(--radius-xl);
 
-  box-shadow: var(--shadow-xl), var(--shadow-glow);
+  box-shadow: none;
 
   overflow: hidden;
 
@@ -2895,9 +2798,9 @@ input:focus, textarea:focus, select:focus {
   border-radius: 99px;
   font-size: 0.72rem;
   font-weight: 600;
-  background: rgba(99, 102, 241, 0.15);
+  background: var(--bg-hover);
   color: var(--accent-purple);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
@@ -2910,7 +2813,7 @@ input:focus, textarea:focus, select:focus {
 
 .tag-badge:hover {
 
-  background: rgba(99, 102, 241, 0.3);
+  background: var(--bg-hover);
 
   color: #ffffff;
 
@@ -2928,7 +2831,7 @@ input:focus, textarea:focus, select:focus {
 
   border: none;
 
-  box-shadow: var(--shadow-xl);
+  box-shadow: none;
 
 }
 
@@ -2962,11 +2865,9 @@ input:focus, textarea:focus, select:focus {
 
   border-radius: var(--radius-md);
 
-  background: rgba(15, 20, 32, 0.96);
+  background: var(--bg-card);
 
-  backdrop-filter: blur(14px);
-
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid var(--border-color);
 
   color: var(--text-main);
 
@@ -2978,7 +2879,7 @@ input:focus, textarea:focus, select:focus {
 
   gap: 0.75rem;
 
-  box-shadow: var(--shadow-xl);
+  box-shadow: none;
 
   animation: slideInRight 0.25s ease-out;
 
@@ -3043,8 +2944,6 @@ html, body {
   inset: 0;
 
   background: rgba(0, 0, 0, 0.65);
-
-  backdrop-filter: blur(4px);
 
   z-index: 90;
 
@@ -3116,7 +3015,7 @@ html, body {
 
     transform: translateX(-100%);
 
-    box-shadow: var(--shadow-xl);
+    box-shadow: none;
 
   }
 
@@ -3495,7 +3394,7 @@ html, body {
 
 .InputContainer:focus-within {
   background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
   box-shadow: none;
 }
 
@@ -3616,7 +3515,7 @@ html, body {
   height: 100%;
   backface-visibility: hidden;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
+  box-shadow: none;
   overflow: hidden;
   display: flex;
   flex-direction: column;
