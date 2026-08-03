@@ -802,9 +802,23 @@
   function unlockVault() {
     if (DOM.authOverlay) DOM.authOverlay.classList.remove('active');
     if (DOM.app) DOM.app.classList.remove('blur-content');
+
     renderVault();
     resetAutoLockTimer();
     startTOTPTimer();
+    
+    // Proactive Stale Password Check
+    const staleCount = state.vaultItems.filter(item => {
+      if (item.type !== 'login' || !item.password) return false;
+      const pwdTime = item.passwordUpdatedAt || item.updatedAt || item.createdAt || Date.now();
+      return ((Date.now() - pwdTime) / (1000 * 60 * 60 * 24)) >= 30;
+    }).length;
+
+    if (staleCount > 0) {
+      setTimeout(() => {
+        showToast(`Security Alert: ${staleCount} password(s) are outdated (> 30 days). Check Health Audit!`, 'error');
+      }, 1500);
+    }
   }
 
   function lockVault() {
@@ -1816,7 +1830,13 @@
     all.forEach(item => {
       if (item.password && item.password.trim() !== '') {
         const st = Generator.calculateStrength(item.password);
-        if (st.score === 'weak' || st.score === 'fair') weakCount++;
+        let isStale = false;
+        if (item.type === 'login') {
+          const pwdTime = item.passwordUpdatedAt || item.updatedAt || item.createdAt || Date.now();
+          const daysOld = (Date.now() - pwdTime) / (1000 * 60 * 60 * 24);
+          if (daysOld >= 30) isStale = true;
+        }
+        if (st.score === 'weak' || st.score === 'fair' || isStale) weakCount++;
 
         passMap[item.password] = (passMap[item.password] || 0) + 1;
       }
@@ -1993,6 +2013,7 @@
       orderIndex: id ? (state.vaultItems.find(i => i.id === id)?.orderIndex || 0) : -Date.now(),
       updatedAt: Date.now(),
       createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now(),
+      passwordUpdatedAt: id ? (state.vaultItems.find(i => i.id === id)?.passwordUpdatedAt || Date.now()) : Date.now(),
       passwordHistory: id ? (state.vaultItems.find(i => i.id === id)?.passwordHistory || []) : []
     };
 
@@ -2001,6 +2022,7 @@
       if (idx !== -1) {
         const oldItem = state.vaultItems[idx];
         if (oldItem.password && oldItem.password !== itemData.password) {
+          itemData.passwordUpdatedAt = Date.now();
           itemData.passwordHistory.push({
             password: oldItem.password,
             date: Date.now()
@@ -2268,7 +2290,17 @@
     all.forEach(item => {
       if (item.password && item.password.trim() !== '') {
         const st = Generator.calculateStrength(item.password);
-        if (st.score === 'weak' || st.score === 'fair') weakItems.push(item);
+        
+        let isStale = false;
+        if (item.type === 'login') {
+          const pwdTime = item.passwordUpdatedAt || item.updatedAt || item.createdAt || Date.now();
+          const daysOld = (Date.now() - pwdTime) / (1000 * 60 * 60 * 24);
+          if (daysOld >= 30) isStale = true;
+        }
+
+        if (st.score === 'weak' || st.score === 'fair' || isStale) {
+          weakItems.push({ ...item, _isStale: isStale, _stScore: st.score });
+        }
         
         reusedMap[item.password] = reusedMap[item.password] || [];
         reusedMap[item.password].push(item);
@@ -2315,7 +2347,8 @@
             <div class="item-body mt-2">
               <div style="flex:1; min-width:0; padding-right:1rem; word-break:break-all; overflow-wrap:anywhere;">
                 <strong>${escapeHtml(item.title)}</strong> <span style="color:var(--text-muted); font-size:0.85rem;">(${escapeHtml(item.username || 'No user')})</span>
-                <span class="badge-pill weak ml-2" style="white-space:nowrap;">Weak</span>
+                ${item._isStale ? '<span class="badge-pill ml-2" style="white-space:nowrap; background:#fbbf24; color:#000;"><i class="fa-solid fa-triangle-exclamation"></i> Outdated</span>' : ''}
+                ${item._stScore === 'weak' || item._stScore === 'fair' ? '<span class="badge-pill weak ml-2" style="white-space:nowrap;">Weak</span>' : ''}
               </div>
               <button class="btn btn-outline btn-sm btn-edit" data-id="${item.id}">Fix Password</button>
             </div>
