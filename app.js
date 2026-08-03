@@ -1016,8 +1016,8 @@
         };
         if (domainMap[domain]) domain = domainMap[domain];
 
-        // Dual CDN Fallback: Clearbit (High-res) -> Google Favicons (64px) -> Default
-        iconHtml = `<img src="https://logo.clearbit.com/${domain}" style="width:75%; height:75%; object-fit:contain; border-radius:6px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25));" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=64';">`;
+        // Dual CDN Fallback: Clearbit (High-res) -> Google Favicons (64px) -> Default Globe
+        iconHtml = `<img src="https://logo.clearbit.com/${domain}" style="width:75%; height:75%; object-fit:contain; border-radius:6px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25));" onerror="if(this.src.includes('clearbit')){this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=64';}else{this.outerHTML='<i class=\\'fa-solid fa-globe\\'></i>';}">`;
       }
     }
     return iconHtml;
