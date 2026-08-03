@@ -3595,6 +3595,7 @@ html, body {
   aspect-ratio: 1.586; /* Credit card standard */
   margin: 1rem auto 1.5rem auto;
   cursor: pointer;
+  container-type: inline-size;
 }
 
 .cc-inner {
@@ -3624,10 +3625,8 @@ html, body {
 .cc-front {
   background: radial-gradient(circle at 100% 0%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%),
               linear-gradient(135deg, rgba(20,25,35,0.85), rgba(40,50,70,0.95)),
-              url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
-  background-blend-mode: overlay, normal, overlay;
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 1.5rem;
+              url('data:image/svg+xml;utf8,<svg opacity="0.05" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="%23fff"/></svg>');
+  padding: clamp(1rem, 5cqw, 1.5rem);
   justify-content: space-between;
   box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
 }
@@ -3640,44 +3639,31 @@ html, body {
 }
 
 .cc-chip {
-  width: 45px;
-  height: 35px;
-  background: linear-gradient(135deg, #e4c275, #f3e5ab, #d4af37);
-  border-radius: 6px;
-  margin-bottom: 1rem;
+  width: clamp(35px, 12cqw, 45px);
+  height: clamp(25px, 9cqw, 32px);
+  background: linear-gradient(135deg, #e0c870, #ffd700, #b8860b);
+  border-radius: 4px;
   position: relative;
-  overflow: hidden;
-  box-shadow: inset 0 0 4px rgba(0,0,0,0.4), 0 1px 2px rgba(255,255,255,0.2);
+  box-shadow: inset 0 0 4px rgba(255,255,255,0.5), 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .cc-chip::after {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: rgba(0,0,0,0.2);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.4);
-}
-
-.cc-chip::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  height: 100%;
-  width: 1px;
-  background: rgba(0,0,0,0.2);
-  box-shadow: 1px 0 0 rgba(255,255,255,0.4);
+  inset: 2px;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent 48%, rgba(0,0,0,0.1) 48%, rgba(0,0,0,0.1) 52%, transparent 52%),
+              linear-gradient(0deg, transparent 48%, rgba(0,0,0,0.1) 48%, rgba(0,0,0,0.1) 52%, transparent 52%);
 }
 
 .cc-number {
   font-family: var(--font-mono);
-  font-size: clamp(1.2rem, 5.5vw, 1.5rem);
-  letter-spacing: 0.15em;
-  margin-bottom: 1.5rem;
+  font-size: clamp(1rem, 6.5cqw, 1.5rem);
+  letter-spacing: clamp(0.05em, 0.5cqw, 0.15em);
+  margin-bottom: clamp(1rem, 5cqw, 1.5rem);
   text-shadow: 1px 1px 2px rgba(0,0,0,0.8), -1px -1px 1px rgba(255,255,255,0.2);
+  white-space: nowrap;
 }
 
 .cc-details {
@@ -3687,16 +3673,17 @@ html, body {
 }
 
 .cc-label {
-  font-size: clamp(0.5rem, 2vw, 0.55rem);
+  font-size: clamp(0.45rem, 2.5cqw, 0.55rem);
   text-transform: uppercase;
   color: rgba(255,255,255,0.7);
   letter-spacing: 0.1em;
   margin-bottom: 0.2rem;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  white-space: nowrap;
 }
 
 .cc-value {
-  font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+  font-size: clamp(0.7rem, 4.5cqw, 0.95rem);
   font-weight: 600;
   color: #f8f8f8;
   text-transform: uppercase;
