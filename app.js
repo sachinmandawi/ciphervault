@@ -3014,3 +3014,39 @@
 
   document.addEventListener('DOMContentLoaded', init);
 })();
+
+// --- LANDING PAGE LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+  const landingPage = document.getElementById('landing-page');
+  const authOverlay = document.getElementById('auth-overlay');
+  
+  if (landingPage && authOverlay) {
+    // Check if vault exists
+    const hasData = localStorage.getItem('cipherVault_data');
+    if (hasData) {
+      // Bypass landing page if user is returning
+      landingPage.classList.remove('active');
+      authOverlay.classList.add('active');
+    } else {
+      // Fresh user
+      landingPage.classList.add('active');
+      authOverlay.classList.remove('active');
+    }
+
+    const goToAuth = () => {
+      landingPage.classList.remove('active');
+      authOverlay.classList.add('active');
+    };
+
+    document.getElementById('btn-landing-login')?.addEventListener('click', goToAuth);
+    document.getElementById('btn-landing-cta')?.addEventListener('click', goToAuth);
+    document.getElementById('btn-hero-cta')?.addEventListener('click', goToAuth);
+    
+    // Also request demo just goes to auth for now
+    document.querySelectorAll('.btn-landing-text').forEach(btn => {
+        if(btn.id !== 'btn-landing-login') {
+            btn.addEventListener('click', goToAuth);
+        }
+    });
+  }
+});

@@ -24,8 +24,45 @@
 </head>
 <body>
 
+  <!-- LANDING PAGE -->
+  <div id="landing-page" class="landing-page active">
+    <nav class="landing-nav">
+      <div class="landing-nav-left">
+        <div class="brand-badge-glow" style="width:32px; height:32px; margin:0; border-radius:8px; font-size:1rem;">
+          <i class="fa-solid fa-shield-halved brand-icon"></i>
+        </div>
+        <span class="landing-brand-text">CipherVault</span>
+      </div>
+      <div class="landing-nav-center">
+        <a href="#">Product</a>
+        <a href="#">Security</a>
+        <a href="#">Open Source</a>
+        <a href="#">Enterprise</a>
+      </div>
+      <div class="landing-nav-right">
+        <button id="btn-landing-login" class="btn-landing-text">Log in</button>
+        <button id="btn-landing-cta" class="btn btn-primary">Get CipherVault free</button>
+      </div>
+    </nav>
+
+    <main class="landing-hero">
+      <h1 class="hero-title">Where privacy and<br>simplicity jam together.</h1>
+      <p class="hero-subtitle">Capture passwords, find credentials, and secure data with zero-knowledge encryption built for you.</p>
+      <div class="hero-cta-group">
+        <button id="btn-hero-cta" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 1.5rem;">Get CipherVault free</button>
+        <button class="btn-landing-text" style="font-size: 1.1rem; padding: 0.75rem 1.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md);">Request a demo</button>
+      </div>
+      <div class="hero-trust">
+        <span><i class="fa-brands fa-github"></i> GitHub Sync</span>
+        <span><i class="fa-solid fa-lock"></i> AES-256-GCM</span>
+        <span><i class="fa-solid fa-user-shield"></i> Zero-Knowledge</span>
+        <span><i class="fa-solid fa-server"></i> Local First</span>
+      </div>
+    </main>
+  </div>
+
   <!-- MASTER AUTH / LOGIN MODAL -->
-  <div id="auth-overlay" class="auth-overlay active">
+  <div id="auth-overlay" class="auth-overlay">
     <div class="auth-card glass-panel">
       
       <div class="auth-header">
