@@ -9,6 +9,22 @@
 (function () {
   'use strict';
 
+  // --- SECURE CONTEXT GUARD ---
+  if (window.isSecureContext === false || !window.crypto || !window.crypto.subtle) {
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.innerHTML = `
+        <div style="display:flex; height:100vh; background:#0f172a; color:#f8fafc; font-family:sans-serif; align-items:center; justify-content:center; text-align:center; padding:2rem;">
+          <div style="max-width:500px; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); padding:2rem; border-radius:12px;">
+            <h1 style="color:#ef4444; margin-bottom:1rem; font-size:1.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Insecure Connection Detected</h1>
+            <p style="color:#94a3b8; line-height:1.6; font-size:1rem;">CipherVault is a Zero-Knowledge Password Manager that relies on the Web Crypto API to encrypt your data locally. Modern browsers strictly disable this API on insecure connections to protect you.</p>
+            <p style="color:#f8fafc; margin-top:1.5rem; font-weight:600;">Please access this site over <span style="color:#10b981;">HTTPS</span> or localhost to continue.</p>
+          </div>
+        </div>
+      `;
+    });
+    return;
+  }
+
   // Private GitHub DB Configuration
   const GITHUB_CONFIG = {
     owner: 'sachinmandawi',
@@ -1892,7 +1908,12 @@
       return;
     }
 
-    const rawTags = DOM.itemTags ? DOM.itemTags.value.split(/[,#\s]+/).map(t => t.trim().toLowerCase()).filter(t => t.length > 0) : [];
+    const rawTags = DOM.itemTags 
+      ? DOM.itemTags.value.split(/[,#\s]+/).map(t => t.trim().toLowerCase()).filter(t => t.length > 0) 
+      : [];
+    
+    // Deduplicate and sanitize tags
+    const cleanTags = Array.from(new Set(rawTags)).filter(t => /^[a-z0-9_-]+$/i.test(t));
     
     const customFields = [];
     if (DOM.customFieldsContainer) {
@@ -1927,7 +1948,7 @@
       ifsc: DOM.itemIfsc ? DOM.itemIfsc.value.trim() : '',
       pin: DOM.itemPin ? DOM.itemPin.value.trim() : '',
       notes: DOM.itemNotes ? DOM.itemNotes.value.trim() : '',
-      tags: Array.from(new Set(rawTags)),
+      tags: cleanTags,
       customFields: customFields,
       favorite: id ? (state.vaultItems.find(i => i.id === id)?.favorite || false) : false,
       archived: id ? (state.vaultItems.find(i => i.id === id)?.archived || false) : false,
