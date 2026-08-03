@@ -3623,17 +3623,17 @@ html, body {
 }
 
 .cc-front {
-  background: radial-gradient(circle at 100% 0%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%),
-              linear-gradient(135deg, rgba(20,25,35,0.85), rgba(40,50,70,0.95)),
-              url('data:image/svg+xml;utf8,<svg opacity="0.05" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="%23fff"/></svg>');
+  background: radial-gradient(circle at 100% 0%, rgba(139,92,246,0.2) 0%, rgba(40,50,70,0.05) 50%, transparent 100%),
+              linear-gradient(135deg, #2a2d3e 0%, #171923 100%);
   padding: clamp(1rem, 5cqw, 1.5rem);
   justify-content: space-between;
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .cc-back {
-  background: linear-gradient(135deg, rgba(15,20,32,0.95), rgba(30,41,59,0.98));
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, #171923 0%, #0f111a 100%);
+  border: 1px solid rgba(255,255,255,0.05);
   transform: rotateY(180deg);
   padding: 1.5rem 0 0 0;
 }
