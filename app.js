@@ -992,11 +992,32 @@
         else if (t.includes('spotify')) domain = 'spotify.com';
         else if (t.includes('slack')) domain = 'slack.com';
         else if (t.includes('pinterest')) domain = 'pinterest.com';
+        else {
+          // Auto-guess by stripping non-alphanumeric and adding .com
+          const guessed = t.replace(/[^a-z0-9]/g, '');
+          if (guessed.length > 2) {
+            domain = guessed + '.com';
+          }
+        }
       }
 
+      // Domain Normalization for robust logo fetching
       if (domain) {
-        // Boost size slightly for a more premium look inside the box
-        iconHtml = `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" style="width:75%; height:75%; object-fit:contain; border-radius:6px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25));" onerror="this.outerHTML='<i class=\\'fa-solid fa-globe\\'></i>'">`;
+        domain = domain.toLowerCase();
+        const domainMap = {
+          'gmail.com': 'google.com',
+          'googlemail.com': 'google.com',
+          'hotmail.com': 'microsoft.com',
+          'outlook.com': 'microsoft.com',
+          'live.com': 'microsoft.com',
+          'yahoo.in': 'yahoo.com',
+          'yahoo.co.in': 'yahoo.com',
+          'icloud.com': 'apple.com'
+        };
+        if (domainMap[domain]) domain = domainMap[domain];
+
+        // Dual CDN Fallback: Clearbit (High-res) -> Google Favicons (64px) -> Default
+        iconHtml = `<img src="https://logo.clearbit.com/${domain}" style="width:75%; height:75%; object-fit:contain; border-radius:6px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25));" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${domain}&sz=64';">`;
       }
     }
     return iconHtml;
