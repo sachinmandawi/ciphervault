@@ -937,16 +937,53 @@
     if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
     if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
     if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
+    if (item.type === 'login') {
+      let domain = null;
 
-    if (item.type === 'login' && item.url) {
-      try {
-        let urlStr = item.url.trim();
-        if (!urlStr.startsWith('http')) urlStr = 'https://' + urlStr;
-        const domain = new URL(urlStr).hostname;
-        if (domain) {
-          iconHtml = `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" style="width:70%; height:70%; object-fit:contain; border-radius:4px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));" onerror="this.outerHTML='<i class=\\'fa-solid fa-globe\\'></i>'">`;
+      // 1. Try extracting from URL
+      if (item.url) {
+        try {
+          let urlStr = item.url.trim();
+          if (!urlStr.startsWith('http')) urlStr = 'https://' + urlStr;
+          domain = new URL(urlStr).hostname;
+        } catch (e) {}
+      }
+
+      // 2. Try extracting from email or username
+      if (!domain) {
+        const emailRegex = /@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
+        if (item.email && emailRegex.test(item.email)) {
+          domain = item.email.match(emailRegex)[1];
+        } else if (item.username && emailRegex.test(item.username)) {
+          domain = item.username.match(emailRegex)[1];
         }
-      } catch (e) {}
+      }
+
+      // 3. Try guessing from title
+      if (!domain && item.title) {
+        const t = item.title.toLowerCase().trim();
+        if (t.includes('gmail') || t.includes('google')) domain = 'google.com';
+        else if (t.includes('facebook') || t.includes('fb')) domain = 'facebook.com';
+        else if (t.includes('instagram') || t.includes('insta')) domain = 'instagram.com';
+        else if (t.includes('twitter') || t === 'x') domain = 'twitter.com';
+        else if (t.includes('linkedin')) domain = 'linkedin.com';
+        else if (t.includes('amazon')) domain = 'amazon.com';
+        else if (t.includes('netflix')) domain = 'netflix.com';
+        else if (t.includes('apple')) domain = 'apple.com';
+        else if (t.includes('microsoft')) domain = 'microsoft.com';
+        else if (t.includes('github')) domain = 'github.com';
+        else if (t.includes('yahoo')) domain = 'yahoo.com';
+        else if (t.includes('discord')) domain = 'discord.com';
+        else if (t.includes('reddit')) domain = 'reddit.com';
+        else if (t.includes('spotify')) domain = 'spotify.com';
+        else if (t.includes('slack')) domain = 'slack.com';
+        else if (t.includes('pinterest')) domain = 'pinterest.com';
+      }
+
+      if (domain) {
+        // Boost size slightly for a more premium look inside the box
+        iconHtml = `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" style="width:75%; height:75%; object-fit:contain; border-radius:6px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25));" onerror="this.outerHTML='<i class=\\'fa-solid fa-globe\\'></i>'">`;
+      }
     }
     return iconHtml;
   }
@@ -2962,8 +2999,11 @@
     setupEventListeners();
     await checkMasterStatus();
     updateGeneratorView();
+    
+    // --- TEST HOOKS (DO NOT COMMIT) ---
+    window.testState = state;
+    window.testRenderVault = renderVault;
   }
 
   document.addEventListener('DOMContentLoaded', init);
-
 })();
