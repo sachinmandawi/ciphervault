@@ -27,8 +27,8 @@
   --accent-yellow: #f59e0b;
   --accent-red: #ef4444;
 
-  --text-main: #ebebeb;
-  --text-muted: #9b9b9b;
+  --text-main: #d4d4d4; /* Softened to avoid chamak */
+  --text-muted: #a3a3a3;
   --text-dim: #737373;
 
   --border-color: rgba(255, 255, 255, 0.09);
@@ -586,7 +586,7 @@ body {
   gap: 0.6rem;
   padding: 0.35rem 0.6rem;
   border-radius: 4px;
-  color: #ebebeb; /* Light grey text so it pops more */
+  color: var(--text-muted);
   background: transparent;
   border: none;
   font-size: 0.875rem;
@@ -636,7 +636,7 @@ body {
 
 .nav-item.active {
   background: rgba(255, 255, 255, 0.05); /* very faint active background */
-  color: #ffffff;
+  color: var(--text-main);
   font-weight: 600; /* Semi-bold for active */
   border: none; /* Notion active items have no border */
 }
