@@ -183,13 +183,8 @@ body {
 
 
 .blur-content {
-
-  filter: blur(10px);
-
+  opacity: 0;
   pointer-events: none;
-
-  user-select: none;
-
 }
 
 
@@ -3615,4 +3610,24 @@ html, body {
   font-size: 1.1rem;
   font-weight: 700;
   border-radius: 4px;
+}
+
+/* --- DESKTOP SIDEBAR COLLAPSE (Notion Style) --- */
+.menu-toggle-btn {
+  display: none !important;
+}
+
+@media (min-width: 993px) {
+  .app-container.sidebar-collapsed .sidebar {
+    margin-left: calc(-1 * var(--sidebar-width));
+  }
+  .app-container.sidebar-collapsed .menu-toggle-btn {
+    display: inline-flex !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .menu-toggle-btn {
+    display: inline-flex !important;
+  }
 }

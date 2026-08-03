@@ -801,7 +801,7 @@
 
   function unlockVault() {
     if (DOM.authOverlay) DOM.authOverlay.classList.remove('active');
-    if (DOM.app) DOM.app.classList.remove('');
+    if (DOM.app) DOM.app.classList.remove('blur-content');
 
     renderVault();
     resetAutoLockTimer();
@@ -826,7 +826,7 @@
     state.vaultItems = [];
     localStorage.removeItem('cipher_active_pass');
     if (DOM.authOverlay) DOM.authOverlay.classList.add('active');
-    if (DOM.app) DOM.app.classList.add('');
+    if (DOM.app) DOM.app.classList.add('blur-content');
     checkMasterStatus();
     if (state.autoLockTimer) clearTimeout(state.autoLockTimer);
     if (state.totpTimer) clearInterval(state.totpTimer);
@@ -2539,7 +2539,27 @@
       });
     }
 
-    if (DOM.mobileMenuToggle) DOM.mobileMenuToggle.addEventListener('click', openMobileMenu);
+    if (localStorage.getItem('sidebar_collapsed') === 'true') {
+      if (DOM.app) DOM.app.classList.add('sidebar-collapsed');
+    }
+    const desktopSidebarClose = document.getElementById('desktop-sidebar-close');
+    if (desktopSidebarClose) {
+      desktopSidebarClose.addEventListener('click', () => {
+        if (DOM.app) DOM.app.classList.add('sidebar-collapsed');
+        localStorage.setItem('sidebar_collapsed', 'true');
+      });
+    }
+
+    if (DOM.mobileMenuToggle) {
+      DOM.mobileMenuToggle.addEventListener('click', () => {
+        if (window.innerWidth <= 992) {
+          openMobileMenu();
+        } else {
+          if (DOM.app) DOM.app.classList.remove('sidebar-collapsed');
+          localStorage.setItem('sidebar_collapsed', 'false');
+        }
+      });
+    }
     if (DOM.mobileMenuClose) DOM.mobileMenuClose.addEventListener('click', closeMobileMenu);
     if (DOM.mobileBackdrop) DOM.mobileBackdrop.addEventListener('click', closeMobileMenu);
 
