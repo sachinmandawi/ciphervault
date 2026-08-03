@@ -3604,7 +3604,6 @@ html, body {
   transform-style: preserve-3d;
 }
 
-.cc-3d-wrapper:hover .cc-inner,
 .cc-3d-wrapper.flipped .cc-inner {
   transform: rotateY(180deg);
 }
