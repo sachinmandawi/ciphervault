@@ -472,6 +472,8 @@ body {
 
   flex-direction: column;
 
+  flex: 1; /* Push close button to the right */
+
 }
 
 
@@ -2762,9 +2764,9 @@ input:focus, textarea:focus, select:focus {
   padding: 0.2rem 0.6rem;
   border-radius: 99px;
   font-size: 0.72rem;
-  font-weight: 600;
-  background: var(--bg-hover);
-  color: var(--accent-purple);
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
   border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -2774,30 +2776,15 @@ input:focus, textarea:focus, select:focus {
   text-overflow: ellipsis;
 }
 
-
-
 .tag-badge:hover {
-
-  background: var(--bg-hover);
-
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
-
   transform: translateY(-1px);
-
 }
 
-
-
 .tag-badge.active {
-
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
-
-  color: #ffffff;
-
-  border: none;
-
-  box-shadow: none;
-
+  background: #ffffff;
+  color: #000000;
 }
 
 
