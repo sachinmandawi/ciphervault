@@ -583,14 +583,14 @@ body {
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.4rem 0.85rem;
+  gap: 0.6rem;
+  padding: 0.35rem 0.6rem;
   border-radius: 4px;
-  color: var(--text-dim);
+  color: #ebebeb; /* Light grey text so it pops more */
   background: transparent;
   border: none;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600; /* Mota font */
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -635,15 +635,10 @@ body {
 
 
 .nav-item.active {
-
-  background: var(--bg-hover);
-
-  color: var(--text-main);
-
-  font-weight: 600;
-
-  border: 1px solid var(--border-color);
-
+  background: rgba(255, 255, 255, 0.05); /* very faint active background */
+  color: #ffffff;
+  font-weight: 700; /* Extra mota for active */
+  border: none; /* Notion active items have no border */
 }
 
 
