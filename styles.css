@@ -280,29 +280,17 @@ body {
 
 
 .brand-badge-glow {
-
   width: 60px;
-
   height: 60px;
-
   margin: 0 auto 1.15rem auto;
-
-  border-radius: 18px;
-
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple), var(--accent-magenta));
-
+  border-radius: 12px;
+  background: var(--bg-hover);
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   font-size: 1.85rem;
-
-  color: #fff;
-
+  color: #06b6d4; /* Cyan to match brand */
   box-shadow: none;
-
 }
 
 
