@@ -916,6 +916,24 @@
   }
 
 
+  function getIconHtml(item) {
+    let iconHtml = '<i class="fa-solid fa-globe"></i>';
+    if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
+    if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
+    if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
+
+    if (item.type === 'login' && item.url) {
+      try {
+        let urlStr = item.url.trim();
+        if (!urlStr.startsWith('http')) urlStr = 'https://' + urlStr;
+        const domain = new URL(urlStr).hostname;
+        if (domain) {
+          iconHtml = `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" style="width:70%; height:70%; object-fit:contain; border-radius:4px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));" onerror="this.outerHTML='<i class=\\'fa-solid fa-globe\\'></i>'">`;
+        }
+      } catch (e) {}
+    }
+    return iconHtml;
+  }
 
   async function generateItemPreviewHtml(item) {
     let rowsHtml = '';
@@ -1168,10 +1186,7 @@
     const contentEl = document.getElementById('preview-body-content');
     const editBtn = document.getElementById('btn-preview-edit');
 
-    let iconHtml = '<i class="fa-solid fa-globe"></i>';
-    if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
-    if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
-    if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
+    let iconHtml = getIconHtml(item);
     if (iconEl) iconEl.innerHTML = iconHtml;
 
     if (titleEl) titleEl.textContent = item.title;
@@ -1319,10 +1334,7 @@
       });
     }
 
-    let iconHtml = '<i class="fa-solid fa-globe"></i>';
-    if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
-    if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
-    if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
+    let iconHtml = getIconHtml(item);
 
     let subText = [item.username, item.email].filter(Boolean).join(' • ') || item.cardnumber || item.accountno || item.bankname || 'Secure Item';
     let displayPass = item.password ? '••••••••••••' : (item.cvv ? '•••' : (item.pin ? '••••' : 'Encrypted Data'));
