@@ -2021,12 +2021,14 @@
       const idx = state.vaultItems.findIndex(i => i.id === id);
       if (idx !== -1) {
         const oldItem = state.vaultItems[idx];
-        if (oldItem.password && oldItem.password !== itemData.password) {
+        if (oldItem.password !== itemData.password) {
           itemData.passwordUpdatedAt = Date.now();
-          itemData.passwordHistory.push({
-            password: oldItem.password,
-            date: Date.now()
-          });
+          if (oldItem.password) {
+            itemData.passwordHistory.push({
+              password: oldItem.password,
+              date: Date.now()
+            });
+          }
           // Keep only the last 5 passwords
           if (itemData.passwordHistory.length > 5) {
             itemData.passwordHistory = itemData.passwordHistory.slice(-5);
