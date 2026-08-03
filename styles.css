@@ -3588,6 +3588,7 @@ html, body {
 
 /* --- 3D CREDIT CARD VIEW --- */
 .cc-3d-wrapper {
+  position: relative;
   perspective: 1000px;
   width: 100%;
   max-width: 380px;

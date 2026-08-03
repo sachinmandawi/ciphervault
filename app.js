@@ -1030,6 +1030,7 @@
               </div>
             </div>
           </div>
+          <div style="position:absolute; inset:0; z-index:10; background:transparent;"></div>
         </div>
       `;
       
