@@ -3674,11 +3674,10 @@ html, body {
 
 .cc-number {
   font-family: var(--font-mono);
-  font-size: 1.45rem;
-  letter-spacing: 0.18em;
-  color: #f8f8f8;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.8), -1px -1px 1px rgba(255,255,255,0.3);
-  margin-bottom: 0.8rem;
+  font-size: clamp(1.2rem, 5.5vw, 1.5rem);
+  letter-spacing: 0.15em;
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8), -1px -1px 1px rgba(255,255,255,0.2);
 }
 
 .cc-details {
@@ -3688,7 +3687,7 @@ html, body {
 }
 
 .cc-label {
-  font-size: 0.55rem;
+  font-size: clamp(0.5rem, 2vw, 0.55rem);
   text-transform: uppercase;
   color: rgba(255,255,255,0.7);
   letter-spacing: 0.1em;
@@ -3697,7 +3696,7 @@ html, body {
 }
 
 .cc-value {
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 3.5vw, 0.95rem);
   font-weight: 600;
   color: #f8f8f8;
   text-transform: uppercase;
@@ -3708,23 +3707,7 @@ html, body {
   text-overflow: ellipsis;
 }
 
-@media (max-width: 380px) {
-  .cc-number {
-    font-size: 1.25rem;
-    letter-spacing: 0.1em;
-    margin-bottom: 1rem;
-  }
-  .cc-value {
-    font-size: 0.75rem;
-  }
-  .cc-label {
-    font-size: 0.45rem;
-  }
-  .cc-3d-wrapper {
-    max-width: 100%;
-    margin: 0.5rem auto 1rem auto;
-  }
-}
+
 
 .cc-stripe {
   width: 100%;
