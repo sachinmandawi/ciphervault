@@ -23,23 +23,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.min.css">
 </head>
 <body>
-  <script>
-    (function(){
-      const uiState = sessionStorage.getItem('cipher_ui_state');
-      const hasData = localStorage.getItem('cipher_offline_vault');
-      let target = 'landing-page';
-      if (uiState === 'login') target = 'auth-overlay';
-      else if (uiState === 'landing') target = 'landing-page';
-      else if (hasData) target = 'auth-overlay';
-      
-      // Inject CSS that uses the correct display type
-      if (target === 'auth-overlay') {
-        document.write('<style>#' + target + ' { display: flex !important; }</style>');
-      } else {
-        document.write('<style>#' + target + ' { display: block !important; }</style>');
-      }
-    })();
-  </script>
+  
 
   <!-- LANDING PAGE -->
   <div id="landing-page" class="landing-page">
