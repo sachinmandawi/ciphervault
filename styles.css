@@ -3760,3 +3760,11 @@ html, body {
   border-top: 1px solid var(--border-color);
   font-size: 0.9rem;
 }
+
+@media (max-width: 768px) {
+  .landing-section { padding: 3rem 1.5rem; }
+  .security-content, .sync-content { padding: 1.5rem; }
+  .feature-card { padding: 1.5rem; }
+  .hero-cta-group { flex-direction: column; width: 100%; gap: 1rem; }
+  .hero-cta-group button { width: 100%; }
+}
