@@ -39,7 +39,7 @@
         <a href="#sync">GitHub Sync</a>
       </div>
       <div class="landing-nav-right">
-        <button id="btn-landing-login" class="btn-landing-text">Log in</button>
+        <button id="btn-landing-login" class="btn btn-primary" style="padding: 0.4rem 1.2rem; font-size: 0.95rem; border-radius: var(--radius-sm); font-weight: 600;">Log in</button>
       </div>
     </nav>
 
@@ -56,6 +56,53 @@
         <span><i class="fa-solid fa-server"></i> Local First</span>
       </div>
     </main>
+
+    <section id="features" class="landing-section">
+      <div class="section-container">
+        <h2>Features Designed for You</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <i class="fa-solid fa-layer-group feature-icon"></i>
+            <h3>Organize with Tags</h3>
+            <p>Keep your credentials perfectly organized with custom tags like #work, #personal, or anything else you prefer.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fa-solid fa-bolt feature-icon"></i>
+            <h3>Lightning Fast</h3>
+            <p>Since everything runs locally in your browser, accessing your passwords is instantaneous without network delays.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fa-solid fa-mobile-screen feature-icon"></i>
+            <h3>Mobile Responsive</h3>
+            <p>Access your vault seamlessly across desktop and mobile devices with a layout that adapts perfectly.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" class="landing-section">
+      <div class="section-container">
+        <h2>Uncompromised Security</h2>
+        <div class="security-content">
+          <p>We built CipherVault on the principles of <strong>Zero-Knowledge Architecture</strong>. Your master password never leaves your device. All encryption and decryption happens purely locally using military-grade <strong>AES-256-GCM</strong> encryption.</p>
+          <p>There are no centralized servers that can be hacked. Your secrets remain yours.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="sync" class="landing-section">
+      <div class="section-container">
+        <h2>Seamless GitHub Sync</h2>
+        <div class="sync-content">
+          <i class="fa-brands fa-github sync-icon"></i>
+          <p>Want to sync your passwords across multiple devices? Connect CipherVault securely to a <strong>Private GitHub Gist</strong>. We encrypt the data locally before pushing it, ensuring GitHub only ever sees scrambled text.</p>
+        </div>
+      </div>
+    </section>
+    
+    <footer class="landing-footer">
+      <p>&copy; 2026 CipherVault. Open Source and Privacy First.</p>
+    </footer>
   </div>
 
   <!-- MASTER AUTH / LOGIN MODAL -->

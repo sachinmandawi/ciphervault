@@ -3579,6 +3579,7 @@ html, body {
 
 /* --- LANDING PAGE --- */
 .landing-page {
+  scroll-behavior: smooth;
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -3691,4 +3692,71 @@ html, body {
   .hero-title { font-size: 3.5rem; }
   .hero-subtitle { font-size: 1.2rem; }
   .hero-trust { gap: 1.5rem; font-size: 0.95rem; }
+}
+
+.landing-section {
+  padding: 5rem 2rem;
+  border-top: 1px solid var(--border-color);
+}
+.section-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.landing-section h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #fff;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  text-align: center;
+}
+.feature-icon {
+  font-size: 2.5rem;
+  color: #06b6d4;
+  margin-bottom: 1.5rem;
+}
+.feature-card h3 {
+  font-size: 1.3rem;
+  color: #fff;
+  margin-bottom: 1rem;
+}
+.feature-card p {
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.security-content, .sync-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 3rem;
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.security-content strong, .sync-content strong {
+  color: #fff;
+}
+.sync-icon {
+  font-size: 4rem;
+  color: #fff;
+  margin-bottom: 1.5rem;
+}
+.landing-footer {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border-color);
+  font-size: 0.9rem;
 }
