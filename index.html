@@ -32,7 +32,12 @@
       else if (uiState === 'landing') target = 'landing-page';
       else if (hasData) target = 'auth-overlay';
       
-      document.write('<style>#' + target + ' { display: block !important; }</style>');
+      // Inject CSS that uses the correct display type
+      if (target === 'auth-overlay') {
+        document.write('<style>#' + target + ' { display: flex !important; }</style>');
+      } else {
+        document.write('<style>#' + target + ' { display: block !important; }</style>');
+      }
     })();
   </script>
 
