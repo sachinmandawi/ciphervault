@@ -3329,7 +3329,7 @@ html, body {
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   flex: 1;
-  max-width: 380px;
+  max-width: 250px;
 }
 
 .InputContainer:focus-within {
