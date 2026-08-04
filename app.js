@@ -1930,8 +1930,6 @@
   }
 
   function closeModal() {
-    const prevModal = document.getElementById('modal-preview');
-    if (prevModal) prevModal.classList.remove('active');
     const filePrevModal = document.getElementById('modal-file-preview');
     if (filePrevModal) filePrevModal.classList.remove('active');
     const labelsModal = document.getElementById('modal-manage-labels');
@@ -2046,6 +2044,7 @@
     await renderVault();
     if (DOM.viewAuth && DOM.viewAuth.classList.contains('active')) render2FAAuthenticatorView();
 
+    switchView(DOM.viewVault);
     closeModal();
     await saveVaultToGitHub();
   }
