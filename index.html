@@ -457,6 +457,180 @@
           </div>
         </section>
 
+        <!-- ADD / EDIT ITEM VIEW -->
+        <section id="view-item-edit" class="view-section">
+          <div class="glass-panel preview-container" style="display:flex; flex-direction:column; height:100%;">
+            <div class="modal-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem; flex-shrink: 0; padding-right: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+              <div style="display:flex; align-items:center; gap:1.5rem;">
+                <button id="btn-item-edit-back" class="btn-icon" style="background:transparent; border:none; color:var(--text-muted); padding:0; width:32px; height:32px; font-size:1.2rem; cursor:pointer;" title="Go back">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3 id="modal-item-title" style="margin:0; font-size:1.5rem; color:#ffffff; font-weight:700; line-height:1.2;">Add New Vault Item</h3>
+              </div>
+            </div>
+
+            <form id="item-form" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+              <div class="modal-body" style="flex: 1; overflow-y: auto; padding-right: 1rem; padding-bottom: 2rem;">
+                <input type="hidden" id="item-id">
+                
+                <div class="form-row">
+                  <div class="form-group flex-1">
+                    <label for="item-type">Item Category</label>
+                    <select id="item-type" class="form-select">
+                      <option value="login">Login / Account</option>
+                      <option value="card">Debit Card</option>
+                      <option value="bank">Bank Account</option>
+                      <option value="note">Secure Note</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group flex-1">
+                    <label for="item-title-input">Title <span style="color:#ef4444; font-weight:700;">*</span></label>
+                    <input type="text" id="item-title-input" required placeholder="e.g. Google, SBI, Netflix...">
+                  </div>
+                </div>
+
+                <!-- Login specific fields -->
+                <div id="fields-login" class="category-fields">
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label for="item-username">Username</label>
+                      <input type="text" id="item-username" placeholder="e.g. johndoe">
+                    </div>
+
+                    <div class="form-group flex-1">
+                      <label for="item-email">Email</label>
+                      <input type="email" id="item-email" placeholder="name@example.com">
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-mobile">Mobile Number</label>
+                      <input type="tel" id="item-mobile" placeholder="+1 234 567 8900">
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-password">Password</label>
+                      <div class="password-input-wrapper has-gen">
+                        <input type="password" id="item-password" placeholder="Enter or generate...">
+                        <button type="button" class="btn-icon toggle-pass" data-target="item-password" title="Show/Hide">
+                          <i class="fa-regular fa-eye"></i>
+                        </button>
+                        <button type="button" id="btn-modal-gen" class="btn-icon" title="Generate Password">
+                          <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="form-group flex-1">
+                      <label for="item-totp">2FA Key <span class="sub-text">(TOTP)</span></label>
+                      <input type="text" id="item-totp" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" style="font-family:var(--font-mono); text-transform:uppercase;">
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-backup-codes">2FA Backup / Recovery Codes <span class="sub-text">(Optional, one per line)</span></label>
+                      <textarea id="item-backup-codes" class="auto-expand" placeholder="e.g. 1234-5678&#10;9012-3456" rows="3" style="font-family:var(--font-mono); resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-url">Website URL</label>
+                      <input type="url" id="item-url" placeholder="https://example.com">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card specific fields (Debit Card) -->
+                <div id="fields-card" class="category-fields hidden">
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label for="item-cardholder">Cardholder Name</label>
+                      <input type="text" id="item-cardholder" placeholder="John Doe">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="item-cardnumber">Card Number</label>
+                      <input type="text" id="item-cardnumber" placeholder="4532 •••• •••• 8901">
+                    </div>
+                  </div>
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-exp">Expiry (MM/YY)</label>
+                      <input type="text" id="item-exp" placeholder="12/28">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="item-cvv">CVV / CVC</label>
+                      <input type="password" id="item-cvv" placeholder="123">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bank Account specific fields -->
+                <div id="fields-bank" class="category-fields hidden">
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label for="item-bankname">Bank Name</label>
+                      <input type="text" id="item-bankname" placeholder="e.g. SBI, HDFC...">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="item-accountno">Account Number</label>
+                      <input type="text" id="item-accountno" placeholder="38492019481">
+                    </div>
+                  </div>
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-ifsc">IFSC Code</label>
+                      <input type="text" id="item-ifsc" placeholder="SBIN0001234">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="item-pin">ATM / UPI PIN</label>
+                      <input type="password" id="item-pin" placeholder="••••">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Note specific fields -->
+                <div id="fields-note" class="category-fields hidden">
+                  <div class="form-group">
+                    <label for="item-notes">Secure Note Content</label>
+                    <textarea id="item-notes" class="auto-expand" rows="4" placeholder="Write sensitive notes, recovery codes, SSH keys..." style="resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
+                  </div>
+                </div>
+
+                <!-- CUSTOM FIELDS DYNAMIC CONTAINER -->
+                <div id="custom-fields-wrapper" class="form-group mt-2">
+                  <label>Custom Fields <span class="sub-text">(e.g. PIN, Security Q&A, Support Phone)</span></label>
+                  <div id="custom-fields-container" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <!-- Dynamic rows will be injected here -->
+                  </div>
+                  <button type="button" id="btn-add-custom-field" class="btn btn-secondary btn-sm" style="align-self: flex-start; padding: 0.4rem 0.8rem; font-size: 0.75rem;">
+                    <i class="fa-solid fa-plus"></i> Add Custom Field
+                  </button>
+                </div>
+
+                <!-- CUSTOM TAGS / LABELS FIELD -->
+                <div class="form-group mt-2">
+                  <label for="item-tags">Custom Tags / Labels <span class="sub-text">(e.g. #work, #personal, #crypto, #banking)</span></label>
+                  <input type="text" id="item-tags" placeholder="e.g. #work, #personal, #crypto">
+                </div>
+
+              </div>
+
+              <div class="modal-footer" style="justify-content: flex-end; padding-top:1.5rem; border-top: 1px solid var(--border-color); display:flex; gap: 1rem;">
+                <button type="button" id="btn-item-edit-cancel" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:1rem; font-weight:500; padding:0.75rem 1.5rem; border-radius:var(--radius-md);">Cancel</button>
+                <button type="submit" style="background:var(--accent-purple); border:none; color:#ffffff; cursor:pointer; font-size:1rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; padding: 0.75rem 1.5rem; border-radius:var(--radius-md);">
+                  <i class="fa-solid fa-floppy-disk"></i> Save Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
         <section id="view-authenticator" class="view-section">
           <div class="section-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
             <div>
@@ -683,176 +857,7 @@
     </main>
   </div>
 
-  <!-- ADD / EDIT ITEM MODAL -->
-  <div id="modal-item" class="modal-overlay">
-    <div class="modal-card glass-panel">
-      <div class="modal-header" style="justify-content:space-between; margin-bottom: 0.5rem; padding-top: 1.5rem;">
-        <h3 id="modal-item-title" style="margin:0; font-size:1.1rem; color:#ffffff; font-weight:600; line-height:1.2;">Add New Vault Item</h3>
-        <button class="btn-icon close-modal" style="background:transparent; border:none; color:var(--text-muted); padding:0; width:24px; height:24px;"><i class="fa-solid fa-xmark"></i></button>
-      </div>
 
-      <form id="item-form" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
-        <div class="modal-body">
-          <input type="hidden" id="item-id">
-          
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="item-type">Item Category</label>
-              <select id="item-type" class="form-select">
-                <option value="login">Login / Account</option>
-                <option value="card">Debit Card</option>
-                <option value="bank">Bank Account</option>
-                <option value="note">Secure Note</option>
-              </select>
-            </div>
-
-            <div class="form-group flex-1">
-              <label for="item-title-input">Title <span style="color:#ef4444; font-weight:700;">*</span></label>
-              <input type="text" id="item-title-input" required placeholder="e.g. Google, SBI, Netflix...">
-            </div>
-          </div>
-
-          <!-- Login specific fields -->
-          <div id="fields-login" class="category-fields">
-            <div class="form-row">
-              <div class="form-group flex-1">
-                <label for="item-username">Username</label>
-                <input type="text" id="item-username" placeholder="e.g. johndoe">
-              </div>
-
-              <div class="form-group flex-1">
-                <label for="item-email">Email</label>
-                <input type="email" id="item-email" placeholder="name@example.com">
-              </div>
-            </div>
-
-            <div class="form-row mt-2">
-              <div class="form-group flex-1">
-                <label for="item-mobile">Mobile Number</label>
-                <input type="tel" id="item-mobile" placeholder="+1 234 567 8900">
-              </div>
-            </div>
-
-            <div class="form-row mt-2">
-              <div class="form-group flex-1">
-                <label for="item-password">Password</label>
-                <div class="password-input-wrapper has-gen">
-                  <input type="password" id="item-password" placeholder="Enter or generate...">
-                  <button type="button" class="btn-icon toggle-pass" data-target="item-password" title="Show/Hide">
-                    <i class="fa-regular fa-eye"></i>
-                  </button>
-                  <button type="button" id="btn-modal-gen" class="btn-icon" title="Generate Password">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div class="form-group flex-1">
-                <label for="item-totp">2FA Key <span class="sub-text">(TOTP)</span></label>
-                <input type="text" id="item-totp" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" style="font-family:var(--font-mono); text-transform:uppercase;">
-              </div>
-            </div>
-
-            <div class="form-row mt-2">
-              <div class="form-group flex-1">
-                <label for="item-backup-codes">2FA Backup / Recovery Codes <span class="sub-text">(Optional, one per line)</span></label>
-                <textarea id="item-backup-codes" class="auto-expand" placeholder="e.g. 1234-5678&#10;9012-3456" rows="3" style="font-family:var(--font-mono); resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
-              </div>
-            </div>
-
-
-            <div class="form-row mt-2">
-              <div class="form-group flex-1">
-                <label for="item-url">Website URL</label>
-                <input type="url" id="item-url" placeholder="https://example.com">
-              </div>
-            </div>
-          </div>
-
-          <!-- Card specific fields (Debit Card) -->
-          <div id="fields-card" class="category-fields hidden">
-            <div class="form-row">
-              <div class="form-group flex-1">
-                <label for="item-cardholder">Cardholder Name</label>
-                <input type="text" id="item-cardholder" placeholder="John Doe">
-              </div>
-              <div class="form-group flex-1">
-                <label for="item-cardnumber">Card Number</label>
-                <input type="text" id="item-cardnumber" placeholder="4532 •••• •••• 8901">
-              </div>
-            </div>
-            <div class="form-row mt-2">
-              <div class="form-group flex-1">
-                <label for="item-exp">Expiry (MM/YY)</label>
-                <input type="text" id="item-exp" placeholder="12/28">
-              </div>
-              <div class="form-group flex-1">
-                <label for="item-cvv">CVV / CVC</label>
-                <input type="password" id="item-cvv" placeholder="123">
-              </div>
-            </div>
-          </div>
-
-          <!-- Bank Account specific fields -->
-          <div id="fields-bank" class="category-fields hidden">
-            <div class="form-row">
-              <div class="form-group flex-1">
-                <label for="item-bankname">Bank Name</label>
-                <input type="text" id="item-bankname" placeholder="e.g. SBI, HDFC...">
-              </div>
-              <div class="form-group flex-1">
-                <label for="item-accountno">Account Number</label>
-                <input type="text" id="item-accountno" placeholder="38492019481">
-              </div>
-            </div>
-            <div class="form-row mt-2">
-              <div class="form-group flex-1">
-                <label for="item-ifsc">IFSC Code</label>
-                <input type="text" id="item-ifsc" placeholder="SBIN0001234">
-              </div>
-              <div class="form-group flex-1">
-                <label for="item-pin">ATM / UPI PIN</label>
-                <input type="password" id="item-pin" placeholder="••••">
-              </div>
-            </div>
-          </div>
-
-          <!-- Note specific fields -->
-          <div id="fields-note" class="category-fields hidden">
-            <div class="form-group">
-              <label for="item-notes">Secure Note Content</label>
-              <textarea id="item-notes" class="auto-expand" rows="4" placeholder="Write sensitive notes, recovery codes, SSH keys..." style="resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
-            </div>
-          </div>
-
-          <!-- CUSTOM FIELDS DYNAMIC CONTAINER -->
-          <div id="custom-fields-wrapper" class="form-group mt-2">
-            <label>Custom Fields <span class="sub-text">(e.g. PIN, Security Q&A, Support Phone)</span></label>
-            <div id="custom-fields-container" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
-              <!-- Dynamic rows will be injected here -->
-            </div>
-            <button type="button" id="btn-add-custom-field" class="btn btn-secondary btn-sm" style="align-self: flex-start; padding: 0.4rem 0.8rem; font-size: 0.75rem;">
-              <i class="fa-solid fa-plus"></i> Add Custom Field
-            </button>
-          </div>
-
-          <!-- CUSTOM TAGS / LABELS FIELD -->
-          <div class="form-group mt-2">
-            <label for="item-tags">Custom Tags / Labels <span class="sub-text">(e.g. #work, #personal, #crypto, #banking)</span></label>
-            <input type="text" id="item-tags" placeholder="e.g. #work, #personal, #crypto">
-          </div>
-
-        </div>
-
-        <div class="modal-footer" style="justify-content: space-between; padding-bottom:0;">
-          <button type="button" class="close-modal" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.85rem; font-weight:500; padding:0.5rem 0;">Cancel</button>
-          <button type="submit" style="background:transparent; border:none; color:var(--accent-purple); cursor:pointer; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.35rem; padding:0.5rem 0;">
-            <i class="fa-solid fa-floppy-disk"></i> Save Item
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
 
 
 

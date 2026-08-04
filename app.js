@@ -478,7 +478,8 @@
     btnDangerWipe: document.getElementById('btn-danger-wipe'),
 
     // Modal Item
-    modalItem: document.getElementById('modal-item'),
+    viewPreview: document.getElementById('view-preview'),
+    viewItemEdit: document.getElementById('view-item-edit'),
     modalItemTitle: document.getElementById('modal-item-title'),
     itemForm: document.getElementById('item-form'),
     itemId: document.getElementById('item-id'),
@@ -1874,7 +1875,7 @@
 
   // --- ITEM CRUD & MODAL ---
   function openAddModal() {
-    if (!DOM.modalItem) return;
+    if (!DOM.viewItemEdit) return;
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Add New Vault Item';
     if (DOM.itemId) DOM.itemId.value = '';
     if (DOM.itemForm) DOM.itemForm.reset();
@@ -1883,12 +1884,12 @@
     if (DOM.customFieldsContainer) DOM.customFieldsContainer.innerHTML = '';
     switchCategoryFields('login');
     if (DOM.itemStrengthBar) DOM.itemStrengthBar.className = 'strength-bar';
-    DOM.modalItem.classList.add('active');
+    switchView(DOM.viewItemEdit);
   }
 
   function openEditModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
-    if (!item || !DOM.modalItem) return;
+    if (!item || !DOM.viewItemEdit) return;
 
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Edit Vault Item';
     if (DOM.itemId) DOM.itemId.value = item.id;
@@ -1925,11 +1926,10 @@
     switchCategoryFields(item.type || 'login');
     if (item.password) updateItemPasswordStrength(item.password);
 
-    DOM.modalItem.classList.add('active');
+    switchView(DOM.viewItemEdit);
   }
 
   function closeModal() {
-    if (DOM.modalItem) DOM.modalItem.classList.remove('active');
     const prevModal = document.getElementById('modal-preview');
     if (prevModal) prevModal.classList.remove('active');
     const filePrevModal = document.getElementById('modal-file-preview');
@@ -2516,6 +2516,20 @@
 
   // --- SAFE EVENT LISTENERS SETUP ---
   function setupEventListeners() {
+    const btnItemEditBack = document.getElementById('btn-item-edit-back');
+    if (btnItemEditBack) {
+      btnItemEditBack.addEventListener('click', () => {
+        switchView(DOM.viewVault);
+      });
+    }
+    
+    const btnItemEditCancel = document.getElementById('btn-item-edit-cancel');
+    if (btnItemEditCancel) {
+      btnItemEditCancel.addEventListener('click', () => {
+        switchView(DOM.viewVault);
+      });
+    }
+
     if (DOM.unlockForm) DOM.unlockForm.addEventListener('submit', handleUnlock);
     if (DOM.btnLockNow) DOM.btnLockNow.addEventListener('click', lockVault);
 
