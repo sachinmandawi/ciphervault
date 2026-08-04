@@ -2384,9 +2384,18 @@
     const rawKey = window.crypto.getRandomValues(new Uint8Array(32));
     const shareKeyHex = Array.from(rawKey).map(b => b.toString(16).padStart(2, '0')).join('');
     
-    // Create a complete payload excluding internal metadata that isn't needed for preview
-    const sharePayload = { ...item };
-    delete sharePayload.id; // Optional: delete internal id if you don't want to expose it
+    // Create a compact payload excluding empty fields and internal metadata
+    const sharePayload = {};
+    for (const key in item) {
+      const val = item[key];
+      if (val !== '' && val !== null && val !== undefined &&
+          key !== 'id' && key !== 'passwordHistory' && 
+          key !== 'favorite' && key !== 'deleted' && key !== 'archived' && 
+          key !== 'orderIndex' && key !== 'createdAt' && key !== 'passwordUpdatedAt') {
+        if (Array.isArray(val) && val.length === 0) continue;
+        sharePayload[key] = val;
+      }
+    }
     sharePayload.expiresAt = Date.now() + 86400000; // 24 hours
 
     try {
@@ -2401,7 +2410,8 @@
       const encryptedData = await CryptoEngine.encryptData(sharePayload, cryptoKey);
       
       const baseUrl = window.location.href.split('?')[0].split('#')[0];
-      const shareUrl = `${baseUrl}?share=${encodeURIComponent(JSON.stringify(encryptedData))}#${shareKeyHex}`;
+      const compactData = `${encryptedData.iv}.${encryptedData.ciphertext}`;
+      const shareUrl = `${baseUrl}?share=${encodeURIComponent(compactData)}#${shareKeyHex}`;
 
       await navigator.clipboard.writeText(shareUrl);
       showToast('Secure Share Link Copied! (Valid for 24hrs)', 'success');
@@ -3037,7 +3047,16 @@
           ['encrypt', 'decrypt']
         );
         
-        const item = await CryptoEngine.decryptData(JSON.parse(decodeURIComponent(sharedData)), cryptoKey);
+        const decoded = decodeURIComponent(sharedData);
+        let encryptedObj;
+        if (decoded.includes('{')) {
+          encryptedObj = JSON.parse(decoded);
+        } else {
+          const parts = decoded.split('.');
+          encryptedObj = { iv: parts[0], ciphertext: parts[1] };
+        }
+        
+        const item = await CryptoEngine.decryptData(encryptedObj, cryptoKey);
         
         if (Date.now() > item.expiresAt) {
           throw new Error('Link Expired');
