@@ -622,7 +622,11 @@
     }
 
     const fetchPromise = GitHubDB.fetchVaultFile().then(async remote => {
-      state.fileSha = remote.sha;
+        if (!remote || !remote.payload) {
+          console.warn('GitHub DB fetch: Payload missing or unauthenticated.');
+          return;
+        }
+        state.fileSha = remote.sha;
       state.saltBase64 = remote.payload.salt;
       state.verifierObj = remote.payload.verifier;
       state.cachedPayload = remote.payload;
@@ -689,46 +693,68 @@
   }
 
   async function handleUnlock(e) {
-    if (e) e.preventDefault();
-    const user = DOM.unlockUser ? DOM.unlockUser.value.trim() : '';
-    const pass = DOM.unlockPass ? DOM.unlockPass.value : '';
-    if (DOM.unlockError) DOM.unlockError.classList.add('hidden');
+      if (e) e.preventDefault();
+      const user = DOM.unlockUser ? DOM.unlockUser.value.trim() : '';
+      const pass = DOM.unlockPass ? DOM.unlockPass.value.trim() : '';
+      if (DOM.unlockError) DOM.unlockError.classList.add('hidden');
 
-    try {
-      if (user.toLowerCase() !== GITHUB_CONFIG.owner.toLowerCase()) {
+      try {
+        if (user.toLowerCase() !== GITHUB_CONFIG.owner.toLowerCase()) {
+          if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
+          return;
+        }
+
+        if (!state.saltBase64 || !state.verifierObj) {
+          const cached = localStorage.getItem('cipher_offline_vault');
+          if (cached) {
+            try {
+              const payload = JSON.parse(cached);
+              state.saltBase64 = payload.salt;
+              state.verifierObj = payload.verifier;
+              state.cachedPayload = payload;
+            } catch(err) {}
+          }
+        }
+
+        if (!state.saltBase64 || !state.verifierObj) {
+          const remote = await GitHubDB.fetchVaultFile();
+          if (remote && remote.payload) {
+            state.fileSha = remote.sha;
+            state.saltBase64 = remote.payload.salt;
+            state.verifierObj = remote.payload.verifier;
+            state.cachedPayload = remote.payload;
+            localStorage.setItem('cipher_offline_vault', JSON.stringify(remote.payload));
+            localStorage.setItem('cipher_offline_sha', remote.sha);
+          }
+        }
+
+        if (!state.saltBase64 || !state.verifierObj) {
+          showToast('Session expired. Please sign in with GitHub to fetch your vault.', 'warning');
+          if (DOM.githubAuthStep) DOM.githubAuthStep.classList.remove('hidden');
+          if (DOM.unlockForm) DOM.unlockForm.classList.add('hidden');
+          return;
+        }
+
+        const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
+        const key = await CryptoEngine.deriveKey(pass, new Uint8Array(salt));
+        const isValid = await CryptoEngine.verifyKey(state.verifierObj, key);
+
+        if (isValid) {
+          state.masterKey = key;
+          sessionStorage.setItem('cipher_active_pass', pass);
+          await loadVaultFromGitHub(key);
+          unlockVault();
+          showToast(`Unlocked! Synced with Private Repo (ciphervault-db)`, 'success');
+        } else {
+          if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
+        }
+      } catch (err) {
+        console.error('Unlock Error:', err);
         if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
-        return;
       }
-
-      if (!state.saltBase64 || !state.verifierObj) {
-        const remote = await GitHubDB.fetchVaultFile();
-        state.fileSha = remote.sha;
-        state.saltBase64 = remote.payload.salt;
-        state.verifierObj = remote.payload.verifier;
-        state.cachedPayload = remote.payload;
-        localStorage.setItem('cipher_offline_vault', JSON.stringify(remote.payload));
-        localStorage.setItem('cipher_offline_sha', remote.sha);
-      }
-
-      const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
-      const key = await CryptoEngine.deriveKey(pass, new Uint8Array(salt));
-      const isValid = await CryptoEngine.verifyKey(state.verifierObj, key);
-
-      if (isValid) {
-        state.masterKey = key;
-        sessionStorage.setItem('cipher_active_pass', pass);
-        await loadVaultFromGitHub(key);
-        unlockVault();
-        showToast(`Unlocked! Synced with Private Repo (ciphervault-db)`, 'success');
-      } else {
-        if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
-      }
-    } catch (err) {
-      if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
     }
-  }
 
-  async function loadVaultFromGitHub(key) {
+    async function loadVaultFromGitHub(key) {
     try {
       let payload = state.cachedPayload;
       if (!payload || !payload.vault) {
