@@ -692,7 +692,56 @@
     if (DOM.unlockPass) DOM.unlockPass.value = '';
   }
 
-  async function handleUnlock(e) {
+  async function handleSetup(e) {
+      if (e) e.preventDefault();
+      const user = DOM.setupUser ? DOM.setupUser.value.trim() : '';
+      const pass = DOM.setupPass ? DOM.setupPass.value : '';
+      const confirm = DOM.setupConfirm ? DOM.setupConfirm.value : '';
+
+      if (pass.length < 8) {
+        showToast('Master password must be at least 8 characters!', 'error');
+        return;
+      }
+      if (pass !== confirm) {
+        showToast('Passwords do not match!', 'error');
+        return;
+      }
+
+      try {
+        const salt = CryptoEngine.generateSalt();
+        state.saltBase64 = CryptoEngine.bufferToBase64(salt);
+        const key = await CryptoEngine.deriveKey(pass, salt);
+        state.verifierObj = await CryptoEngine.createKeyVerifier(key);
+        state.masterKey = key;
+        state.vaultItems = [];
+
+        sessionStorage.setItem('cipher_active_pass', pass);
+        
+        const payload = {
+          salt: state.saltBase64,
+          verifier: state.verifierObj,
+          vault: []
+        };
+        localStorage.setItem('cipher_offline_vault', JSON.stringify(payload));
+
+        if (GITHUB_CONFIG.getToken()) {
+          try {
+            await saveVaultToGitHub();
+          } catch(e) {
+            console.warn('GitHub sync skipped during setup:', e);
+          }
+        }
+
+        if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
+        unlockVault();
+        showToast('Vault initialized successfully!', 'success');
+      } catch (err) {
+        showToast('Failed to initialize vault: ' + err.message, 'error');
+        console.error('Setup Error:', err);
+      }
+    }
+
+    async function handleUnlock(e) {
       if (e) e.preventDefault();
       const user = DOM.unlockUser ? DOM.unlockUser.value.trim() : '';
       const pass = DOM.unlockPass ? DOM.unlockPass.value.trim() : '';
@@ -2570,6 +2619,7 @@
       });
     }
 
+    if (DOM.setupForm) DOM.setupForm.addEventListener('submit', handleSetup);
     if (DOM.unlockForm) DOM.unlockForm.addEventListener('submit', handleUnlock);
     if (DOM.btnLockNow) DOM.btnLockNow.addEventListener('click', lockVault);
 
