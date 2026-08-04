@@ -3090,6 +3090,15 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.setItem('cipher_ui_state', 'landing');
       }
     }
+    
+    // Hide FOUC shield after resolving initial view
+    setTimeout(() => {
+      const shield = document.getElementById('fouc-shield');
+      if (shield) {
+        shield.style.opacity = '0';
+        setTimeout(() => shield.remove(), 200);
+      }
+    }, 10);
 
     const goToAuth = () => {
       landingPage.classList.remove('active');
