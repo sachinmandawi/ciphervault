@@ -862,15 +862,19 @@
 
 
   <!-- SHARED CREDENTIAL OVERLAY -->
-  <div id="shared-credential-overlay" class="modal-overlay" style="z-index:9999; background:rgba(15,20,32,1); backdrop-filter:blur(10px);">
+  <div id="shared-credential-overlay" class="modal-overlay" style="z-index:9999; background:var(--bg-dark); backdrop-filter:blur(10px);">
     <div class="glass-panel preview-container" style="display:flex; flex-direction:column; height: 100%; border-radius: 0; border: none; margin: 0 auto; padding-top: 3rem;">
       
       <!-- Compact Header -->
-      <div style="flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
-        <i class="fa-solid fa-shield-halved" style="font-size:2rem; color:var(--accent-purple);"></i>
-        <div style="text-align: left;">
-          <h2 style="margin:0; font-size:1.5rem; color:#fff; line-height:1.2;">Shared Credential</h2>
-          <p id="shared-credential-status" style="margin:0; font-size:0.85rem; color:var(--text-muted);">Decrypting secure link...</p>
+      <div style="flex-shrink:0; display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
+        <div style="display:flex; align-items:center; gap:1.5rem;">
+          <div style="width:40px; height:40px; font-size:18px; border-radius:12px; flex-shrink:0; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; color:var(--text-main);">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div style="text-align: left;">
+            <h2 style="margin:0; font-size:1.5rem; color:#fff; line-height:1.2;">Shared Credential</h2>
+            <p id="shared-credential-status" style="margin:0; font-size:0.85rem; color:var(--text-muted);">Decrypting secure link...</p>
+          </div>
         </div>
       </div>
 
