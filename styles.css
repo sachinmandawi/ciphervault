@@ -3788,7 +3788,19 @@ html, body {
 }
 
 
-/* GLOBAL OVERFLOW FIXES FOR MOBILE */
+
+@media (max-width: 768px) {
+  .content-scroll {
+    padding: 1rem 1rem 5rem 1rem;
+  }
+  .preview-container {
+    padding: 1rem 0; /* Let content-scroll or wrapper handle left/right padding */
+  }
+  .modal-overlay {
+    padding: 0;
+  }
+}
+\n/* GLOBAL OVERFLOW FIXES FOR MOBILE */
 .stat-label, .preview-title, .item-title {
   white-space: normal;
   word-break: break-word;
