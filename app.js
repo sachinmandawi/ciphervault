@@ -3037,16 +3037,20 @@ document.addEventListener('DOMContentLoaded', () => {
       landingPage.classList.remove('active');
       authOverlay.classList.add('active');
     };
+    
+    const goToHome = () => {
+      authOverlay.classList.remove('active');
+      landingPage.classList.add('active');
+    };
 
     document.getElementById('btn-landing-login')?.addEventListener('click', goToAuth);
     document.getElementById('btn-landing-cta')?.addEventListener('click', goToAuth);
     document.getElementById('btn-hero-cta')?.addEventListener('click', goToAuth);
     
-    // Also request demo just goes to auth for now
-    document.querySelectorAll('.btn-landing-text').forEach(btn => {
-        if(btn.id !== 'btn-landing-login') {
-            btn.addEventListener('click', goToAuth);
-        }
+    document.getElementById('btn-back-home')?.addEventListener('click', goToHome);
+    
+    document.getElementById('btn-hero-github')?.addEventListener('click', () => {
+        window.open('https://github.com/sachinmandawi/ciphervault-password-manager', '_blank');
     });
   }
 });
