@@ -805,6 +805,42 @@
     const lp = document.getElementById('landing-page');
     if (lp) lp.classList.remove('active');
 
+    const savedView = sessionStorage.getItem('cipher_active_view');
+    const savedCat = sessionStorage.getItem('cipher_active_category');
+    const savedTag = sessionStorage.getItem('cipher_active_tag');
+
+    if (savedCat) state.currentCategory = savedCat;
+    if (savedTag) state.selectedTag = savedTag;
+    
+    // Update sidebar UI state
+    document.querySelectorAll('.sidebar-nav .nav-item').forEach(b => b.classList.remove('active'));
+    
+    if (savedView === 'view-settings') {
+      const settingsBtn = document.querySelector('.nav-item[data-category="settings"]');
+      if (settingsBtn) settingsBtn.classList.add('active');
+      if (DOM.viewSettings) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        DOM.viewSettings.classList.add('active');
+      }
+    } else if (savedView === 'view-auth') {
+      const authBtn = document.getElementById('nav-auth');
+      if (authBtn) authBtn.classList.add('active');
+      if (DOM.viewAuth) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        DOM.viewAuth.classList.add('active');
+        render2FAAuthenticatorView();
+      }
+    } else {
+      if (!state.selectedTag) {
+        const catBtn = document.querySelector(`.nav-item[data-category="${state.currentCategory}"]`);
+        if (catBtn) catBtn.classList.add('active');
+      }
+      if (DOM.viewVault) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        DOM.viewVault.classList.add('active');
+      }
+    }
+
     renderVault();
     resetAutoLockTimer();
     startTOTPTimer();
@@ -1494,6 +1530,11 @@
         e.stopPropagation();
         const tag = btn.dataset.tag;
         state.selectedTag = state.selectedTag === tag ? null : tag;
+        if (state.selectedTag) {
+          sessionStorage.setItem('cipher_active_tag', state.selectedTag);
+        } else {
+          sessionStorage.removeItem('cipher_active_tag');
+        }
         renderVault();
       });
     });
@@ -2586,6 +2627,8 @@
         setActiveSidebarButton(btn);
         state.currentCategory = btn.dataset.category;
         state.selectedTag = null;
+        sessionStorage.setItem('cipher_active_category', state.currentCategory);
+        sessionStorage.removeItem('cipher_active_tag');
         switchView(DOM.viewVault);
         await renderVault();
         closeMobileMenu();
@@ -2763,6 +2806,7 @@
     if (!targetView) return;
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     targetView.classList.add('active');
+    sessionStorage.setItem('cipher_active_view', targetView.id);
   }
 
   function updateGeneratorView() {

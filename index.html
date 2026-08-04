@@ -23,9 +23,21 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.min.css">
 </head>
 <body>
+  <script>
+    (function(){
+      const uiState = sessionStorage.getItem('cipher_ui_state');
+      const hasData = localStorage.getItem('cipher_offline_vault');
+      let target = 'landing-page';
+      if (uiState === 'login') target = 'auth-overlay';
+      else if (uiState === 'landing') target = 'landing-page';
+      else if (hasData) target = 'auth-overlay';
+      
+      document.write('<style>#' + target + ' { display: block !important; }</style>');
+    })();
+  </script>
 
   <!-- LANDING PAGE -->
-  <div id="landing-page" class="landing-page active">
+  <div id="landing-page" class="landing-page">
     <nav class="landing-nav">
       <div class="landing-nav-left">
         <div class="brand-badge-glow" style="width:32px; height:32px; margin:0; border-radius:8px; font-size:1rem;">
