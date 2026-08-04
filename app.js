@@ -370,6 +370,7 @@
     verifierObj: null,
     cachedPayload: null,
     totpTimer: null,
+    isSyncBroken: false,
   };
 
   // Auto-resize textareas
@@ -668,7 +669,7 @@
       try { await fetchPromise; } catch(e){}
     }
 
-    const savedPass = localStorage.getItem('cipher_active_pass');
+    const savedPass = sessionStorage.getItem('cipher_active_pass');
     if (savedPass && state.saltBase64 && state.verifierObj) {
       try {
         const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
@@ -715,7 +716,7 @@
 
       if (isValid) {
         state.masterKey = key;
-        localStorage.setItem('cipher_active_pass', pass);
+        sessionStorage.setItem('cipher_active_pass', pass);
         await loadVaultFromGitHub(key);
         unlockVault();
         showToast(`Unlocked! Synced with Private Repo (ciphervault-db)`, 'success');
@@ -763,12 +764,16 @@
       updateLastSyncTime();
     } catch (err) {
       showToast('Error loading from Private GitHub DB', 'error');
-      state.vaultItems = [];
+      state.isSyncBroken = true;
     }
   }
 
   async function saveVaultToGitHub() {
     if (!state.masterKey) return;
+    if (state.isSyncBroken) {
+      showToast('CRITICAL: Sync disabled due to a previous load error to prevent data loss. Please refresh the page.', 'error');
+      return;
+    }
     let payload = null;
     try {
       showToast('Syncing with Private GitHub Repo...', 'info');
@@ -864,7 +869,7 @@
   function lockVault() {
     state.masterKey = null;
     state.vaultItems = [];
-    localStorage.removeItem('cipher_active_pass');
+    sessionStorage.removeItem('cipher_active_pass');
     if (DOM.authOverlay) DOM.authOverlay.classList.add('active');
     if (DOM.app) DOM.app.classList.add('blur-content');
     const lp = document.getElementById('landing-page');
