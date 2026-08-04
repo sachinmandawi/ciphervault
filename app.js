@@ -3026,26 +3026,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const authOverlay = document.getElementById('auth-overlay');
   
   if (landingPage && authOverlay) {
-    // Check if vault exists
+    const uiState = sessionStorage.getItem('cipher_ui_state');
     const hasData = localStorage.getItem('cipher_offline_vault');
-    if (hasData) {
-      // Bypass landing page if user is returning
+    
+    if (uiState === 'login') {
       landingPage.classList.remove('active');
       authOverlay.classList.add('active');
-    } else {
-      // Fresh user
+    } else if (uiState === 'landing') {
       landingPage.classList.add('active');
       authOverlay.classList.remove('active');
+    } else {
+      if (hasData) {
+        landingPage.classList.remove('active');
+        authOverlay.classList.add('active');
+        sessionStorage.setItem('cipher_ui_state', 'login');
+      } else {
+        landingPage.classList.add('active');
+        authOverlay.classList.remove('active');
+        sessionStorage.setItem('cipher_ui_state', 'landing');
+      }
     }
 
     const goToAuth = () => {
       landingPage.classList.remove('active');
       authOverlay.classList.add('active');
+      sessionStorage.setItem('cipher_ui_state', 'login');
     };
     
     const goToHome = () => {
       authOverlay.classList.remove('active');
       landingPage.classList.add('active');
+      sessionStorage.setItem('cipher_ui_state', 'landing');
     };
 
     document.getElementById('btn-landing-login')?.addEventListener('click', goToAuth);
