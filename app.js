@@ -802,6 +802,8 @@
   function unlockVault() {
     if (DOM.authOverlay) DOM.authOverlay.classList.remove('active');
     if (DOM.app) DOM.app.classList.remove('blur-content');
+    const lp = document.getElementById('landing-page');
+    if (lp) lp.classList.remove('active');
 
     renderVault();
     resetAutoLockTimer();
@@ -827,6 +829,9 @@
     localStorage.removeItem('cipher_active_pass');
     if (DOM.authOverlay) DOM.authOverlay.classList.add('active');
     if (DOM.app) DOM.app.classList.add('blur-content');
+    const lp = document.getElementById('landing-page');
+    if (lp) lp.classList.remove('active');
+    
     checkMasterStatus();
     if (state.autoLockTimer) clearTimeout(state.autoLockTimer);
     if (state.totpTimer) clearInterval(state.totpTimer);
@@ -3022,7 +3027,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (landingPage && authOverlay) {
     // Check if vault exists
-    const hasData = localStorage.getItem('cipherVault_data');
+    const hasData = localStorage.getItem('cipher_offline_vault');
     if (hasData) {
       // Bypass landing page if user is returning
       landingPage.classList.remove('active');
