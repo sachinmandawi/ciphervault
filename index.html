@@ -862,25 +862,28 @@
 
 
   <!-- SHARED CREDENTIAL OVERLAY -->
-  <div id="shared-credential-overlay" class="modal-overlay" style="z-index:9999; background:var(--bg-dark); backdrop-filter:blur(10px);">
-    <div class="glass-panel preview-container" style="display:flex; flex-direction:column; height: 100%; border-radius: 0; border: none; margin: 0 auto; padding-top: 3rem;">
-      
-      <!-- Compact Header -->
-      <div style="flex-shrink:0; display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
-        <div style="display:flex; align-items:center; gap:1.5rem;">
-          <div style="width:40px; height:40px; font-size:18px; border-radius:12px; flex-shrink:0; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; color:var(--text-main);">
-            <i class="fa-solid fa-shield-halved"></i>
-          </div>
-          <div style="text-align: left;">
-            <h2 style="margin:0; font-size:1.5rem; color:#fff; line-height:1.2;">Shared Credential</h2>
-            <p id="shared-credential-status" style="margin:0; font-size:0.85rem; color:var(--text-muted);">Decrypting secure link...</p>
+  <div id="shared-credential-overlay" class="modal-overlay" style="z-index:9999; background:var(--bg-dark); padding: 0; align-items: stretch; flex-direction: column;">
+    <!-- Scrolling Area -->
+    <div style="flex:1; overflow-y:auto; overflow-x:hidden;">
+      <div class="preview-container" style="display:flex; flex-direction:column; min-height: 100%; border-radius: 0; border: none; margin: 0 auto; padding-top: 2rem; padding-bottom: 2rem;">
+        
+        <!-- Compact Header -->
+        <div style="flex-shrink:0; display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
+          <div style="display:flex; align-items:center; gap:1.5rem;">
+            <div style="width:40px; height:40px; font-size:18px; border-radius:12px; flex-shrink:0; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; color:var(--text-main);">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div style="text-align: left;">
+              <h2 style="margin:0; font-size:1.5rem; color:#fff; line-height:1.2;">Shared Credential</h2>
+              <p id="shared-credential-status" style="margin:0; font-size:0.85rem; color:var(--text-muted);">Decrypting secure link...</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Maximize Content Area -->
-      <div id="shared-credential-content" style="display:none; text-align:left; flex:1; overflow-y:auto; min-height:0; padding-bottom: 2rem;">
-        <!-- Decrypted data goes here -->
+        <!-- Maximize Content Area -->
+        <div id="shared-credential-content" style="display:none; text-align:left; flex:1;">
+          <!-- Decrypted data goes here -->
+        </div>
       </div>
     </div>
   </div>
