@@ -3379,7 +3379,7 @@ html, body {
 
 @media (max-width: 600px) {
   .InputContainer {
-    max-width: 100%;
+    max-width: 250px;
     height: 36px;
     padding-left: 10px;
   }
