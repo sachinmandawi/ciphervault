@@ -413,6 +413,7 @@
 
     // Views
     viewVault: document.getElementById('view-vault'),
+    viewPreview: document.getElementById('view-preview'),
     viewAuth: document.getElementById('view-authenticator'),
     viewGen: document.getElementById('view-generator'),
     viewSec: document.getElementById('view-security'),
@@ -1234,17 +1235,17 @@
     });
   }
 
-  // --- PREVIEW MODAL LOGIC (1-Click Card Detail View) ---
+  // --- PREVIEW LOGIC (Inline Detail View) ---
   async function openPreviewModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
     if (!item) return;
 
-    const modal = document.getElementById('modal-preview');
     const iconEl = document.getElementById('preview-icon');
     const titleEl = document.getElementById('preview-title');
     const catBadge = document.getElementById('preview-cat-badge');
     const contentEl = document.getElementById('preview-body-content');
     const editBtn = document.getElementById('btn-preview-edit');
+    const backBtn = document.getElementById('btn-preview-back');
 
     let iconHtml = getIconHtml(item);
     if (iconEl) iconEl.innerHTML = iconHtml;
@@ -1259,7 +1260,6 @@
 
     if (editBtn) {
       editBtn.onclick = () => {
-        if (modal) modal.classList.remove('active');
         openEditModal(item.id);
       };
     }
@@ -1267,12 +1267,17 @@
     const shareBtn = document.getElementById('btn-preview-share');
     if (shareBtn) {
       shareBtn.onclick = () => {
-        if (modal) modal.classList.remove('active');
         generateShareLink(item.id);
       };
     }
 
-    if (modal) modal.classList.add('active');
+    if (backBtn) {
+      backBtn.onclick = () => {
+        switchView(DOM.viewVault);
+      };
+    }
+
+    switchView(DOM.viewPreview);
   }
 
 

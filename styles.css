@@ -3768,3 +3768,31 @@ html, body {
   .hero-cta-group { flex-direction: column; width: 100%; gap: 1rem; }
   .hero-cta-group button { width: 100%; }
 }
+
+
+
+
+/* PREVIEW SECTION FIXES */
+.preview-container {
+  background: transparent;
+  border: none;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+@media (max-width: 768px) {
+  .preview-container {
+    padding: 1rem;
+  }
+}
+
+
+/* GLOBAL OVERFLOW FIXES FOR MOBILE */
+.stat-label, .preview-title, .item-title {
+  white-space: normal;
+  word-break: break-word;
+}
+.stat-card {
+  min-width: 0;
+}
