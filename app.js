@@ -1525,6 +1525,33 @@
 
     const cards = await Promise.all(items.map(item => createItemCard(item)));
     const fragment = document.createDocumentFragment();
+
+    // Trash warning banner
+    if (state.currentCategory === 'trash') {
+      const banner = document.createElement('div');
+      banner.style.cssText = `
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.85rem 1.1rem;
+        border-radius: 12px;
+        background: rgba(245,158,11,0.1);
+        border: 1px solid rgba(245,158,11,0.3);
+        color: #f59e0b;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+      `;
+      banner.innerHTML = `
+        <i class="fa-solid fa-triangle-exclamation" style="font-size:1.1rem; flex-shrink:0;"></i>
+        <span>
+          <strong>Items in Trash are permanently deleted after 30 days.</strong>
+          Restore items before the deadline to keep them.
+        </span>
+      `;
+      fragment.appendChild(banner);
+    }
+
     cards.forEach(card => fragment.appendChild(card));
     DOM.itemsContainer.appendChild(fragment);
   }
