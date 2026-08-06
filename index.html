@@ -123,6 +123,16 @@
         <p id="auth-subtitle">Enter credentials to unlock zero-knowledge vault</p>
       </div>
 
+      <!-- GitHub Auth Form -->
+      <div id="github-auth-step" class="auth-form hidden" style="text-align: center; padding: 1rem 0;">
+        <i class="fa-brands fa-github" style="font-size: 3rem; color: #fff; margin-bottom: 1rem;"></i>
+        <h3 style="margin-bottom: 1.5rem;">Connect GitHub</h3>
+        <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">CipherVault needs permission to sync encrypted data to your private ciphervault-db repository.</p>
+        <button type="button" id="btn-github-login" class="btn btn-primary btn-block" style="background: #2ea043; border-color: #2ea043;">
+          <i class="fa-brands fa-github"></i> Sign in with GitHub
+        </button>
+      </div>
+
       <!-- Setup Form (Shown if no master password exists) -->
       <form id="setup-form" class="auth-form hidden">
         <div class="form-group">

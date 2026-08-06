@@ -31,14 +31,7 @@
     repo: 'ciphervault-db',
     path: 'vault.json',
     getToken: function () {
-      let stored = localStorage.getItem('cipher_gh_token');
-      if (!stored || !stored.startsWith('ghp_')) {
-        stored = window.prompt("Security Alert: Please enter your GitHub Personal Access Token to sync your vault (it will be saved securely in your browser):");
-        if (stored && stored.startsWith('ghp_')) {
-          localStorage.setItem('cipher_gh_token', stored.trim());
-        }
-      }
-      return stored;
+      return localStorage.getItem('cipher_gh_token');
     }
   };
 
@@ -387,6 +380,8 @@
     authOverlay: document.getElementById('auth-overlay'),
     setupForm: document.getElementById('setup-form'),
     unlockForm: document.getElementById('unlock-form'),
+    githubAuthStep: document.getElementById('github-auth-step'),
+    btnGithubLogin: document.getElementById('btn-github-login'),
     setupUser: document.getElementById('setup-username'),
     setupPass: document.getElementById('setup-password'),
     setupConfirm: document.getElementById('setup-confirm'),
@@ -605,6 +600,17 @@
   async function checkMasterStatus() {
     const cached = localStorage.getItem('cipher_offline_vault');
     const cachedSha = localStorage.getItem('cipher_offline_sha');
+    const hasToken = !!GITHUB_CONFIG.getToken();
+
+    if (!hasToken && !cached) {
+      if (DOM.githubAuthStep) DOM.githubAuthStep.classList.remove('hidden');
+      if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
+      if (DOM.unlockForm) DOM.unlockForm.classList.add('hidden');
+      return;
+    } else {
+      if (DOM.githubAuthStep) DOM.githubAuthStep.classList.add('hidden');
+      if (DOM.setupForm && !cached) DOM.setupForm.classList.remove('hidden');
+    }
     if (cached) {
       try {
         const payload = JSON.parse(cached);
@@ -3109,6 +3115,16 @@
 
   // --- INITIALIZATION ---
   async function init() {
+    // Handle GitHub OAuth Redirect
+    if (window.location.hash.startsWith('#oauth_token=')) {
+      const token = window.location.hash.split('=')[1];
+      if (token && token.startsWith('ghp_')) {
+        localStorage.setItem('cipher_gh_token', token.trim());
+      }
+      // Clean URL hash
+      window.history.replaceState(null, null, window.location.pathname + window.location.search);
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const sharedData = urlParams.get('share');
     
@@ -3172,6 +3188,13 @@
 
     initCustomSelects();
     setupEventListeners();
+    
+    if (DOM.btnGithubLogin) {
+      DOM.btnGithubLogin.addEventListener('click', () => {
+        window.location.href = '/auth/login';
+      });
+    }
+    
     await checkMasterStatus();
     updateGeneratorView();
     
