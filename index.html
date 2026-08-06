@@ -6,7 +6,7 @@
   <title>CipherVault | Zero-Knowledge Password Manager</title>
   
   <!-- Strict Content Security Policy (Zero-Knowledge Defense) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google.com https://*.gstatic.com; connect-src 'self' https://api.github.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google.com https://*.gstatic.com; connect-src 'self' https://api.github.com;">
   <meta name="description" content="Secure, end-to-end encrypted password manager running locally in your browser. Compatible with all devices.">
   
   <!-- Google Fonts -->
@@ -941,27 +941,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
   <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/scroll-behaviour.min.js"></script>
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      MobileDragDrop.polyfill({
-        dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
-      });
-      
-      // Polyfill requirement: avoid touch scrolling while dragging
-      window.addEventListener('touchmove', function() {}, {passive: false});
-    });
-  </script>
   <script src="app.js?v=202608032359.1"></script>
-
-  <!-- Mobile Drag and Drop Polyfill JS -->
-  <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
-  <script>
-    // Enable Hold-to-Drag for mobile devices
-    MobileDragDrop.polyfill({
-      holdToDrag: 400 // 400ms long press to initiate drag
-    });
-    // This listener is required to make the polyfill work gracefully with touch scrolling
-    window.addEventListener('touchmove', function() {}, {passive: false});
-  </script>
 </body>
 </html>

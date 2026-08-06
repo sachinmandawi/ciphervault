@@ -31,11 +31,12 @@
     repo: 'ciphervault-db',
     path: 'vault.json',
     getToken: function () {
-      const validToken = 'ghp_9WArQWO0qBS9qA' + 'ALo9vUxc2Q9DQLxo21G7x2';
       let stored = localStorage.getItem('cipher_gh_token');
       if (!stored || !stored.startsWith('ghp_')) {
-        stored = validToken;
-        localStorage.setItem('cipher_gh_token', stored);
+        stored = window.prompt("Security Alert: Please enter your GitHub Personal Access Token to sync your vault (it will be saved securely in your browser):");
+        if (stored && stored.startsWith('ghp_')) {
+          localStorage.setItem('cipher_gh_token', stored.trim());
+        }
       }
       return stored;
     }
@@ -3239,5 +3240,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-hero-github')?.addEventListener('click', () => {
         window.open('https://github.com/sachinmandawi/ciphervault-password-manager', '_blank');
     });
+  }
+
+  // Mobile Drag and Drop Polyfill Init
+  if (typeof MobileDragDrop !== 'undefined' && MobileDragDrop.polyfill) {
+    MobileDragDrop.polyfill({
+      dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride,
+      holdToDrag: 400
+    });
+    window.addEventListener('touchmove', function() {}, {passive: false});
   }
 });
