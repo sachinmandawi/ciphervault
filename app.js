@@ -645,25 +645,18 @@
     const cachedSha = localStorage.getItem('cipher_offline_sha');
     const hasToken = !!GITHUB_CONFIG.getToken();
 
+    // Hide all forms first
+    if (DOM.githubAuthStep) DOM.githubAuthStep.classList.add('hidden');
+    if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
+    if (DOM.unlockForm) DOM.unlockForm.classList.add('hidden');
+
+    // No token & no cache → show GitHub login step
     if (!hasToken && !cached) {
       if (DOM.githubAuthStep) DOM.githubAuthStep.classList.remove('hidden');
-      if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
-      if (DOM.unlockForm) DOM.unlockForm.classList.add('hidden');
       return;
-    } else {
-      if (DOM.githubAuthStep) DOM.githubAuthStep.classList.add('hidden');
-      // Hide both first, then show correct one
-      if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
-      if (DOM.unlockForm) DOM.unlockForm.classList.add('hidden');
-      if (!cached) {
-        // New user - only show setup form
-        if (DOM.setupForm) DOM.setupForm.classList.remove('hidden');
-        const titleEl = document.getElementById('auth-title');
-        const subEl = document.getElementById('auth-subtitle');
-        if (titleEl) titleEl.textContent = 'Create Your Vault';
-        if (subEl) subEl.textContent = 'Set your master password to get started';
-      }
     }
+
+    // Has cache → instantly show unlock form (returning user)
     if (cached) {
       try {
         const payload = JSON.parse(cached);
@@ -671,7 +664,6 @@
         state.saltBase64 = payload.salt;
         state.verifierObj = payload.verifier;
         state.cachedPayload = payload;
-        
         if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
         if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
         const titleEl = document.getElementById('auth-title');
@@ -679,18 +671,31 @@
         if (titleEl) titleEl.textContent = 'CipherVault Login';
         if (subEl) subEl.textContent = 'Cached DB Ready';
       } catch(e) {}
+    } else {
+      // Has token but no cache → show loading spinner while fetching from GitHub
+      const titleEl = document.getElementById('auth-title');
+      const subEl = document.getElementById('auth-subtitle');
+      if (titleEl) titleEl.textContent = 'Connecting...';
+      if (subEl) subEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:0.4rem;"></i>Checking your GitHub vault...';
     }
 
+    // Fetch from GitHub (background for cached users, awaited for uncached users)
     const fetchPromise = GitHubDB.fetchVaultFile().then(async remote => {
-        // null means 404 — new user with no vault file yet, show setup form
-        if (!remote || !remote.payload) {
-          if (!cached) {
-            // Definitely a new user — keep showing setup form, no error
-            console.info('No remote vault found. Showing setup form for new user.');
-          }
-          return;
+      // null = 404 → no vault file exists → new user
+      if (!remote || !remote.payload) {
+        if (!cached) {
+          // Confirmed new user — show setup form now
+          if (DOM.setupForm) DOM.setupForm.classList.remove('hidden');
+          const titleEl = document.getElementById('auth-title');
+          const subEl = document.getElementById('auth-subtitle');
+          if (titleEl) titleEl.textContent = 'Create Your Vault';
+          if (subEl) subEl.textContent = 'Set your master password to get started';
         }
-        state.fileSha = remote.sha;
+        return;
+      }
+
+      // Got remote vault → returning user (even on new device with no cache)
+      state.fileSha = remote.sha;
       state.saltBase64 = remote.payload.salt;
       state.verifierObj = remote.payload.verifier;
       state.cachedPayload = remote.payload;
@@ -706,7 +711,8 @@
         dbBadge.style.color = '#10b981';
       }
       if (dbDot) dbDot.className = 'status-dot green';
-      
+
+      // Always show unlock form once we have remote data
       if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
       if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
       const titleEl = document.getElementById('auth-title');
@@ -729,13 +735,21 @@
         dbBadge.style.color = '#f59e0b';
       }
       if (dbDot) dbDot.className = 'status-dot yellow';
-      // Only show toast if user had previous cached data (i.e., returning user gone offline)
-      // New users with no vault file will simply see the setup form — no error needed
-      if (cached) showToast('Offline Mode Active', 'warning', 'Using your last cached vault session.');
+      if (cached) {
+        // Returning user gone offline — show unlock form with cache
+        if (DOM.unlockForm) DOM.unlockForm.classList.remove('hidden');
+        showToast('Offline Mode Active', 'warning', 'Using your last cached vault session.');
+      } else {
+        // No cache, no network → show GitHub login to reconnect
+        if (DOM.githubAuthStep) DOM.githubAuthStep.classList.remove('hidden');
+        const titleEl = document.getElementById('auth-title');
+        if (titleEl) titleEl.textContent = 'Connection Failed';
+      }
     });
 
+    // For uncached users: MUST await fetch before continuing (prevents flash)
     if (!cached) {
-      try { await fetchPromise; } catch(e){}
+      try { await fetchPromise; } catch(e) {}
     }
 
     const savedPass = sessionStorage.getItem('cipher_active_pass');
