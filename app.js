@@ -1246,7 +1246,7 @@
       if (!displayNum) displayNum = '•••• •••• •••• ••••';
 
       rowsHtml += `
-        <div class="cc-3d-wrapper" onclick="this.classList.toggle('flipped')">
+        <div class="cc-3d-wrapper" data-flip-card="true" style="user-select:none;">
           <div class="cc-inner">
             <div class="cc-front">
               <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; margin-bottom:1.5rem;">
@@ -1400,6 +1400,14 @@
         if (target) target.textContent = shown ? btn.dataset.real : '••••••••••••';
         const icon = btn.querySelector('i');
         if (icon) icon.className = shown ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+      });
+    });
+    // Card flip on click
+    contentEl.querySelectorAll('[data-flip-card]').forEach(wrapper => {
+      wrapper.addEventListener('click', (e) => {
+        // Only flip if click was NOT on a button/icon inside the card
+        if (e.target.closest('button, a, [data-val]')) return;
+        wrapper.classList.toggle('flipped');
       });
     });
   }
