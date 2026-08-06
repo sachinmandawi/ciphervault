@@ -715,8 +715,9 @@
         dbBadge.style.color = '#f59e0b';
       }
       if (dbDot) dbDot.className = 'status-dot yellow';
-      if (!cached) showToast('Unable to Connect', 'error', 'No internet & no local backup found. Please check your connection.');
-      else showToast('Offline Mode Active', 'warning', 'Using your last cached vault session.');
+      // Only show toast if user had previous cached data (i.e., returning user gone offline)
+      // New users with no vault file will simply see the setup form — no error needed
+      if (cached) showToast('Offline Mode Active', 'warning', 'Using your last cached vault session.');
     });
 
     if (!cached) {
