@@ -260,6 +260,8 @@
       if (!GITHUB_CONFIG.owner) await this.initUser();
       const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?nocache=${Date.now()}`;
       const res = await fetch(url, { headers: this.getHeaders(), cache: 'no-store' });
+      // 404 = new user, no vault yet — return null gracefully instead of throwing
+      if (res.status === 404) return null;
       if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
       const data = await res.json();
       
@@ -672,8 +674,12 @@
     }
 
     const fetchPromise = GitHubDB.fetchVaultFile().then(async remote => {
+        // null means 404 — new user with no vault file yet, show setup form
         if (!remote || !remote.payload) {
-          console.warn('GitHub DB fetch: Payload missing or unauthenticated.');
+          if (!cached) {
+            // Definitely a new user — keep showing setup form, no error
+            console.info('No remote vault found. Showing setup form for new user.');
+          }
           return;
         }
         state.fileSha = remote.sha;
