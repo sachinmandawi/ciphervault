@@ -239,6 +239,14 @@
       if (!res.ok) throw new Error(`GitHub User API HTTP ${res.status}`);
       const data = await res.json();
       GITHUB_CONFIG.owner = data.login;
+
+      // Update DB status card with real user details
+      const repoNameEl = document.getElementById('db-repo-name');
+      const repoLinkEl = document.getElementById('db-repo-link');
+      const repoUrl = `https://github.com/${data.login}/ciphervault-db`;
+      if (repoNameEl) repoNameEl.textContent = `${data.login}/ciphervault-db`;
+      if (repoLinkEl) repoLinkEl.href = repoUrl;
+
       return data.login;
     },
 
