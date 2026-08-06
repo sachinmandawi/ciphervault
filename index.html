@@ -140,8 +140,8 @@
           <input type="text" id="setup-username" required placeholder="Choose a username...">
         </div>
 
-        <div class="form-group mt-3">
-          <label for="setup-password">Create Master Password</label>
+        <div class="form-group mt-2">
+          <label for="setup-password">Master Password</label>
           <div class="password-input-wrapper">
             <input type="password" id="setup-password" required placeholder="Create strong master password..." autocomplete="new-password">
             <button type="button" class="btn-icon toggle-pass" data-target="setup-password">
@@ -156,8 +156,8 @@
           </div>
         </div>
 
-        <div class="form-group mt-3">
-          <label for="setup-confirm">Confirm Master Password</label>
+        <div class="form-group mt-2">
+          <label for="setup-confirm">Confirm Password</label>
           <div class="password-input-wrapper">
             <input type="password" id="setup-confirm" required placeholder="Repeat master password..." autocomplete="new-password">
             <button type="button" class="btn-icon toggle-pass" data-target="setup-confirm">
@@ -166,12 +166,12 @@
           </div>
         </div>
 
-        <div class="security-banner mt-4">
+        <div class="security-banner mt-3" style="padding:0.6rem 0.85rem; font-size:0.8rem;">
           <i class="fa-solid fa-shield"></i>
-          <span>Encrypted via <strong>AES-256-GCM</strong>. Save this password safely—it cannot be reset if lost.</span>
+          <span>Encrypted via <strong>AES-256-GCM</strong>. Cannot be reset if lost.</span>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block mt-4">
+        <button type="submit" class="btn btn-primary btn-block mt-3">
           <i class="fa-solid fa-key"></i> Initialize Vault
         </button>
         <button type="button" class="btn btn-outline btn-block mt-2 btn-switch-github">
