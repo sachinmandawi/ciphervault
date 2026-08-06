@@ -301,7 +301,7 @@
       const body = {
         message: `Sync vault updates - ${new Date().toLocaleString()}`,
         content: contentBase64,
-        sha: sha
+        ...(sha ? { sha } : {})
       };
 
       const res = await fetch(url, {
@@ -3187,10 +3187,14 @@
   async function init() {
     // Handle GitHub OAuth Redirect
     if (window.location.hash.startsWith('#oauth_token=')) {
-      const token = window.location.hash.split('=')[1];
-      if (token && token.length > 5) {
+      // Use URLSearchParams to safely parse hash (handles = inside token values)
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const token = hashParams.get('oauth_token');
+      if (token && token.length > 20) {
         localStorage.setItem('cipher_gh_token', token.trim());
       }
+      // Force auth overlay so new users land on setup form, not landing page
+      sessionStorage.setItem('cipher_ui_state', 'login');
       // Clean URL hash
       window.history.replaceState(null, null, window.location.pathname + window.location.search);
     }
