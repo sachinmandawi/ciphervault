@@ -227,7 +227,7 @@
   const GitHubDB = {
     getHeaders: function () {
       return {
-        'Authorization': `token ${GITHUB_CONFIG.getToken()}`,
+        'Authorization': `Bearer ${GITHUB_CONFIG.getToken()}`,
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json'
       };
@@ -3155,7 +3155,7 @@
     // Handle GitHub OAuth Redirect
     if (window.location.hash.startsWith('#oauth_token=')) {
       const token = window.location.hash.split('=')[1];
-      if (token && token.startsWith('gh')) {
+      if (token && token.length > 5) {
         localStorage.setItem('cipher_gh_token', token.trim());
       }
       // Clean URL hash

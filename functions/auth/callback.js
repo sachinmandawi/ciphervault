@@ -23,7 +23,8 @@ export async function onRequest(context) {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': 'CipherVault-Worker'
       },
       body: JSON.stringify({
         client_id: clientId,
