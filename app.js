@@ -589,23 +589,31 @@
   }
 
   // --- TOAST NOTIFICATIONS ---
-  function showToast(message, type = 'info') {
+  function showToast(message, type = 'info', subtitle = '') {
     if (!DOM.toastContainer) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     let iconClass = 'fa-info-circle';
-    if (type === 'success') iconClass = 'fa-check-circle';
-    if (type === 'error') iconClass = 'fa-exclamation-circle';
+    if (type === 'success') iconClass = 'fa-circle-check';
+    if (type === 'error') iconClass = 'fa-triangle-exclamation';
+    if (type === 'warning') iconClass = 'fa-triangle-exclamation';
 
-    toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${message}</span>`;
+    toast.innerHTML = `
+      <div class="toast-icon"><i class="fa-solid ${iconClass}"></i></div>
+      <div class="toast-body">
+        <div class="toast-title">${message}</div>
+        ${subtitle ? `<div class="toast-subtitle">${subtitle}</div>` : ''}
+      </div>
+      <button class="toast-close" onclick="this.closest('.toast').remove()"><i class="fa-solid fa-xmark"></i></button>
+    `;
     DOM.toastContainer.appendChild(toast);
 
     setTimeout(() => {
       toast.style.opacity = '0';
-      toast.style.transform = 'translateX(50px)';
-      toast.style.transition = 'all 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 3200);
+      toast.style.transform = 'translateX(110%)';
+      toast.style.transition = 'all 0.4s ease';
+      setTimeout(() => toast.remove(), 400);
+    }, 4000);
   }
 
   function updateLastSyncTime() {
@@ -634,7 +642,17 @@
       return;
     } else {
       if (DOM.githubAuthStep) DOM.githubAuthStep.classList.add('hidden');
-      if (DOM.setupForm && !cached) DOM.setupForm.classList.remove('hidden');
+      // Hide both first, then show correct one
+      if (DOM.setupForm) DOM.setupForm.classList.add('hidden');
+      if (DOM.unlockForm) DOM.unlockForm.classList.add('hidden');
+      if (!cached) {
+        // New user - only show setup form
+        if (DOM.setupForm) DOM.setupForm.classList.remove('hidden');
+        const titleEl = document.getElementById('auth-title');
+        const subEl = document.getElementById('auth-subtitle');
+        if (titleEl) titleEl.textContent = 'Create Your Vault';
+        if (subEl) subEl.textContent = 'Set your master password to get started';
+      }
     }
     if (cached) {
       try {
@@ -697,8 +715,8 @@
         dbBadge.style.color = '#f59e0b';
       }
       if (dbDot) dbDot.className = 'status-dot yellow';
-      if (!cached) showToast('Network Error & No Cache Found', 'error');
-      else showToast('Offline Mode: Using cached vault session', 'info');
+      if (!cached) showToast('Unable to Connect', 'error', 'No internet & no local backup found. Please check your connection.');
+      else showToast('Offline Mode Active', 'warning', 'Using your last cached vault session.');
     });
 
     if (!cached) {
