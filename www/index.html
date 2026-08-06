@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CipherVault | Zero-Knowledge Password Manager</title>
+  
+  <!-- Strict Content Security Policy (Zero-Knowledge Defense) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://www.google.com https://*.gstatic.com; connect-src 'self' https://api.github.com;">
+  <meta name="description" content="Secure, end-to-end encrypted password manager running locally in your browser. Compatible with all devices.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Free Icons for UI -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Mobile Drag and Drop Polyfill CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.min.css">
+</head>
+<body>
+  <!-- FOUC SHIELD -->
+  <div id="fouc-shield" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #191919; z-index: 9999999; transition: opacity 0.2s ease; pointer-events: none;"></div>
+  
+
+  <!-- LANDING PAGE -->
+  <div id="landing-page" class="landing-page">
+    <nav class="landing-nav">
+      <div class="landing-nav-left">
+        <div class="brand-badge-glow" style="width:32px; height:32px; margin:0; border-radius:8px; font-size:1rem;">
+          <i class="fa-solid fa-shield-halved brand-icon"></i>
+        </div>
+        <span class="landing-brand-text">CipherVault</span>
+      </div>
+      <div class="landing-nav-center">
+        <a href="#features">Features</a>
+        <a href="#security">Security</a>
+        <a href="#sync">GitHub Sync</a>
+      </div>
+      <div class="landing-nav-right">
+        <button id="btn-landing-login" class="btn btn-primary" style="padding: 0.4rem 1.2rem; font-size: 0.95rem; border-radius: var(--radius-sm); font-weight: 600;">Log in</button>
+      </div>
+    </nav>
+
+    <main class="landing-hero">
+      <h1 class="hero-title">Your digital life,<br>locked and local.</h1>
+      <p class="hero-subtitle">The ultimate zero-knowledge password manager. Encrypted locally with AES-256-GCM, giving you absolute control over your private credentials.</p>
+      <div class="hero-cta-group">
+        <button id="btn-hero-cta" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 1.5rem;"><i class="fa-solid fa-key" style="margin-right:0.5rem;"></i>Launch CipherVault</button>
+      </div>
+      <div class="hero-trust">
+        <span><i class="fa-brands fa-github"></i> GitHub Sync</span>
+        <span><i class="fa-solid fa-lock"></i> AES-256-GCM</span>
+        <span><i class="fa-solid fa-user-shield"></i> Zero-Knowledge</span>
+        <span><i class="fa-solid fa-server"></i> Local First</span>
+      </div>
+    </main>
+
+    <section id="features" class="landing-section">
+      <div class="section-container">
+        <h2>Features Designed for You</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <i class="fa-solid fa-layer-group feature-icon"></i>
+            <h3>Organize with Tags</h3>
+            <p>Keep your credentials perfectly organized with custom tags like #work, #personal, or anything else you prefer.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fa-solid fa-bolt feature-icon"></i>
+            <h3>Lightning Fast</h3>
+            <p>Since everything runs locally in your browser, accessing your passwords is instantaneous without network delays.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fa-solid fa-mobile-screen feature-icon"></i>
+            <h3>Mobile Responsive</h3>
+            <p>Access your vault seamlessly across desktop and mobile devices with a layout that adapts perfectly.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" class="landing-section">
+      <div class="section-container">
+        <h2>Uncompromised Security</h2>
+        <div class="security-content">
+          <p>We built CipherVault on the principles of <strong>Zero-Knowledge Architecture</strong>. Your master password never leaves your device. All encryption and decryption happens purely locally using military-grade <strong>AES-256-GCM</strong> encryption.</p>
+          <p>There are no centralized servers that can be hacked. Your secrets remain yours.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="sync" class="landing-section">
+      <div class="section-container">
+        <h2>Seamless GitHub Sync</h2>
+        <div class="sync-content">
+          <i class="fa-brands fa-github sync-icon"></i>
+          <p>Want to sync your passwords across multiple devices? Connect CipherVault securely to a <strong>Private GitHub Gist</strong>. We encrypt the data locally before pushing it, ensuring GitHub only ever sees scrambled text.</p>
+        </div>
+      </div>
+    </section>
+    
+    <footer class="landing-footer">
+      <p>&copy; 2026 CipherVault. Open Source and Privacy First.</p>
+    </footer>
+  </div>
+
+  <!-- MASTER AUTH / LOGIN MODAL -->
+  <div id="auth-overlay" class="auth-overlay">
+    <button id="btn-back-home" class="btn-icon" style="position:absolute; top:1.5rem; left:1.5rem; font-size:1.2rem; color:var(--text-muted); z-index: 10;" title="Back to Home">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="auth-card glass-panel">
+      
+      <div class="auth-header">
+        <div class="brand-badge-glow">
+          <i class="fa-solid fa-shield-halved brand-icon"></i>
+        </div>
+        <h1 id="auth-title">CipherVault Login</h1>
+        <p id="auth-subtitle">Enter credentials to unlock zero-knowledge vault</p>
+      </div>
+
+      <!-- Setup Form (Shown if no master password exists) -->
+      <form id="setup-form" class="auth-form hidden">
+        <div class="form-group">
+          <label for="setup-username">Username</label>
+          <input type="text" id="setup-username" required placeholder="Choose a username...">
+        </div>
+
+        <div class="form-group mt-3">
+          <label for="setup-password">Create Master Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="setup-password" required placeholder="Create strong master password..." autocomplete="new-password">
+            <button type="button" class="btn-icon toggle-pass" data-target="setup-password">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <div class="strength-meter-box mt-2">
+            <div class="strength-bar-container">
+              <div id="master-strength-bar" class="strength-bar"></div>
+            </div>
+            <span id="master-strength-label" class="strength-text">Minimum 8 characters required</span>
+          </div>
+        </div>
+
+        <div class="form-group mt-3">
+          <label for="setup-confirm">Confirm Master Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="setup-confirm" required placeholder="Repeat master password..." autocomplete="new-password">
+            <button type="button" class="btn-icon toggle-pass" data-target="setup-confirm">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="security-banner mt-4">
+          <i class="fa-solid fa-shield"></i>
+          <span>Encrypted via <strong>AES-256-GCM</strong>. Save this password safely—it cannot be reset if lost.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-4">
+          <i class="fa-solid fa-key"></i> Initialize Vault
+        </button>
+      </form>
+
+      <!-- Unlock Form (Shown if vault is locked) -->
+      <form id="unlock-form" class="auth-form">
+        <div class="form-group">
+          <label for="unlock-username">Username</label>
+          <input type="text" id="unlock-username" required placeholder="Enter your username...">
+        </div>
+
+        <div class="form-group mt-3">
+          <label for="unlock-password">Master Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="unlock-password" required placeholder="Enter master password to unlock..." autocomplete="current-password" autofocus>
+            <button type="button" class="btn-icon toggle-pass" data-target="unlock-password">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="unlock-error" class="error-msg hidden">
+          <i class="fa-solid fa-triangle-exclamation"></i> Incorrect username or master password.
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-4">
+          <i class="fa-solid fa-right-to-bracket"></i> Login & Unlock Vault
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- MOBILE OVERLAY BACKDROP -->
+  <div id="mobile-backdrop" class="mobile-backdrop"></div>
+
+  <!-- MAIN APP WRAPPER -->
+  <div id="app" class="app-container blur-content">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar glass-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon-small">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">CipherVault</span>
+          <span class="brand-status"><span class="status-dot green"></span> Encrypted</span>
+        </div>
+        <button id="mobile-menu-close" class="btn-icon mobile-only">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <button id="desktop-sidebar-close" class="btn-icon hide-mobile" title="Close Sidebar" style="font-size:0.9rem; color:var(--text-muted);">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">VAULT</span>
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-category="all">
+            <i class="fa-solid fa-vault"></i>
+            <span>All Items</span>
+            <span class="badge" id="count-all">0</span>
+          </button>
+          <button class="nav-item" data-category="login">
+            <i class="fa-solid fa-globe"></i>
+            <span>Logins</span>
+            <span class="badge" id="count-login">0</span>
+          </button>
+          <button class="nav-item" data-category="card">
+            <i class="fa-regular fa-credit-card"></i>
+            <span>Debit Cards</span>
+            <span class="badge" id="count-card">0</span>
+          </button>
+          <button class="nav-item" data-category="bank">
+            <i class="fa-solid fa-building-columns"></i>
+            <span>Bank Accounts</span>
+            <span class="badge" id="count-bank">0</span>
+          </button>
+          <button class="nav-item" data-category="note">
+            <i class="fa-regular fa-note-sticky"></i>
+            <span>Secure Notes</span>
+            <span class="badge" id="count-note">0</span>
+          </button>
+          <button class="nav-item" data-category="favorite">
+            <i class="fa-regular fa-star"></i>
+            <span>Favorites (Pinned)</span>
+            <span class="badge" id="count-favorite">0</span>
+          </button>
+          <button class="nav-item" data-category="archive">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+            <span class="badge" id="count-archive">0</span>
+          </button>
+          <button class="nav-item text-danger" data-category="trash">
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Trash</span>
+            <span class="badge" id="count-trash">0</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- DYNAMIC TAGS FILTER SECTION -->
+      <div class="sidebar-section">
+        <span class="sidebar-label">LABELS</span>
+        <nav class="sidebar-nav" id="sidebar-tags-nav">
+          <!-- Dynamic tags will be rendered here as nav-items -->
+          <div style="padding: 0.35rem 0.75rem; font-size:0.75rem; color:var(--text-dim);">No labels created yet</div>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">TOOLS & AUDIT</span>
+        <nav class="sidebar-nav">
+          <button class="nav-item" id="nav-authenticator">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>2FA Authenticator</span>
+          </button>
+          <button class="nav-item" id="nav-generator">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Generator</span>
+          </button>
+          <button class="nav-item" id="nav-security">
+            <i class="fa-solid fa-shield-heart"></i>
+            <span>Health Audit</span>
+            <span class="badge warning" id="count-weak">0</span>
+          </button>
+          <button class="nav-item" id="nav-settings">
+            <i class="fa-solid fa-gear"></i>
+            <span>Settings & Backup</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="btn-lock-now" class="btn btn-outline btn-block text-danger-hover" style="border-color: rgba(239, 68, 68, 0.35); color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout Account
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      
+      <!-- TOP HEADER BAR -->
+      <header class="top-header glass-header">
+        <button id="mobile-menu-toggle" class="btn-icon menu-toggle-btn" title="Open Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="InputContainer search-box">
+          <input type="text" id="search-input" class="input" placeholder="Search..." autocomplete="off">
+          <button id="clear-search" class="btn-icon hidden" style="margin-right:5px; height:24px; width:24px; font-size:12px;"><i class="fa-solid fa-xmark"></i></button>
+          <div class="border"></div>
+          <label for="search-input" class="labelforsearch">
+            <i class="fa-solid fa-magnifying-glass searchIcon"></i>
+          </label>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-add-item" class="btn btn-primary glow-btn">
+            <i class="fa-solid fa-plus"></i> <span class="hide-mobile">New Item</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW CONTAINER -->
+      <div class="content-scroll">
+        
+        <!-- DASHBOARD / VAULT VIEW -->
+        <section id="view-vault" class="view-section active">
+          
+          <!-- HEALTH OVERVIEW STATS -->
+          <div class="stats-grid">
+            <div class="stat-card glass-panel" id="card-stat-total" title="Click to view all items">
+              <div class="stat-icon cyan">
+                <i class="fa-solid fa-database"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value" id="stat-total">0</span>
+                <span class="stat-label">Total Vault Items</span>
+              </div>
+            </div>
+            
+            <div class="stat-card glass-panel" id="card-stat-score" title="Click to view Health Audit">
+              <div class="stat-icon green">
+                <i class="fa-solid fa-user-shield"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value" id="stat-score">100%</span>
+                <span class="stat-label">Vault Health Score</span>
+              </div>
+            </div>
+
+            <div class="stat-card glass-panel" id="card-stat-reused" title="Click to view Reused Passwords">
+              <div class="stat-icon yellow">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value" id="stat-reused">0</span>
+                <span class="stat-label">Reused Passwords</span>
+              </div>
+            </div>
+
+            <div class="stat-card glass-panel" id="card-stat-weak" title="Click to view Weak Passwords">
+              <div class="stat-icon red">
+                <i class="fa-solid fa-skull"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-value" id="stat-weak-count">0</span>
+                <span class="stat-label">Weak / At-Risk</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- VAULT TOOLBAR -->
+          <div class="vault-toolbar">
+            <div class="toolbar-title">
+              <h2 id="current-category-title">All Items</h2>
+              <span id="items-counter" class="sub-text">0 items found</span>
+            </div>
+
+            <div class="toolbar-controls">
+              <div class="select-wrapper">
+                <select id="sort-select" class="form-select">
+                  <option value="custom">Custom Order</option>
+                  <option value="updated">Recently Modified</option>
+                  <option value="title">Alphabetical (A-Z)</option>
+                  <option value="strength">Password Strength</option>
+                  <option value="created">Date Created</option>
+                </select>
+              </div>
+
+              <div class="view-toggle desktop-only">
+                <button class="btn-icon active" id="btn-view-grid" title="Grid View">
+                  <i class="fa-solid fa-table-cells"></i>
+                </button>
+                <button class="btn-icon" id="btn-view-list" title="List View">
+                  <i class="fa-solid fa-list"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- VAULT ITEMS CONTAINER -->
+          <div id="vault-items-container" class="items-grid">
+            <!-- Dynamic Items Rendered Here -->
+          </div>
+
+          <!-- EMPTY STATE -->
+          <div id="empty-state" class="empty-state hidden">
+            <div class="empty-icon">
+              <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3>No Items Found</h3>
+            <p>Your vault is empty in this category or no search matches were found.</p>
+            <button id="btn-empty-add" class="btn btn-primary mt-4">
+              <i class="fa-solid fa-plus"></i> Add Your First Item
+            </button>
+          </div>
+
+        </section>
+
+        <!-- DEDICATED 2FA AUTHENTICATOR VIEW -->
+        <!-- PREVIEW VIEW -->
+        <section id="view-preview" class="view-section">
+          <div class="glass-panel preview-container">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem; flex-shrink: 0; padding-right: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+              <div style="display:flex; align-items:center; gap:1.5rem;">
+                <button id="btn-preview-back" class="btn-icon" style="background:transparent; border:none; color:var(--text-muted); padding:0; width:32px; height:32px; font-size:1.2rem;" title="Go back">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div id="preview-icon" class="item-favicon" style="width:40px; height:40px; font-size:18px; border-radius:12px; flex-shrink:0;"></div>
+                <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                  <h3 id="preview-title" style="margin:0; font-size:1.5rem; color:#ffffff; font-weight:700; line-height:1.2;">Title</h3>
+                  <span id="preview-cat-badge" style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:600; letter-spacing:0.05em; background:rgba(255,255,255,0.05); padding:0.25rem 0.5rem; border-radius:4px;">Login</span>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.75rem; align-items:center;">
+                <button id="btn-preview-share" class="btn-icon" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted); cursor:pointer; font-size:1rem; width:34px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-md); transition:all 0.2s;" title="Share">
+                  <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                <button id="btn-preview-edit" class="btn-icon" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted); cursor:pointer; font-size:1rem; width:34px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-md); transition:all 0.2s;" title="Edit">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+              </div>
+            </div>
+
+            <div id="preview-body-content" style="display:flex; flex-direction:column; padding-bottom: 2rem;">
+              <!-- Dynamic detail rows with copy buttons rendered in app.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ADD / EDIT ITEM VIEW -->
+        <section id="view-item-edit" class="view-section">
+          <div class="glass-panel preview-container" style="display:flex; flex-direction:column; height:100%;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem; flex-shrink: 0; padding-right: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+              <div style="display:flex; align-items:center; gap:1.5rem;">
+                <button id="btn-item-edit-back" class="btn-icon" style="background:transparent; border:none; color:var(--text-muted); padding:0; width:32px; height:32px; font-size:1.2rem; cursor:pointer;" title="Go back">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3 id="modal-item-title" style="margin:0; font-size:1.5rem; color:#ffffff; font-weight:700; line-height:1.2;">Add New Vault Item</h3>
+              </div>
+            </div>
+
+            <form id="item-form" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+              <div class="modal-body" style="flex: 1; overflow-y: auto; padding-right: 1rem; padding-bottom: 2rem;">
+                <input type="hidden" id="item-id">
+                
+                <div class="form-row">
+                  <div class="form-group flex-1">
+                    <label for="item-type">Item Category</label>
+                    <select id="item-type" class="form-select">
+                      <option value="login">Login / Account</option>
+                      <option value="card">Debit Card</option>
+                      <option value="bank">Bank Account</option>
+                      <option value="note">Secure Note</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group flex-1">
+                    <label for="item-title-input">Title <span style="color:#ef4444; font-weight:700;">*</span></label>
+                    <input type="text" id="item-title-input" required placeholder="e.g. Google, SBI, Netflix...">
+                  </div>
+                </div>
+
+                <!-- Login specific fields -->
+                <div id="fields-login" class="category-fields">
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label for="item-username">Username</label>
+                      <input type="text" id="item-username" placeholder="e.g. johndoe">
+                    </div>
+
+                    <div class="form-group flex-1">
+                      <label for="item-email">Email</label>
+                      <input type="email" id="item-email" placeholder="name@example.com">
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-mobile">Mobile Number</label>
+                      <input type="tel" id="item-mobile" placeholder="+1 234 567 8900">
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-password">Password</label>
+                      <div class="password-input-wrapper has-gen">
+                        <input type="password" id="item-password" placeholder="Enter or generate...">
+                        <button type="button" class="btn-icon toggle-pass" data-target="item-password" title="Show/Hide">
+                          <i class="fa-regular fa-eye"></i>
+                        </button>
+                        <button type="button" id="btn-modal-gen" class="btn-icon" title="Generate Password">
+                          <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="form-group flex-1">
+                      <label for="item-totp">2FA Key <span class="sub-text">(TOTP)</span></label>
+                      <input type="text" id="item-totp" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" style="font-family:var(--font-mono); text-transform:uppercase;">
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-backup-codes">2FA Backup / Recovery Codes <span class="sub-text">(Optional, one per line)</span></label>
+                      <textarea id="item-backup-codes" class="auto-expand" placeholder="e.g. 1234-5678&#10;9012-3456" rows="3" style="font-family:var(--font-mono); resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-url">Website URL</label>
+                      <input type="url" id="item-url" placeholder="https://example.com">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card specific fields (Debit Card) -->
+                <div id="fields-card" class="category-fields hidden">
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label for="item-cardholder">Cardholder Name</label>
+                      <input type="text" id="item-cardholder" placeholder="John Doe">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="item-cardnumber">Card Number</label>
+                      <input type="text" id="item-cardnumber" placeholder="4532 •••• •••• 8901">
+                    </div>
+                  </div>
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-exp">Expiry (MM/YY)</label>
+                      <input type="text" id="item-exp" placeholder="12/28">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="item-cvv">CVV / CVC</label>
+                      <input type="password" id="item-cvv" placeholder="123">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bank Account specific fields -->
+                <div id="fields-bank" class="category-fields hidden">
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label for="item-bankname">Bank Name</label>
+                      <input type="text" id="item-bankname" placeholder="e.g. SBI, HDFC...">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="item-accountno">Account Number</label>
+                      <input type="text" id="item-accountno" placeholder="38492019481">
+                    </div>
+                  </div>
+                  <div class="form-row mt-2">
+                    <div class="form-group flex-1">
+                      <label for="item-ifsc">IFSC Code</label>
+                      <input type="text" id="item-ifsc" placeholder="SBIN0001234">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="item-pin">ATM / UPI PIN</label>
+                      <input type="password" id="item-pin" placeholder="••••">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Note specific fields -->
+                <div id="fields-note" class="category-fields hidden">
+                  <div class="form-group">
+                    <label for="item-notes">Secure Note Content</label>
+                    <textarea id="item-notes" class="auto-expand" rows="4" placeholder="Write sensitive notes, recovery codes, SSH keys..." style="resize:none; overflow:hidden; transition:height 0.1s ease;"></textarea>
+                  </div>
+                </div>
+
+                <!-- CUSTOM FIELDS DYNAMIC CONTAINER -->
+                <div id="custom-fields-wrapper" class="form-group mt-2">
+                  <label>Custom Fields <span class="sub-text">(e.g. PIN, Security Q&A, Support Phone)</span></label>
+                  <div id="custom-fields-container" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <!-- Dynamic rows will be injected here -->
+                  </div>
+                  <button type="button" id="btn-add-custom-field" class="btn btn-secondary btn-sm" style="align-self: flex-start; padding: 0.4rem 0.8rem; font-size: 0.75rem;">
+                    <i class="fa-solid fa-plus"></i> Add Custom Field
+                  </button>
+                </div>
+
+                <!-- CUSTOM TAGS / LABELS FIELD -->
+                <div class="form-group mt-2">
+                  <label for="item-tags">Custom Tags / Labels <span class="sub-text">(e.g. #work, #personal, #crypto, #banking)</span></label>
+                  <input type="text" id="item-tags" placeholder="e.g. #work, #personal, #crypto">
+                </div>
+
+              </div>
+
+              <div class="modal-footer" style="justify-content: flex-end; padding-top:1.5rem; border-top: 1px solid var(--border-color); display:flex; gap: 0.75rem;">
+                <button type="button" id="btn-item-edit-cancel" style="background:transparent; border:1px solid var(--border-color); color:#ffffff; cursor:pointer; font-size:0.85rem; font-weight:500; padding:0.4rem 0.85rem; border-radius:var(--radius-md); transition: all 0.2s;">Cancel</button>
+                <button type="submit" style="background:#ffffff; border:none; color:#000000; cursor:pointer; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.4rem; padding: 0.4rem 0.85rem; border-radius:var(--radius-md); transition: all 0.2s;">
+                  <i class="fa-solid fa-floppy-disk"></i> Save Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="view-authenticator" class="view-section">
+          <div class="section-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <h2>Live 2FA Authenticator</h2>
+              <p class="sub-text">Google Authenticator replacement. Real-time 30-second 6-digit TOTP codes for all your accounts.</p>
+            </div>
+            <button id="btn-add-2fa" class="btn btn-primary">
+              <i class="fa-solid fa-plus"></i> Add 2FA Key
+            </button>
+          </div>
+
+          <div id="authenticator-grid-container" class="items-grid mt-4">
+            <!-- Dynamic 2FA Cards Rendered in app.js -->
+          </div>
+        </section>
+
+        <!-- PASSWORD GENERATOR VIEW -->
+        <section id="view-generator" class="view-section">
+          <div class="section-header">
+            <h2>Password Generator</h2>
+            <p class="sub-text">Create ultra-secure, cryptographically strong passwords locally using Web Crypto API.</p>
+          </div>
+
+          <div class="generator-container glass-panel">
+            <div class="generated-output-box">
+              <div class="generated-password-display" id="gen-result">
+                Select options below to generate...
+              </div>
+              <div class="output-actions">
+                <button id="btn-regen" class="btn-icon lg" title="Regenerate">
+                  <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button id="btn-copy-gen" class="btn btn-primary">
+                  <i class="fa-regular fa-copy"></i> <span class="hide-mobile">Copy Password</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="gen-metrics">
+              <div class="metric-item">
+                <span class="metric-label">Strength</span>
+                <span id="gen-strength-badge" class="badge-pill strong">Military Grade</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Entropy</span>
+                <span id="gen-entropy-val" class="metric-val">128 bits</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Est. Crack Time</span>
+                <span id="gen-crack-time" class="metric-val">Trillions of Years</span>
+              </div>
+            </div>
+
+            <div class="gen-controls-grid">
+              <div class="control-card">
+                <div class="slider-header">
+                  <label for="gen-length">Password Length</label>
+                  <span id="gen-length-val" class="slider-num">20</span>
+                </div>
+                <input type="range" id="gen-length" min="8" max="64" value="20" class="custom-range">
+              </div>
+
+              <div class="options-grid">
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-uppercase" checked>
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Uppercase Letters</strong>
+                    <span>A-Z</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-lowercase" checked>
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Lowercase Letters</strong>
+                    <span>a-z</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-numbers" checked>
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Numbers</strong>
+                    <span>0-9</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-symbols" checked>
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Symbols</strong>
+                    <span>!@#$%^&*()</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-card">
+                  <input type="checkbox" id="gen-avoid-similar">
+                  <span class="checkbox-custom"></span>
+                  <div class="checkbox-text">
+                    <strong>Avoid Ambiguous Characters</strong>
+                    <span>Excludes i, l, 1, L, o, 0, O</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECURITY AUDIT VIEW -->
+        <section id="view-security" class="view-section">
+          <div class="section-header">
+            <h2>Vault Health Audit</h2>
+            <p class="sub-text">Security analysis of your stored credentials for weak, reused, or exposed patterns.</p>
+          </div>
+
+          <div id="security-audit-container">
+            <!-- Rendered dynamically in app.js -->
+          </div>
+        </section>
+
+        <!-- SETTINGS & BACKUP VIEW -->
+        <section id="view-settings" class="view-section">
+          <div class="section-header">
+            <h2>Settings & Data Security</h2>
+            <p class="sub-text">Manage vault encryption, auto-lock preferences, backup exports, and imports.</p>
+          </div>
+
+          <div class="settings-grid">
+
+            <!-- PRIVATE GITHUB DB CONNECTION STATUS INDICATOR CARD -->
+            <div class="setting-card glass-panel" style="grid-column: span 2; border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.04);">
+              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+                <div style="display:flex; align-items:center; gap:0.85rem;">
+                  <div style="width:44px; height:44px; border-radius:12px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.35rem; flex-shrink:0;">
+                    <i class="fa-solid fa-database"></i>
+                  </div>
+                  <div>
+                    <h3 style="margin:0 0 0.2rem 0; font-size:1.15rem; color:#ffffff;">Private GitHub Database Status</h3>
+                    <p style="margin:0; font-size:0.85rem; color:#94a3b8;">Repo: <strong style="color:#f8fafc;">sachinmandawi/ciphervault-db</strong> (vault.json)</p>
+                  </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:0.65rem;">
+                  <span id="db-status-dot" class="status-dot green" style="width:10px; height:10px;"></span>
+                  <span id="db-status-badge" class="badge-pill strong" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.3); padding:0.4rem 0.85rem; font-size:0.8rem;">
+                    <i class="fa-solid fa-circle-check"></i> CONNECTED & ENCRYPTED
+                  </span>
+                </div>
+              </div>
+
+              <div style="margin-top:1.15rem; padding-top:0.85rem; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.65rem; font-size:0.82rem; color:#94a3b8;">
+                <span>Encryption Protocol: <strong style="color:#06b6d4;">AES-256-GCM Zero-Knowledge</strong></span>
+                <span id="db-last-sync-time">Last Synced: <strong style="color:#f8fafc;">Just Now</strong></span>
+                <a href="https://github.com/sachinmandawi/ciphervault-db" target="_blank" style="color:#6366f1; text-decoration:none; font-weight:600; display:flex; align-items:center; gap:0.35rem;" title="View Private Database Repo">
+                  <span>View Private Repo</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+              </div>
+              <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.08);">
+                <button type="button" id="btn-manual-sync" class="btn btn-outline" style="width: 100%; border-color: rgba(16,185,129,0.4); color: #10b981; transition: all 0.2s;">
+                  <i class="fa-solid fa-rotate"></i> Force Manual Sync with GitHub
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-card glass-panel">
+              <h3><i class="fa-solid fa-clock"></i> Session & Lock Timeout</h3>
+              <p>Configure session lock timeout. By default, stays logged in until you explicitly click "Logout Account".</p>
+              <div class="form-group mt-4">
+                <label for="setting-autolock">Auto-Lock Timeout</label>
+                <select id="setting-autolock" class="form-select">
+                  <option value="0" selected>Never (Logout Manually Only)</option>
+                  <option value="1">1 Minute</option>
+                  <option value="5">5 Minutes</option>
+                  <option value="15">15 Minutes</option>
+                  <option value="30">30 Minutes</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="setting-card glass-panel">
+              <h3><i class="fa-solid fa-file-export"></i> Backup & Export</h3>
+              <p>Export an encrypted backup file (.json) or CSV spreadsheet of your vault items.</p>
+              <div class="button-group mt-4">
+                <button id="btn-export-encrypted" class="btn btn-secondary">
+                  <i class="fa-solid fa-lock"></i> Export Encrypted (.json)
+                </button>
+                <button id="btn-export-csv" class="btn btn-outline">
+                  <i class="fa-solid fa-file-csv"></i> Export Unencrypted CSV
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-card glass-panel">
+              <h3><i class="fa-solid fa-file-import"></i> Restore & Import</h3>
+              <p>Import passwords from an encrypted CipherVault backup or external CSV file.</p>
+              <div class="form-group mt-4">
+                <input type="file" id="import-file-input" accept=".json,.csv" class="hidden">
+                <button id="btn-trigger-import" class="btn btn-primary">
+                  <i class="fa-solid fa-upload"></i> Choose File to Import
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-card glass-panel border-danger">
+              <h3><i class="fa-solid fa-triangle-exclamation text-danger"></i> Danger Zone</h3>
+              <p class="sub-text text-danger mb-2"><strong>WARNING:</strong> Wiping vault data will clear local browser session tokens. Type <strong style="color: #ef4444;">DELETE</strong> below to unlock the delete button.</p>
+              <div class="form-group mt-3">
+                <input type="text" id="danger-wipe-confirm-input" class="form-control" placeholder="Type DELETE to confirm..." autocomplete="off">
+              </div>
+              <div class="mt-3">
+                <button id="btn-danger-wipe" class="btn btn-danger" disabled>
+                  <i class="fa-solid fa-trash-can"></i> Permanently Delete All Vault Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+
+
+
+
+  <!-- SHARED CREDENTIAL OVERLAY -->
+  <div id="shared-credential-overlay" class="modal-overlay" style="z-index:9999; background:var(--bg-dark); padding: 0; align-items: stretch; flex-direction: column;">
+    <!-- Scrolling Area -->
+    <div class="content-scroll" style="flex:1; overflow-y:auto; overflow-x:hidden;">
+      <div class="preview-container" style="display:flex; flex-direction:column; min-height: 100%; border-radius: 0; border: none; margin: 0 auto;">
+        
+        <!-- Compact Header -->
+        <div style="flex-shrink:0; display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
+          <div style="display:flex; align-items:center; gap:1.5rem;">
+            <div style="width:40px; height:40px; font-size:18px; border-radius:12px; flex-shrink:0; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; color:var(--text-main);">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div style="text-align: left;">
+              <h2 style="margin:0; font-size:1.5rem; color:#fff; line-height:1.2;">Shared Credential</h2>
+              <p id="shared-credential-status" style="margin:0; font-size:0.85rem; color:var(--text-muted);">Decrypting secure link...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Maximize Content Area -->
+        <div id="shared-credential-content" style="display:none; text-align:left; flex:1;">
+          <!-- Decrypted data goes here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE LABELS MODAL -->
+  <div id="modal-manage-labels" class="modal-overlay">
+    <div class="modal-card glass-panel" style="max-width: 460px;">
+      <div class="modal-header" style="justify-content:space-between; margin-bottom: 0.5rem; padding-top: 1.5rem;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <i class="fa-solid fa-tags" style="color:var(--accent-purple); font-size:1.1rem;"></i>
+          <h3 style="margin:0; font-size:1.1rem; color:#ffffff; font-weight:600; line-height:1.2;">Manage Item Labels</h3>
+        </div>
+        <button class="btn-icon close-modal" style="background:transparent; border:none; color:var(--text-muted); padding:0; width:24px; height:24px;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body" style="gap:1.25rem;">
+        <!-- Top Section: Create New Label -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(139,92,246,0.25); padding:1rem; border-radius:12px;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--accent-purple); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:0.5rem;">
+            <i class="fa-solid fa-plus"></i> Create New Label
+          </label>
+          <div style="display:flex; gap:0.5rem;">
+            <input type="text" id="input-new-label-name" class="form-control" placeholder="Type label name (e.g. work, crypto)..." style="font-size:0.88rem;">
+            <button type="button" id="btn-add-label-action" class="btn btn-primary" style="padding:0.55rem 1rem; flex-shrink:0;">
+              <i class="fa-solid fa-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Section: Existing Labels with Checkmarks -->
+        <div>
+          <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:0.65rem;">
+            <i class="fa-solid fa-list-check"></i> Assign Existing Labels
+          </label>
+          <div id="labels-checkmark-list" style="display:flex; flex-direction:column; gap:0.5rem; max-height:260px; overflow-y:auto; padding-right:0.25rem;">
+            <!-- Dynamically populated label checkmarks -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between; padding-bottom:0;">
+        <button type="button" class="close-modal" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.85rem; font-weight:500; padding:0.5rem 0;">Cancel</button>
+        <button type="button" id="btn-save-labels-action" style="background:transparent; border:none; color:var(--accent-purple); cursor:pointer; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.35rem; padding:0.5rem 0;">
+          <i class="fa-solid fa-check"></i> Save Labels
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  
+  <!-- Mobile Drag and Drop Polyfill -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
+  <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/scroll-behaviour.min.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      MobileDragDrop.polyfill({
+        dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
+      });
+      
+      // Polyfill requirement: avoid touch scrolling while dragging
+      window.addEventListener('touchmove', function() {}, {passive: false});
+    });
+  </script>
+  <script src="app.js?v=202608032359.1"></script>
+
+  <!-- Mobile Drag and Drop Polyfill JS -->
+  <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+  <script>
+    // Enable Hold-to-Drag for mobile devices
+    MobileDragDrop.polyfill({
+      holdToDrag: 400 // 400ms long press to initiate drag
+    });
+    // This listener is required to make the polyfill work gracefully with touch scrolling
+    window.addEventListener('touchmove', function() {}, {passive: false});
+  </script>
+</body>
+</html>
