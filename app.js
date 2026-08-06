@@ -919,6 +919,8 @@
           }
         });
         state.vaultItems = items;
+        // Auto-purge trash items older than 30 days on every vault load
+        await purgeExpiredTrashItems();
       } else {
         state.vaultItems = [];
       }
@@ -2231,18 +2233,40 @@
     const idx = state.vaultItems.findIndex(i => i.id === id);
     if (idx === -1) return;
     state.vaultItems[idx].deleted = true;
+    state.vaultItems[idx].deletedAt = Date.now(); // timestamp for 30-day auto-delete
     await saveVaultToGitHub();
     renderVault();
-    showToast('Item moved to Trash', 'info');
+    showToast('Item moved to Trash', 'info', 'Auto-deleted after 30 days');
   }
 
   async function restoreFromTrash(id) {
     const idx = state.vaultItems.findIndex(i => i.id === id);
     if (idx === -1) return;
     state.vaultItems[idx].deleted = false;
+    delete state.vaultItems[idx].deletedAt;
     await saveVaultToGitHub();
     renderVault();
     showToast('Item restored', 'success');
+  }
+
+  async function purgeExpiredTrashItems() {
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const before = state.vaultItems.length;
+    state.vaultItems = state.vaultItems.filter(item => {
+      if (!item.deleted) return true;
+      // Keep if no timestamp (legacy items — give them grace period from now)
+      if (!item.deletedAt) {
+        item.deletedAt = now; // stamp them now, delete in 30 days
+        return true;
+      }
+      return (now - item.deletedAt) < THIRTY_DAYS_MS;
+    });
+    const purged = before - state.vaultItems.length;
+    if (purged > 0) {
+      await saveVaultToGitHub();
+      console.info(`Auto-purged ${purged} trash item(s) older than 30 days.`);
+    }
   }
 
   async function toggleArchive(id) {
