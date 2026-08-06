@@ -1983,7 +1983,7 @@
     const countCard = notDeleted.filter(i => !i.archived && i.type === 'card').length;
     const countBank = notDeleted.filter(i => !i.archived && i.type === 'bank').length;
     const countNote = notDeleted.filter(i => !i.archived && i.type === 'note').length;
-    const countFav = notDeleted.filter(i => i.favorite).length;
+    const countFav = notDeleted.filter(i => !i.archived && i.favorite).length;
     const countArchive = notDeleted.filter(i => i.archived).length;
     const countTrash = state.vaultItems.filter(i => i.deleted).length;
 
@@ -2000,7 +2000,7 @@
     if (DOM.sidebarTagsContainer) {
       const tagSet = new Set();
       all.forEach(item => {
-        if (item.tags) {
+        if (!item.deleted && !item.archived && item.tags) {
           if (Array.isArray(item.tags)) {
             item.tags.forEach(t => { if(t) tagSet.add(String(t).replace(/^#/, '').trim().toLowerCase()) });
           } else if (typeof item.tags === 'string') {
@@ -2667,13 +2667,14 @@
   }
 
   function exportCSV() {
-    if (state.vaultItems.length === 0) {
-      showToast('Vault is empty!', 'error');
+    const exportItems = state.vaultItems.filter(i => !i.deleted);
+    if (exportItems.length === 0) {
+      showToast('No items to export!', 'error');
       return;
     }
 
     let csv = 'Title,Type,Username,Password,URL,Notes\n';
-    state.vaultItems.forEach(item => {
+    exportItems.forEach(item => {
       csv += `"${csvEscape(item.title)}","${csvEscape(item.type)}","${csvEscape(item.username)}","${csvEscape(item.password)}","${csvEscape(item.url)}","${csvEscape(item.notes)}"\n`;
     });
 
