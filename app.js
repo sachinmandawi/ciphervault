@@ -3155,7 +3155,7 @@
     // Handle GitHub OAuth Redirect
     if (window.location.hash.startsWith('#oauth_token=')) {
       const token = window.location.hash.split('=')[1];
-      if (token && token.startsWith('ghp_')) {
+      if (token && token.startsWith('gh')) {
         localStorage.setItem('cipher_gh_token', token.trim());
       }
       // Clean URL hash
