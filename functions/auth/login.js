@@ -12,9 +12,13 @@ export async function onRequest(context) {
   url.searchParams.set('scope', 'repo');
   url.searchParams.set('state', state);
 
-  const response = Response.redirect(url.toString(), 302);
-  // Store state in cookie to verify later
-  response.headers.set('Set-Cookie', `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax`);
+  const response = new Response(null, {
+    status: 302,
+    headers: {
+      'Location': url.toString(),
+      'Set-Cookie': `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax`
+    }
+  });
   
   return response;
 }
