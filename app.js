@@ -2629,6 +2629,18 @@
     if (DOM.setupForm) DOM.setupForm.addEventListener('submit', handleSetup);
     if (DOM.unlockForm) DOM.unlockForm.addEventListener('submit', handleUnlock);
     if (DOM.btnLockNow) DOM.btnLockNow.addEventListener('click', lockVault);
+    
+    document.querySelectorAll('.btn-switch-github').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (confirm("Are you sure you want to switch GitHub accounts? This will clear your current local session.")) {
+          localStorage.removeItem('cipher_gh_token');
+          localStorage.removeItem('cipher_offline_vault');
+          localStorage.removeItem('cipher_offline_sha');
+          sessionStorage.removeItem('cipher_active_pass');
+          window.location.reload();
+        }
+      });
+    });
 
     // Dashboard Stat Cards Click Handlers
     const cardStatTotal = document.getElementById('card-stat-total');
