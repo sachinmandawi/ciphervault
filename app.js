@@ -236,6 +236,11 @@
     initUser: async function () {
       if (GITHUB_CONFIG.owner) return GITHUB_CONFIG.owner;
       const res = await fetch('https://api.github.com/user', { headers: this.getHeaders(), cache: 'no-store' });
+      if (res.status === 401) {
+        localStorage.removeItem('cipher_gh_token');
+        window.location.reload();
+        return;
+      }
       if (!res.ok) throw new Error(`GitHub User API HTTP ${res.status}`);
       const data = await res.json();
       GITHUB_CONFIG.owner = data.login;
@@ -275,14 +280,14 @@
       
       let contentStr = '';
       if (data.content && data.content.trim() !== '') {
-        contentStr = decodeURIComponent(escape(window.atob(data.content.replace(/\n|\r/g, ''))));
+        contentStr = new TextDecoder().decode(Uint8Array.from(atob(data.content.replace(/\n|\r/g, '')), c => c.charCodeAt(0)));
       } else if (data.sha) {
         // Large file (>1MB) fallback: fetch via git/blobs endpoint
         const blobUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/git/blobs/${data.sha}?nocache=${Date.now()}`;
         const blobRes = await fetch(blobUrl, { headers: this.getHeaders(), cache: 'no-store' });
         if (!blobRes.ok) throw new Error(`GitHub Blob API HTTP ${blobRes.status}`);
         const blobData = await blobRes.json();
-        contentStr = decodeURIComponent(escape(window.atob(blobData.content.replace(/\n|\r/g, ''))));
+        contentStr = new TextDecoder().decode(Uint8Array.from(atob(blobData.content.replace(/\n|\r/g, '')), c => c.charCodeAt(0)));
       } else {
         throw new Error('No content or sha returned from GitHub DB');
       }
@@ -296,7 +301,8 @@
     saveVaultFile: async function (encryptedPayload, sha) {
       await this.createRepoIfNotExists();
       const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
-      const contentBase64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(encryptedPayload, null, 2))));
+      const jsonStr = JSON.stringify(encryptedPayload, null, 2);
+      const contentBase64 = window.btoa(Array.from(new TextEncoder().encode(jsonStr)).map(b => String.fromCharCode(b)).join(''));
       
       const body = {
         message: `Sync vault updates - ${new Date().toLocaleString()}`,
@@ -660,7 +666,7 @@
     if (cached) {
       try {
         const payload = JSON.parse(cached);
-        state.fileSha = cachedSha || '';
+        state.fileSha = cachedSha || null;
         state.saltBase64 = payload.salt;
         state.verifierObj = payload.verifier;
         state.cachedPayload = payload;
@@ -793,6 +799,7 @@
         state.verifierObj = await CryptoEngine.createKeyVerifier(key);
         state.masterKey = key;
         state.vaultItems = [];
+        state.fileSha = null;
 
         sessionStorage.setItem('cipher_active_pass', pass);
         
@@ -3204,7 +3211,7 @@
       // Use URLSearchParams to safely parse hash (handles = inside token values)
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const token = hashParams.get('oauth_token');
-      if (token && token.length > 20) {
+      if (token && token.length > 20 && /^(gho_|ghp_|github_pat_)/.test(token)) {
         localStorage.setItem('cipher_gh_token', token.trim());
       }
       // Force auth overlay so new users land on setup form, not landing page

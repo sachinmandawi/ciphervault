@@ -3,8 +3,18 @@ export async function onRequest(context) {
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
 
-  // We could verify the state with the cookie here, but for simplicity and maximum compatibility
-  // in this serverless environment, we'll proceed if code exists.
+  const cookieHeader = context.request.headers.get('Cookie');
+  let oauthStateCookie = null;
+  if (cookieHeader) {
+    const match = cookieHeader.match(/(?:^|;\s*)oauth_state=([^;]*)/);
+    if (match) {
+      oauthStateCookie = match[1];
+    }
+  }
+
+  if (!oauthStateCookie || oauthStateCookie !== state) {
+    return new Response('Invalid state parameter (CSRF check failed).', { status: 403 });
+  }
 
   if (!code) {
     return new Response('No authorization code provided by GitHub.', { status: 400 });
