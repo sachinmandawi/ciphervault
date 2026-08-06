@@ -27,7 +27,7 @@
 
   // Private GitHub DB Configuration
   const GITHUB_CONFIG = {
-    owner: 'sachinmandawi',
+    owner: '', // dynamically resolved
     repo: 'ciphervault-db',
     path: 'vault.json',
     getToken: function () {
@@ -233,7 +233,31 @@
       };
     },
 
+    initUser: async function () {
+      if (GITHUB_CONFIG.owner) return GITHUB_CONFIG.owner;
+      const res = await fetch('https://api.github.com/user', { headers: this.getHeaders(), cache: 'no-store' });
+      if (!res.ok) throw new Error(`GitHub User API HTTP ${res.status}`);
+      const data = await res.json();
+      GITHUB_CONFIG.owner = data.login;
+      return data.login;
+    },
+
+    createRepoIfNotExists: async function () {
+      if (!GITHUB_CONFIG.owner) await this.initUser();
+      const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}`, { headers: this.getHeaders(), cache: 'no-store' });
+      if (checkRes.ok) return;
+      if (checkRes.status !== 404) throw new Error(`GitHub Repo Check HTTP ${checkRes.status}`);
+
+      const res = await fetch('https://api.github.com/user/repos', {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({ name: GITHUB_CONFIG.repo, private: true, description: "CipherVault Encrypted Database" })
+      });
+      if (!res.ok) throw new Error(`GitHub Create Repo HTTP ${res.status}`);
+    },
+
     fetchVaultFile: async function () {
+      if (!GITHUB_CONFIG.owner) await this.initUser();
       const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?nocache=${Date.now()}`;
       const res = await fetch(url, { headers: this.getHeaders(), cache: 'no-store' });
       if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
@@ -260,6 +284,7 @@
     },
 
     saveVaultFile: async function (encryptedPayload, sha) {
+      await this.createRepoIfNotExists();
       const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
       const contentBase64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(encryptedPayload, null, 2))));
       
