@@ -1087,7 +1087,7 @@
     const container = document.getElementById('authenticator-grid-container');
     if (!container) return;
 
-    const totpItems = state.vaultItems.filter(i => i.totp && i.totp.trim() !== '');
+    const totpItems = state.vaultItems.filter(i => i.totp && i.totp.trim() !== '' && !i.deleted && !i.archived);
     container.innerHTML = '';
 
     if (totpItems.length === 0) {
