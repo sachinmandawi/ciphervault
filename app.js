@@ -1439,6 +1439,22 @@
     });
   }
 
+  function getItemCategoryDisplayName(type) {
+    if (!type || type === 'login') return 'Login';
+    if (type === 'card') return 'Debit Card';
+    if (type === 'bank') return 'Bank Account';
+    if (type === 'note') return 'Secure Note';
+
+    if (state.customCategories && Array.isArray(state.customCategories)) {
+      const customCat = state.customCategories.find(c => c.id === type);
+      if (customCat && customCat.name) {
+        return customCat.name;
+      }
+    }
+
+    return type;
+  }
+
   // --- PREVIEW LOGIC (Inline Detail View) ---
   async function openPreviewModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
@@ -1455,7 +1471,7 @@
     if (iconEl) iconEl.innerHTML = iconHtml;
 
     if (titleEl) titleEl.textContent = item.title;
-    if (catBadge) catBadge.textContent = (item.type || 'login').toUpperCase();
+    if (catBadge) catBadge.textContent = getItemCategoryDisplayName(item.type).toUpperCase();
 
     if (contentEl) {
       contentEl.innerHTML = await generateItemPreviewHtml(item);
