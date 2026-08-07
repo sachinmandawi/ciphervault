@@ -2929,6 +2929,41 @@
         if (iconPopover) iconPopover.classList.add('hidden');
       };
 
+      const adjustCatDropdownPosition = (isIconOpen = false) => {
+        if (!menuBtn || !menuDropdown) return;
+        const rect = menuBtn.getBoundingClientRect();
+        menuDropdown.style.position = 'fixed';
+        menuDropdown.style.left = `${rect.right + 10}px`;
+        menuDropdown.style.zIndex = '100000';
+
+        const isEditOpen = editPanel && !editPanel.classList.contains('hidden');
+        menuDropdown.style.width = isEditOpen ? '210px' : 'max-content';
+        menuDropdown.style.maxWidth = '215px';
+
+        let expectedHeight = 110;
+        if (isEditOpen) {
+          expectedHeight = isIconOpen ? 320 : 185;
+        }
+
+        let top = rect.top - 5;
+        if (top + expectedHeight > window.innerHeight - 15) {
+          top = window.innerHeight - expectedHeight - 15;
+        }
+        if (top < 10) top = 10;
+
+        menuDropdown.style.top = `${top}px`;
+        menuDropdown.style.maxHeight = `calc(100vh - 30px)`;
+      };
+
+      if (menuDropdown) {
+        menuDropdown.addEventListener('click', (e) => e.stopPropagation());
+      }
+
+      if (nameInput) {
+        nameInput.addEventListener('click', (e) => e.stopPropagation());
+        nameInput.addEventListener('keydown', (e) => e.stopPropagation());
+      }
+
       if (menuBtn && menuDropdown) {
         menuBtn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2939,20 +2974,7 @@
           const isHidden = menuDropdown.classList.toggle('hidden');
 
           if (!isHidden) {
-            const rect = menuBtn.getBoundingClientRect();
-            menuDropdown.style.position = 'fixed';
-            menuDropdown.style.left = `${rect.right + 10}px`;
-            menuDropdown.style.width = 'max-content';
-            menuDropdown.style.maxWidth = '215px';
-            
-            let top = rect.top - 5;
-            const menuHeight = 240;
-            if (top + menuHeight > window.innerHeight - 15) {
-              top = window.innerHeight - menuHeight - 15;
-            }
-            if (top < 10) top = 10;
-            menuDropdown.style.top = `${top}px`;
-            menuDropdown.style.zIndex = '100000';
+            adjustCatDropdownPosition(false);
           }
         });
       }
@@ -2962,17 +2984,7 @@
           e.stopPropagation();
           mainPanel.classList.add('hidden');
           editPanel.classList.remove('hidden');
-          const rect = menuBtn.getBoundingClientRect();
-          menuDropdown.style.position = 'fixed';
-          menuDropdown.style.left = `${rect.right + 10}px`;
-          menuDropdown.style.width = '210px';
-          let top = rect.top - 5;
-          const menuHeight = 220;
-          if (top + menuHeight > window.innerHeight - 15) {
-            top = window.innerHeight - menuHeight - 15;
-          }
-          if (top < 10) top = 10;
-          menuDropdown.style.top = `${top}px`;
+          adjustCatDropdownPosition(false);
           if (nameInput) setTimeout(() => nameInput.focus(), 50);
         });
       }
@@ -2981,6 +2993,7 @@
         editBackBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           resetCatPanels();
+          adjustCatDropdownPosition(false);
         });
       }
 
@@ -3005,6 +3018,7 @@
             const curColor = colorValInput ? colorValInput.value : '#8b5cf6';
             if (iconPreview) iconPreview.innerHTML = `<i class="fa-solid ${chosenId}" style="color:${curColor}; font-size:0.82rem;"></i>`;
             if (iconPopover) iconPopover.classList.add('hidden');
+            adjustCatDropdownPosition(false);
           });
         });
       };
@@ -3016,12 +3030,14 @@
           if (isHidden) {
             renderMiniIconGrid();
             iconPopover.classList.remove('hidden');
+            adjustCatDropdownPosition(true);
             if (iconSearch) {
               iconSearch.value = '';
               setTimeout(() => iconSearch.focus(), 50);
             }
           } else {
             iconPopover.classList.add('hidden');
+            adjustCatDropdownPosition(false);
           }
         });
       }
