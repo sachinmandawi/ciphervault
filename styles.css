@@ -495,14 +495,39 @@ body {
 
 
 
-.sidebar-nav {
-
+.section-header-collapsible {
+  padding: 0 0.75rem 0.5rem 0.75rem;
+  cursor: pointer;
+  user-select: none;
   display: flex;
+  align-items: center;
+}
 
+.section-header-collapsible .section-arrow {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.2s ease;
+}
+
+.section-header-collapsible:hover .section-arrow,
+.section-header-collapsible.collapsed .section-arrow {
+  opacity: 1;
+}
+
+.section-header-collapsible.collapsed .section-arrow {
+  transform: rotate(-90deg);
+}
+
+.sidebar-nav {
+  display: flex;
   flex-direction: column;
-
   gap: 0.25rem;
+  transition: all 0.2s ease;
+}
 
+.sidebar-nav.collapsed {
+  display: none !important;
 }
 
 

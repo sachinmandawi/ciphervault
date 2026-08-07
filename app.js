@@ -3121,6 +3121,39 @@
     }
   }
 
+  function setupCollapsibleHeaders() {
+    const headerWork = document.getElementById('header-work');
+    const navWork = document.getElementById('nav-work');
+    const headerPrivate = document.getElementById('header-private');
+    const navPrivate = document.getElementById('sidebar-custom-categories-container');
+
+    if (localStorage.getItem('cipher_work_collapsed') === 'true') {
+      if (headerWork) headerWork.classList.add('collapsed');
+      if (navWork) navWork.classList.add('collapsed');
+    }
+    if (localStorage.getItem('cipher_private_collapsed') === 'true') {
+      if (headerPrivate) headerPrivate.classList.add('collapsed');
+      if (navPrivate) navPrivate.classList.add('collapsed');
+    }
+
+    if (headerWork && navWork) {
+      headerWork.addEventListener('click', () => {
+        const isCollapsed = navWork.classList.toggle('collapsed');
+        headerWork.classList.toggle('collapsed', isCollapsed);
+        localStorage.setItem('cipher_work_collapsed', isCollapsed);
+      });
+    }
+
+    if (headerPrivate && navPrivate) {
+      headerPrivate.addEventListener('click', (e) => {
+        if (e.target.closest('#btn-add-category')) return;
+        const isCollapsed = navPrivate.classList.toggle('collapsed');
+        headerPrivate.classList.toggle('collapsed', isCollapsed);
+        localStorage.setItem('cipher_private_collapsed', isCollapsed);
+      });
+    }
+  }
+
   // --- SAFE EVENT LISTENERS SETUP ---
   function setupEventListeners() {
     const btnItemEditBack = document.getElementById('btn-item-edit-back');
@@ -3184,6 +3217,8 @@
         });
       }
     });
+
+    setupCollapsibleHeaders();
 
     if (DOM.dangerWipeInput) {
       DOM.dangerWipeInput.addEventListener('input', (e) => {
