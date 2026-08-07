@@ -2880,7 +2880,7 @@
                 </button>
 
                 <!-- Icon Picker Popover Grid -->
-                <div class="inline-cat-icon-popover hidden" style="position:absolute; left:0; top:calc(100% + 4px); width:100%; background:#181926; border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:0.4rem; z-index:10050; box-shadow:0 12px 30px rgba(0,0,0,0.85); display:flex; flex-direction:column; gap:0.3rem;">
+                <div class="inline-cat-icon-popover hidden" style="position:absolute; left:0; top:calc(100% + 4px); width:100%; background:#252525; border:1px solid rgba(255,255,255,0.09); border-radius:8px; padding:0.4rem; z-index:10050; box-shadow:0 10px 30px rgba(0,0,0,0.5); display:flex; flex-direction:column; gap:0.3rem;">
                   <input type="text" class="inline-cat-icon-search" placeholder="Search icon..." style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:0.15rem 0.35rem; color:var(--text-main); font-size:0.72rem; outline:none; width:100%; font-family:inherit; height:22px; box-sizing:border-box;">
                   <div class="inline-cat-icon-grid" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:0.25rem; overflow-y:auto; max-height:120px; padding-right:0.1rem;">
                   </div>

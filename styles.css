@@ -1409,10 +1409,10 @@ select option,
   top: 100%;
   right: 0;
   margin-top: 0.35rem;
-  background: #181926;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #252525 !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
   border-radius: 8px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
   min-width: 150px;
   width: max-content;
   max-width: 220px;
@@ -1431,8 +1431,16 @@ select option,
   max-width: 220px;
   padding: 0.25rem;
   border-radius: 8px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
-  background: #181926;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  background: #252525 !important;
+}
+
+.inline-cat-icon-popover,
+#inline-create-icon-popover,
+#inline-create-category-panel {
+  background: #252525 !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Notion Visual Icon Picker */
