@@ -2347,9 +2347,8 @@
       btn.innerHTML = `
         <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.95rem;"></i>
         <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88rem;">${escapeHtml(cat.name)}</span>
-        <span class="badge">${count}</span>
-        <div class="cat-dropdown-wrapper" style="position:relative; margin-left:0.25rem;">
-          <button type="button" class="btn-icon btn-cat-menu" title="Category Options" style="width:20px; height:20px; font-size:0.75rem; opacity:0.6; display:flex; align-items:center; justify-content:center; border-radius:4px;">
+        <div class="cat-dropdown-wrapper">
+          <button type="button" class="btn-icon btn-cat-menu" title="Category Options">
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </button>
           <div class="cat-dropdown-menu card-dropdown-menu hidden">
@@ -2363,6 +2362,7 @@
             </button>
           </div>
         </div>
+        <span class="badge">${count}</span>
       `;
       container.appendChild(btn);
     });
