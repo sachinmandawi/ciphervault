@@ -406,6 +406,7 @@
     cachedPayload: null,
     totpTimer: null,
     isSyncBroken: false,
+    customCategories: [],
   };
 
   // Auto-resize textareas
@@ -547,7 +548,18 @@
 
     // Toast
     toastContainer: document.getElementById('toast-container'),
-    vaultStatsGrid: document.querySelector('#view-vault .stats-grid')
+    vaultStatsGrid: document.querySelector('#view-vault .stats-grid'),
+
+    // Custom Category Elements
+    btnAddCategory: document.getElementById('btn-add-category'),
+    sidebarCustomCategoriesContainer: document.getElementById('sidebar-custom-categories-container'),
+    modalCategoryOverlay: document.getElementById('modal-category-overlay'),
+    categoryForm: document.getElementById('category-form'),
+    catNameInput: document.getElementById('cat-name-input'),
+    catIconSelect: document.getElementById('cat-icon-select'),
+    catColorVal: document.getElementById('cat-color-val'),
+    btnCloseCatModal: document.getElementById('btn-close-cat-modal'),
+    btnCancelCat: document.getElementById('btn-cancel-cat')
   };
 
   // --- Custom Fields Logic ---
@@ -905,9 +917,11 @@
         if (Array.isArray(decrypted)) {
           items = decrypted;
           state.customOrders = {};
+          state.customCategories = [];
         } else if (decrypted && Array.isArray(decrypted.items)) {
           items = decrypted.items;
           state.customOrders = decrypted.customOrders || {};
+          state.customCategories = decrypted.customCategories || [];
         }
 
         items.forEach(i => {
@@ -940,7 +954,11 @@
     let payload = null;
     try {
       showToast('Syncing with Private GitHub Repo...', 'info');
-      const vaultData = { items: state.vaultItems, customOrders: state.customOrders };
+      const vaultData = {
+        items: state.vaultItems,
+        customOrders: state.customOrders,
+        customCategories: state.customCategories || []
+      };
       const encryptedVault = await CryptoEngine.encryptData(vaultData, state.masterKey);
       
       payload = {
@@ -2161,18 +2179,157 @@
       card: 'Debit Cards',
       bank: 'Bank Accounts',
       note: 'Secure Notes',
-      favorite: 'Favorite Items'
+      favorite: 'Favorite Items',
+      archive: 'Archive',
+      trash: 'Trash'
     };
     let titleText = catTitles[state.currentCategory] || 'Vault Items';
+    if (state.customCategories) {
+      const customCat = state.customCategories.find(c => c.id === state.currentCategory);
+      if (customCat) titleText = customCat.name;
+    }
     if (state.selectedTag) titleText += ` (#${state.selectedTag})`;
 
     if (DOM.currentCatTitle) DOM.currentCatTitle.textContent = titleText;
     if (DOM.itemsCounter) DOM.itemsCounter.textContent = `${getFilteredAndSortedItems().length} items displayed`;
+
+    renderCustomCategoriesSidebar();
+  }
+
+  // --- CUSTOM CATEGORIES HELPER FUNCTIONS ---
+  function openCategoryModal() {
+    if (DOM.catNameInput) DOM.catNameInput.value = '';
+    if (DOM.modalCategoryOverlay) DOM.modalCategoryOverlay.classList.remove('hidden');
+  }
+
+  function closeCategoryModal() {
+    if (DOM.modalCategoryOverlay) DOM.modalCategoryOverlay.classList.add('hidden');
+  }
+
+  async function handleCreateCategory(e) {
+    e.preventDefault();
+    const name = DOM.catNameInput ? DOM.catNameInput.value.trim() : '';
+    const icon = DOM.catIconSelect ? DOM.catIconSelect.value : 'fa-folder';
+    const color = DOM.catColorVal ? DOM.catColorVal.value : '#8b5cf6';
+
+    if (!name) {
+      showToast('Please enter a category name', 'error');
+      return;
+    }
+
+    if (!state.customCategories) state.customCategories = [];
+
+    if (state.customCategories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+      showToast('Category with this name already exists', 'error');
+      return;
+    }
+
+    const newCat = {
+      id: 'cat_' + Date.now(),
+      name: name,
+      icon: icon,
+      color: color,
+      createdAt: Date.now()
+    };
+
+    state.customCategories.push(newCat);
+    closeCategoryModal();
+
+    await saveVaultToGitHub();
+    renderVault();
+    populateItemTypeDropdown();
+    showToast(`Category "${name}" created!`, 'success');
+  }
+
+  async function deleteCustomCategory(catId) {
+    const cat = state.customCategories ? state.customCategories.find(c => c.id === catId) : null;
+    if (!cat) return;
+    if (!confirm(`Delete category "${cat.name}"?\nItems in this category will be moved to Logins.`)) return;
+
+    state.customCategories = state.customCategories.filter(c => c.id !== catId);
+    state.vaultItems.forEach(item => {
+      if (item.type === catId) item.type = 'login';
+    });
+
+    if (state.currentCategory === catId) state.currentCategory = 'all';
+
+    await saveVaultToGitHub();
+    renderVault();
+    populateItemTypeDropdown();
+    showToast(`Category "${cat.name}" deleted`, 'info');
+  }
+
+  function renderCustomCategoriesSidebar() {
+    const container = DOM.sidebarCustomCategoriesContainer || document.getElementById('sidebar-custom-categories-container');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!state.customCategories || state.customCategories.length === 0) return;
+
+    const notDeleted = state.vaultItems.filter(i => !i.deleted);
+
+    state.customCategories.forEach(cat => {
+      const count = notDeleted.filter(i => !i.archived && i.type === cat.id).length;
+      const btn = document.createElement('button');
+      btn.className = `nav-item ${state.currentCategory === cat.id ? 'active' : ''}`;
+      btn.dataset.category = cat.id;
+      btn.style.cssText = 'position:relative; display:flex; align-items:center; width:100%; border:none; background:transparent; font-family:inherit; cursor:pointer;';
+      btn.innerHTML = `
+        <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.95rem;"></i>
+        <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88rem;">${escapeHtml(cat.name)}</span>
+        <span class="badge">${count}</span>
+        <span class="btn-delete-cat" data-id="${escapeHtml(cat.id)}" title="Delete Category" style="margin-left:0.35rem; padding:0.15rem 0.35rem; opacity:0.6; font-size:0.75rem; border-radius:4px; transition:opacity 0.2s;"><i class="fa-solid fa-trash"></i></span>
+      `;
+      container.appendChild(btn);
+    });
+
+    container.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const delBtn = e.target.closest('.btn-delete-cat');
+        if (delBtn) {
+          e.stopPropagation();
+          deleteCustomCategory(delBtn.dataset.id);
+          return;
+        }
+        document.querySelectorAll('.sidebar-nav .nav-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.currentCategory = btn.dataset.category;
+        state.selectedTag = null;
+        sessionStorage.setItem('cipher_active_category', state.currentCategory);
+        sessionStorage.removeItem('cipher_active_tag');
+        switchView(DOM.viewVault);
+        await renderVault();
+        closeMobileMenu();
+      });
+    });
+  }
+
+  function populateItemTypeDropdown() {
+    const select = DOM.itemType;
+    if (!select) return;
+    const currentVal = select.value;
+    
+    let html = `
+      <option value="login">Login / Account</option>
+      <option value="card">Debit Card</option>
+      <option value="bank">Bank Account</option>
+      <option value="note">Secure Note</option>
+    `;
+
+    if (state.customCategories && state.customCategories.length > 0) {
+      html += `<optgroup label="Custom Categories">`;
+      state.customCategories.forEach(cat => {
+        html += `<option value="${escapeHtml(cat.id)}">${escapeHtml(cat.name)}</option>`;
+      });
+      html += `</optgroup>`;
+    }
+    select.innerHTML = html;
+    if (currentVal) select.value = currentVal;
   }
 
   // --- ITEM CRUD & MODAL ---
   function openAddModal() {
     if (!DOM.viewItemEdit) return;
+    populateItemTypeDropdown();
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Add New Vault Item';
     if (DOM.itemId) DOM.itemId.value = '';
     if (DOM.itemForm) DOM.itemForm.reset();
@@ -2187,7 +2344,7 @@
   function openEditModal(id) {
     const item = state.vaultItems.find(i => i.id === id);
     if (!item || !DOM.viewItemEdit) return;
-
+    populateItemTypeDropdown();
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Edit Vault Item';
     if (DOM.itemId) DOM.itemId.value = item.id;
     if (DOM.itemType) DOM.itemType.value = item.type || 'login';
@@ -2914,6 +3071,21 @@
     }
 
     if (DOM.btnDangerWipe) DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
+
+    if (DOM.btnAddCategory) DOM.btnAddCategory.addEventListener('click', openCategoryModal);
+    if (DOM.btnCloseCatModal) DOM.btnCloseCatModal.addEventListener('click', closeCategoryModal);
+    if (DOM.btnCancelCat) DOM.btnCancelCat.addEventListener('click', closeCategoryModal);
+    if (DOM.categoryForm) DOM.categoryForm.addEventListener('submit', handleCreateCategory);
+
+    document.querySelectorAll('.cat-color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-color-btn').forEach(b => {
+          b.style.border = '2px solid transparent';
+        });
+        btn.style.border = '2px solid #ffffff';
+        if (DOM.catColorVal) DOM.catColorVal.value = btn.dataset.color;
+      });
+    });
 
     const btnAddTagAction = document.getElementById('btn-add-label-action');
     if (btnAddTagAction) btnAddTagAction.addEventListener('click', handleAddNewLabel);

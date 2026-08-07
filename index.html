@@ -233,7 +233,12 @@
       </div>
 
       <div class="sidebar-section">
-        <span class="sidebar-label">VAULT</span>
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:0 0.5rem; margin-bottom:0.4rem;">
+          <span class="sidebar-label" style="margin-bottom:0;">VAULT</span>
+          <button type="button" id="btn-add-category" class="btn-icon" title="Create Custom Category" style="font-size:0.85rem; color:var(--text-muted); width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:6px;">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
         <nav class="sidebar-nav">
           <button class="nav-item active" data-category="all">
             <i class="fa-solid fa-vault"></i>
@@ -260,6 +265,10 @@
             <span>Secure Notes</span>
             <span class="badge" id="count-note">0</span>
           </button>
+          
+          <!-- Custom Categories Nav Container -->
+          <div id="sidebar-custom-categories-container"></div>
+
           <button class="nav-item" data-category="favorite">
             <i class="fa-regular fa-star"></i>
             <span>Favorites (Pinned)</span>
@@ -943,6 +952,63 @@
           <i class="fa-solid fa-check"></i> Save Labels
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- CREATE CUSTOM CATEGORY MODAL OVERLAY -->
+  <div id="modal-category-overlay" class="modal-overlay hidden" style="z-index: 10005;">
+    <div class="auth-card glass-panel" style="max-width: 440px; padding: 2rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1.5rem;">
+        <h3 style="margin:0; font-size:1.3rem; color:#fff; font-weight:700; display:flex; align-items:center; gap:0.6rem;">
+          <i class="fa-solid fa-folder-plus" style="color:var(--accent-purple);"></i>
+          <span>Create Category</span>
+        </h3>
+        <button type="button" id="btn-close-cat-modal" class="btn-icon" style="opacity:0.7;" title="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="category-form">
+        <div class="form-group mb-3">
+          <label for="cat-name-input">Category Name</label>
+          <input type="text" id="cat-name-input" required placeholder="e.g. Work, Gaming, Crypto..." autocomplete="off">
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="cat-icon-select">Choose Icon</label>
+          <select id="cat-icon-select" class="form-select">
+            <option value="fa-briefcase">💼 Work / Office</option>
+            <option value="fa-gamepad">🎮 Gaming</option>
+            <option value="fa-coins">🪙 Crypto / Finance</option>
+            <option value="fa-plane">✈️ Travel</option>
+            <option value="fa-cart-shopping">🛒 Shopping</option>
+            <option value="fa-key">🔑 API / Keys</option>
+            <option value="fa-id-card">🆔 Identity / Docs</option>
+            <option value="fa-heart">❤️ Personal</option>
+            <option value="fa-folder">📁 General Folder</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-4">
+          <label>Color Theme</label>
+          <div style="display:flex; gap:0.65rem; align-items:center; margin-top:0.35rem;" id="cat-color-options">
+            <button type="button" class="cat-color-btn active" data-color="#8b5cf6" style="background:#8b5cf6; width:30px; height:30px; border-radius:50%; border:2px solid #fff; cursor:pointer;"></button>
+            <button type="button" class="cat-color-btn" data-color="#10b981" style="background:#10b981; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
+            <button type="button" class="cat-color-btn" data-color="#06b6d4" style="background:#06b6d4; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
+            <button type="button" class="cat-color-btn" data-color="#f59e0b" style="background:#f59e0b; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
+            <button type="button" class="cat-color-btn" data-color="#ef4444" style="background:#ef4444; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
+            <button type="button" class="cat-color-btn" data-color="#ec4899" style="background:#ec4899; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
+          </div>
+          <input type="hidden" id="cat-color-val" value="#8b5cf6">
+        </div>
+
+        <div style="display:flex; gap:0.75rem;">
+          <button type="button" id="btn-cancel-cat" class="btn btn-outline flex-1">Cancel</button>
+          <button type="submit" class="btn btn-primary flex-1">
+            <i class="fa-solid fa-check"></i> Create
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
