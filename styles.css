@@ -1279,31 +1279,28 @@ select option,
 
 
 .item-card.dragging {
-
   opacity: 0.4;
-
   transform: scale(0.98);
-
   border-color: var(--accent-purple);
-
 }
 
-
+.item-card.dragging-touch {
+  opacity: 0.9;
+  transform: scale(1.03);
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.4);
+  border-color: var(--accent-purple) !important;
+  z-index: 100 !important;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 .item-card.dropdown-open {
-
   z-index: 50;
-
 }
 
-
-
 .item-card.drag-over {
-
-  border-top: 2px dashed var(--accent-purple);
-
-  padding-top: 1.5rem;
-
+  border-top: 2px dashed var(--accent-purple) !important;
+  transform: translateY(4px);
+  transition: transform 0.15s ease, border 0.15s ease;
 }
 
 

@@ -1497,6 +1497,7 @@
     const sortSelect = document.getElementById('sort-select');
     if (sortSelect) sortSelect.value = 'custom';
     
+    showToast('Vault order updated', 'info');
     await saveVaultToGitHub();
   }
 
@@ -1603,30 +1604,40 @@
         }
       });
 
-      // Mobile / Touch Drag & Drop
+      // Mobile / Touch Drag & Drop (Super Smooth)
       let touchTimer = null;
       let touchDragged = false;
       let touchCurrentTarget = null;
+      let startX = 0;
+      let startY = 0;
 
       card.addEventListener('touchstart', (e) => {
         if (e.touches.length > 1 || e.target.closest('button, a, input, select, .card-dropdown-wrapper')) return;
 
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+
         touchTimer = setTimeout(() => {
           touchDragged = true;
-          card.classList.add('dragging');
+          card.classList.add('dragging-touch');
           if (navigator.vibrate) navigator.vibrate(30);
-        }, 220);
+        }, 140);
       }, { passive: true });
 
       card.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        
         if (!touchDragged) {
-          clearTimeout(touchTimer);
+          const dist = Math.hypot(touch.clientX - startX, touch.clientY - startY);
+          if (dist > 12) {
+            clearTimeout(touchTimer); // Quick scroll gesture detected
+          }
           return;
         }
 
         if (e.cancelable) e.preventDefault();
 
-        const touch = e.touches[0];
         const elem = document.elementFromPoint(touch.clientX, touch.clientY);
         if (elem) {
           const targetCard = elem.closest('.item-card');
@@ -1644,6 +1655,7 @@
       card.addEventListener('touchend', () => {
         clearTimeout(touchTimer);
         if (touchDragged) {
+          card.classList.remove('dragging-touch');
           card.classList.remove('dragging');
           document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
 
@@ -1660,6 +1672,7 @@
 
       card.addEventListener('touchcancel', () => {
         clearTimeout(touchTimer);
+        card.classList.remove('dragging-touch');
         card.classList.remove('dragging');
         document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
         touchDragged = false;
