@@ -657,14 +657,14 @@ body {
 }
 
 .btn-cat-menu {
-  width: 22px;
-  height: 22px;
-  font-size: 0.75rem;
+  width: 28px;
+  height: 28px;
+  font-size: 0.85rem;
   color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 6px;
   background: transparent;
   border: none;
   cursor: pointer;
