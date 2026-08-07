@@ -961,7 +961,7 @@
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1.5rem;">
         <h3 style="margin:0; font-size:1.3rem; color:#fff; font-weight:700; display:flex; align-items:center; gap:0.6rem;">
           <i class="fa-solid fa-folder-plus" style="color:var(--accent-purple);"></i>
-          <span>Create Category</span>
+          <span id="modal-cat-title-text">Create Category</span>
         </h3>
         <button type="button" id="btn-close-cat-modal" class="btn-icon" style="opacity:0.7;" title="Close">
           <i class="fa-solid fa-xmark"></i>
@@ -969,6 +969,7 @@
       </div>
 
       <form id="category-form">
+        <input type="hidden" id="cat-id-input" value="">
         <div class="form-group mb-3">
           <label for="cat-name-input">Category Name</label>
           <input type="text" id="cat-name-input" required placeholder="e.g. Work, Gaming, Crypto..." autocomplete="off">

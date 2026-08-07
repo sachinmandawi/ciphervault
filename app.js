@@ -2197,10 +2197,43 @@
   }
 
   // --- CUSTOM CATEGORIES HELPER FUNCTIONS ---
-  function openCategoryModal() {
+  function openCategoryModal(catId = null) {
     const modal = document.getElementById('modal-category-overlay');
-    const input = document.getElementById('cat-name-input');
-    if (input) input.value = '';
+    const titleEl = document.getElementById('modal-cat-title-text');
+    const idInput = document.getElementById('cat-id-input');
+    const nameInput = document.getElementById('cat-name-input');
+    const iconSelect = document.getElementById('cat-icon-select');
+    const colorValEl = document.getElementById('cat-color-val');
+
+    if (catId) {
+      const cat = state.customCategories ? state.customCategories.find(c => c.id === catId) : null;
+      if (cat) {
+        if (titleEl) titleEl.textContent = 'Edit Category';
+        if (idInput) idInput.value = cat.id;
+        if (nameInput) nameInput.value = cat.name;
+        if (iconSelect) iconSelect.value = cat.icon || 'fa-folder';
+        if (colorValEl) colorValEl.value = cat.color || '#8b5cf6';
+        
+        document.querySelectorAll('.cat-color-btn').forEach(btn => {
+          if (btn.dataset.color === (cat.color || '#8b5cf6')) {
+            btn.style.border = '2px solid #ffffff';
+          } else {
+            btn.style.border = '2px solid transparent';
+          }
+        });
+      }
+    } else {
+      if (titleEl) titleEl.textContent = 'Create Category';
+      if (idInput) idInput.value = '';
+      if (nameInput) nameInput.value = '';
+      if (iconSelect) iconSelect.value = 'fa-briefcase';
+      if (colorValEl) colorValEl.value = '#8b5cf6';
+      
+      document.querySelectorAll('.cat-color-btn').forEach((btn, idx) => {
+        btn.style.border = idx === 0 ? '2px solid #ffffff' : '2px solid transparent';
+      });
+    }
+
     if (modal) {
       modal.classList.remove('hidden');
       modal.classList.add('active');
@@ -2217,10 +2250,12 @@
 
   async function handleCreateCategory(e) {
     e.preventDefault();
+    const idInput = document.getElementById('cat-id-input');
     const nameInput = document.getElementById('cat-name-input');
     const iconSelect = document.getElementById('cat-icon-select');
     const colorVal = document.getElementById('cat-color-val');
 
+    const catId = idInput ? idInput.value : '';
     const name = nameInput ? nameInput.value.trim() : '';
     const icon = iconSelect ? iconSelect.value : 'fa-folder';
     const color = colorVal ? colorVal.value : '#8b5cf6';
@@ -2232,26 +2267,38 @@
 
     if (!state.customCategories) state.customCategories = [];
 
-    if (state.customCategories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-      showToast('Category with this name already exists', 'error');
-      return;
+    if (catId) {
+      // Edit existing category
+      const existingCat = state.customCategories.find(c => c.id === catId);
+      if (existingCat) {
+        existingCat.name = name;
+        existingCat.icon = icon;
+        existingCat.color = color;
+        showToast(`Category "${name}" updated!`, 'success');
+      }
+    } else {
+      // Duplicate name check for new category
+      if (state.customCategories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Category with this name already exists', 'error');
+        return;
+      }
+
+      const newCat = {
+        id: 'cat_' + Date.now(),
+        name: name,
+        icon: icon,
+        color: color,
+        createdAt: Date.now()
+      };
+
+      state.customCategories.push(newCat);
+      showToast(`Category "${name}" created!`, 'success');
     }
 
-    const newCat = {
-      id: 'cat_' + Date.now(),
-      name: name,
-      icon: icon,
-      color: color,
-      createdAt: Date.now()
-    };
-
-    state.customCategories.push(newCat);
     closeCategoryModal();
-
     await saveVaultToGitHub();
     renderVault();
     populateItemTypeDropdown();
-    showToast(`Category "${name}" created!`, 'success');
   }
 
   async function deleteCustomCategory(catId) {
@@ -2282,27 +2329,65 @@
 
     state.customCategories.forEach(cat => {
       const count = notDeleted.filter(i => !i.archived && i.type === cat.id).length;
-      const btn = document.createElement('button');
+      const btn = document.createElement('div');
       btn.className = `nav-item ${state.currentCategory === cat.id ? 'active' : ''}`;
       btn.dataset.category = cat.id;
-      btn.style.cssText = 'position:relative; display:flex; align-items:center; width:100%; border:none; background:transparent; font-family:inherit; cursor:pointer;';
+      btn.style.cssText = 'position:relative; display:flex; align-items:center; width:100%; border:none; background:transparent; font-family:inherit; cursor:pointer; padding-right:0.35rem;';
       btn.innerHTML = `
         <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.95rem;"></i>
         <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88rem;">${escapeHtml(cat.name)}</span>
         <span class="badge">${count}</span>
-        <span class="btn-delete-cat" data-id="${escapeHtml(cat.id)}" title="Delete Category" style="margin-left:0.35rem; padding:0.15rem 0.35rem; opacity:0.6; font-size:0.75rem; border-radius:4px; transition:opacity 0.2s;"><i class="fa-solid fa-trash"></i></span>
+        <div class="cat-dropdown-wrapper" style="position:relative; margin-left:0.25rem;">
+          <button type="button" class="btn-icon btn-cat-menu" title="Category Options" style="width:20px; height:20px; font-size:0.75rem; opacity:0.6; display:flex; align-items:center; justify-content:center; border-radius:4px;">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+          <div class="cat-dropdown-menu hidden" style="position:absolute; right:0; top:calc(100% + 4px); background:rgba(18,20,30,0.98); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:0.35rem; z-index:1000; min-width:120px; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+            <button type="button" class="btn-cat-edit" data-id="${escapeHtml(cat.id)}" style="display:flex; align-items:center; gap:0.5rem; width:100%; padding:0.4rem 0.6rem; border:none; background:transparent; color:#f8fafc; font-size:0.78rem; cursor:pointer; border-radius:4px; text-align:left;">
+              <i class="fa-solid fa-pen" style="color:var(--accent-purple);"></i> Edit
+            </button>
+            <button type="button" class="btn-cat-delete text-danger" data-id="${escapeHtml(cat.id)}" style="display:flex; align-items:center; gap:0.5rem; width:100%; padding:0.4rem 0.6rem; border:none; background:transparent; color:#ef4444; font-size:0.78rem; cursor:pointer; border-radius:4px; text-align:left;">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
       `;
       container.appendChild(btn);
     });
 
     container.querySelectorAll('.nav-item').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const delBtn = e.target.closest('.btn-delete-cat');
-        if (delBtn) {
+      const menuBtn = btn.querySelector('.btn-cat-menu');
+      const menuDropdown = btn.querySelector('.cat-dropdown-menu');
+      const editBtn = btn.querySelector('.btn-cat-edit');
+      const deleteBtn = btn.querySelector('.btn-cat-delete');
+
+      if (menuBtn && menuDropdown) {
+        menuBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          deleteCustomCategory(delBtn.dataset.id);
-          return;
-        }
+          document.querySelectorAll('.cat-dropdown-menu').forEach(m => {
+            if (m !== menuDropdown) m.classList.add('hidden');
+          });
+          menuDropdown.classList.toggle('hidden');
+        });
+      }
+
+      if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (menuDropdown) menuDropdown.classList.add('hidden');
+          openCategoryModal(editBtn.dataset.id);
+        });
+      }
+
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (menuDropdown) menuDropdown.classList.add('hidden');
+          deleteCustomCategory(deleteBtn.dataset.id);
+        });
+      }
+
+      btn.addEventListener('click', async (e) => {
+        if (e.target.closest('.cat-dropdown-wrapper')) return;
         document.querySelectorAll('.sidebar-nav .nav-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         state.currentCategory = btn.dataset.category;
@@ -3068,6 +3153,11 @@
           m.classList.add('hidden');
           const card = m.closest('.item-card');
           if (card) card.classList.remove('dropdown-open');
+        });
+      }
+      if (!e.target.closest('.cat-dropdown-wrapper')) {
+        document.querySelectorAll('.cat-dropdown-menu').forEach(m => {
+          m.classList.add('hidden');
         });
       }
     });
