@@ -1077,6 +1077,12 @@ body {
   border-color: rgba(239, 68, 68, 0.35);
 }
 
+.bulk-btn.text-success:hover {
+  background: rgba(16, 185, 129, 0.18);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
 .bulk-btn-close {
   background: transparent;
   border: none;

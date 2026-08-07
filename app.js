@@ -1563,8 +1563,24 @@
       selectAllText.textContent = allSelected ? 'Deselect All' : 'Select All';
     }
 
-    if (trashText) {
-      trashText.textContent = (state.currentCategory === 'trash') ? 'Delete Forever' : 'Trash';
+    const isTrashView = (state.currentCategory === 'trash');
+    const btnMoveWrapper = document.querySelector('.bulk-dropdown-wrapper');
+    const btnPin = document.getElementById('btn-bulk-pin');
+    const btnArchive = document.getElementById('btn-bulk-archive');
+    const btnRestore = document.getElementById('btn-bulk-restore');
+
+    if (isTrashView) {
+      if (btnMoveWrapper) btnMoveWrapper.classList.add('hidden');
+      if (btnPin) btnPin.classList.add('hidden');
+      if (btnArchive) btnArchive.classList.add('hidden');
+      if (btnRestore) btnRestore.classList.remove('hidden');
+      if (trashText) trashText.textContent = 'Delete Permanently';
+    } else {
+      if (btnMoveWrapper) btnMoveWrapper.classList.remove('hidden');
+      if (btnPin) btnPin.classList.remove('hidden');
+      if (btnArchive) btnArchive.classList.remove('hidden');
+      if (btnRestore) btnRestore.classList.add('hidden');
+      if (trashText) trashText.textContent = 'Trash';
     }
   }
 
@@ -1574,8 +1590,28 @@
     const moveFlyout = document.getElementById('bulk-move-flyout');
     const btnPin = document.getElementById('btn-bulk-pin');
     const btnArchive = document.getElementById('btn-bulk-archive');
+    const btnRestore = document.getElementById('btn-bulk-restore');
     const btnTrash = document.getElementById('btn-bulk-trash');
     const btnCancel = document.getElementById('btn-bulk-cancel');
+
+    if (btnRestore) {
+      btnRestore.addEventListener('click', async () => {
+        if (!state.selectedItemIds || state.selectedItemIds.size === 0) return;
+        let count = 0;
+        state.vaultItems.forEach(i => {
+          if (state.selectedItemIds.has(i.id)) {
+            i.deleted = false;
+            delete i.deletedAt;
+            i.updatedAt = new Date().toISOString();
+            count++;
+          }
+        });
+        showToast(`Restored ${count} item(s) from Trash`, 'success');
+        state.selectedItemIds.clear();
+        renderVault();
+        await saveVaultToGitHub();
+      });
+    }
 
     if (btnCancel) {
       btnCancel.addEventListener('click', () => {
