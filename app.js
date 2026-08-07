@@ -1572,6 +1572,7 @@
     if (!state.searchQuery) {
       card.setAttribute('draggable', 'true');
       
+      // Desktop HTML5 Drag & Drop
       card.addEventListener('dragstart', (e) => {
         card.classList.add('dragging');
         e.dataTransfer.setData('text/plain', item.id);
@@ -1600,6 +1601,69 @@
         if (draggedId && draggedId !== String(item.id)) {
           handleDropReorder(draggedId, String(item.id));
         }
+      });
+
+      // Mobile / Touch Drag & Drop
+      let touchTimer = null;
+      let touchDragged = false;
+      let touchCurrentTarget = null;
+
+      card.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1 || e.target.closest('button, a, input, select, .card-dropdown-wrapper')) return;
+
+        touchTimer = setTimeout(() => {
+          touchDragged = true;
+          card.classList.add('dragging');
+          if (navigator.vibrate) navigator.vibrate(30);
+        }, 220);
+      }, { passive: true });
+
+      card.addEventListener('touchmove', (e) => {
+        if (!touchDragged) {
+          clearTimeout(touchTimer);
+          return;
+        }
+
+        if (e.cancelable) e.preventDefault();
+
+        const touch = e.touches[0];
+        const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (elem) {
+          const targetCard = elem.closest('.item-card');
+          document.querySelectorAll('.item-card').forEach(c => {
+            if (c !== card && c === targetCard) {
+              c.classList.add('drag-over');
+              touchCurrentTarget = c;
+            } else {
+              c.classList.remove('drag-over');
+            }
+          });
+        }
+      }, { passive: false });
+
+      card.addEventListener('touchend', () => {
+        clearTimeout(touchTimer);
+        if (touchDragged) {
+          card.classList.remove('dragging');
+          document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
+
+          if (touchCurrentTarget && touchCurrentTarget !== card) {
+            const targetId = touchCurrentTarget.dataset.id;
+            if (targetId) {
+              handleDropReorder(String(item.id), String(targetId));
+            }
+          }
+        }
+        touchDragged = false;
+        touchCurrentTarget = null;
+      });
+
+      card.addEventListener('touchcancel', () => {
+        clearTimeout(touchTimer);
+        card.classList.remove('dragging');
+        document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
+        touchDragged = false;
+        touchCurrentTarget = null;
       });
     }
 
