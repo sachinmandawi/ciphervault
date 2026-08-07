@@ -609,27 +609,27 @@
     if (!DOM.toastContainer) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    let iconClass = 'fa-info-circle';
-    if (type === 'success') iconClass = 'fa-circle-check';
-    if (type === 'error') iconClass = 'fa-triangle-exclamation';
+    let iconClass = 'fa-info';
+    if (type === 'success') iconClass = 'fa-check';
+    if (type === 'error') iconClass = 'fa-xmark';
     if (type === 'warning') iconClass = 'fa-triangle-exclamation';
 
     toast.innerHTML = `
       <div class="toast-icon"><i class="fa-solid ${iconClass}"></i></div>
       <div class="toast-body">
-        <div class="toast-title">${message}</div>
-        ${subtitle ? `<div class="toast-subtitle">${subtitle}</div>` : ''}
+        <div class="toast-title">${escapeHtml(message)}</div>
+        ${subtitle ? `<div class="toast-subtitle">${escapeHtml(subtitle)}</div>` : ''}
       </div>
-      <button class="toast-close" onclick="this.closest('.toast').remove()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="toast-close" onclick="this.closest('.toast').remove()" title="Close"><i class="fa-solid fa-xmark"></i></button>
     `;
     DOM.toastContainer.appendChild(toast);
 
     setTimeout(() => {
       toast.style.opacity = '0';
-      toast.style.transform = 'translateX(110%)';
-      toast.style.transition = 'all 0.4s ease';
-      setTimeout(() => toast.remove(), 400);
-    }, 4000);
+      toast.style.transform = 'translateY(12px) scale(0.94)';
+      toast.style.transition = 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+      setTimeout(() => toast.remove(), 350);
+    }, 3500);
   }
 
   function updateLastSyncTime() {
