@@ -2343,7 +2343,6 @@
       const btn = document.createElement('div');
       btn.className = `nav-item ${state.currentCategory === cat.id ? 'active' : ''}`;
       btn.dataset.category = cat.id;
-      btn.style.cssText = 'position:relative; display:flex; align-items:center; width:100%; border:none; background:transparent; font-family:inherit; cursor:pointer; padding-right:0.35rem;';
       btn.innerHTML = `
         <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.95rem;"></i>
         <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88rem;">${escapeHtml(cat.name)}</span>
