@@ -2830,14 +2830,69 @@
             <i class="fa-solid fa-ellipsis"></i>
           </button>
           <div class="cat-dropdown-menu card-dropdown-menu hidden">
-            <button type="button" class="dropdown-item btn-cat-edit" data-id="${escapeHtml(cat.id)}">
-              <i class="fa-solid fa-pen-to-square"></i>
-              <span>Edit Category</span>
-            </button>
-            <button type="button" class="dropdown-item btn-cat-delete text-danger" data-id="${escapeHtml(cat.id)}">
-              <i class="fa-solid fa-trash"></i>
-              <span>Delete Category</span>
-            </button>
+            <!-- MAIN ACTIONS PANEL -->
+            <div class="cat-menu-main-panel">
+              <button type="button" class="dropdown-item btn-cat-edit" data-id="${escapeHtml(cat.id)}">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Edit Category</span>
+              </button>
+              <button type="button" class="dropdown-item btn-cat-delete text-danger" data-id="${escapeHtml(cat.id)}">
+                <i class="fa-solid fa-trash"></i>
+                <span>Delete Category</span>
+              </button>
+            </div>
+
+            <!-- INLINE EDIT CATEGORY SUBMENU PANEL -->
+            <div class="cat-menu-edit-panel hidden" style="width: 205px; padding: 0.2rem;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding: 0.15rem 0.2rem 0.35rem 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.4rem;">
+                <button type="button" class="btn-cat-edit-back" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.35rem; font-family:inherit; padding:0;">
+                  <i class="fa-solid fa-arrow-left"></i>
+                  <span>Edit Category</span>
+                </button>
+              </div>
+
+              <!-- Name Input -->
+              <div style="margin-bottom:0.4rem;">
+                <input type="text" class="inline-cat-name-input" value="${escapeHtml(cat.name)}" placeholder="Category Name" style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:5px; padding:0.25rem 0.45rem; color:var(--text-main); font-size:0.78rem; outline:none; height:26px; box-sizing:border-box; font-family:inherit;">
+              </div>
+
+              <!-- Icon Selector Trigger -->
+              <div style="position:relative; margin-bottom:0.4rem;">
+                <input type="hidden" class="inline-cat-icon-val" value="${escapeHtml(cat.icon || 'fa-folder')}">
+                <button type="button" class="inline-cat-icon-btn" style="width:100%; display:flex; align-items:center; justify-content:space-between; padding:0.2rem 0.45rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:5px; color:var(--text-main); font-size:0.78rem; cursor:pointer; font-family:inherit; height:26px; box-sizing:border-box;">
+                  <div style="display:flex; align-items:center; gap:0.4rem;">
+                    <span class="inline-cat-icon-preview"><i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.82rem;"></i></span>
+                    <span class="inline-cat-icon-label" style="font-size:0.75rem; color:var(--text-muted);">Change Icon</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-down" style="font-size:0.65rem; color:var(--text-dim);"></i>
+                </button>
+
+                <!-- Icon Picker Popover Grid -->
+                <div class="inline-cat-icon-popover hidden" style="position:absolute; left:0; top:calc(100% + 4px); width:100%; background:#181926; border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:0.4rem; z-index:10050; box-shadow:0 12px 30px rgba(0,0,0,0.85); display:flex; flex-direction:column; gap:0.3rem;">
+                  <input type="text" class="inline-cat-icon-search" placeholder="Search icon..." style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:0.15rem 0.35rem; color:var(--text-main); font-size:0.72rem; outline:none; width:100%; font-family:inherit; height:22px; box-sizing:border-box;">
+                  <div class="inline-cat-icon-grid" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:0.25rem; overflow-y:auto; max-height:120px; padding-right:0.1rem;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Color Selector -->
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem; padding:0 0.1rem;">
+                <input type="hidden" class="inline-cat-color-val" value="${escapeHtml(cat.color || '#8b5cf6')}">
+                <div class="inline-cat-colors" style="display:flex; gap:0.35rem; align-items:center; width:100%; justify-content:space-between;">
+                  <button type="button" class="inline-color-dot ${cat.color === '#8b5cf6' || !cat.color ? 'active' : ''}" data-color="#8b5cf6" style="background:#8b5cf6; width:18px; height:18px; border-radius:50%; border:2px solid ${(cat.color === '#8b5cf6' || !cat.color) ? '#fff' : 'transparent'}; cursor:pointer; padding:0;"></button>
+                  <button type="button" class="inline-color-dot ${cat.color === '#10b981' ? 'active' : ''}" data-color="#10b981" style="background:#10b981; width:18px; height:18px; border-radius:50%; border:2px solid ${cat.color === '#10b981' ? '#fff' : 'transparent'}; cursor:pointer; padding:0;"></button>
+                  <button type="button" class="inline-color-dot ${cat.color === '#06b6d4' ? 'active' : ''}" data-color="#06b6d4" style="background:#06b6d4; width:18px; height:18px; border-radius:50%; border:2px solid ${cat.color === '#06b6d4' ? '#fff' : 'transparent'}; cursor:pointer; padding:0;"></button>
+                  <button type="button" class="inline-color-dot ${cat.color === '#f59e0b' ? 'active' : ''}" data-color="#f59e0b" style="background:#f59e0b; width:18px; height:18px; border-radius:50%; border:2px solid ${cat.color === '#f59e0b' ? '#fff' : 'transparent'}; cursor:pointer; padding:0;"></button>
+                  <button type="button" class="inline-color-dot ${cat.color === '#ef4444' ? 'active' : ''}" data-color="#ef4444" style="background:#ef4444; width:18px; height:18px; border-radius:50%; border:2px solid ${cat.color === '#ef4444' ? '#fff' : 'transparent'}; cursor:pointer; padding:0;"></button>
+                  <button type="button" class="inline-color-dot ${cat.color === '#ec4899' ? 'active' : ''}" data-color="#ec4899" style="background:#ec4899; width:18px; height:18px; border-radius:50%; border:2px solid ${cat.color === '#ec4899' ? '#fff' : 'transparent'}; cursor:pointer; padding:0;"></button>
+                </div>
+              </div>
+
+              <!-- Save Button -->
+              <button type="button" class="btn-save-cat-inline" data-id="${escapeHtml(cat.id)}" style="width:100%; background:var(--accent-purple); border:none; border-radius:5px; color:#fff; font-size:0.78rem; font-weight:600; padding:0.25rem 0; cursor:pointer; font-family:inherit;">
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
         <span class="badge">${count}</span>
@@ -2848,8 +2903,28 @@
     container.querySelectorAll('.nav-item').forEach(btn => {
       const menuBtn = btn.querySelector('.btn-cat-menu');
       const menuDropdown = btn.querySelector('.cat-dropdown-menu');
+      const mainPanel = btn.querySelector('.cat-menu-main-panel');
+      const editPanel = btn.querySelector('.cat-menu-edit-panel');
       const editBtn = btn.querySelector('.btn-cat-edit');
+      const editBackBtn = btn.querySelector('.btn-cat-edit-back');
       const deleteBtn = btn.querySelector('.btn-cat-delete');
+      const saveBtn = btn.querySelector('.btn-save-cat-inline');
+
+      const nameInput = btn.querySelector('.inline-cat-name-input');
+      const iconValInput = btn.querySelector('.inline-cat-icon-val');
+      const iconBtn = btn.querySelector('.inline-cat-icon-btn');
+      const iconPopover = btn.querySelector('.inline-cat-icon-popover');
+      const iconSearch = btn.querySelector('.inline-cat-icon-search');
+      const iconGrid = btn.querySelector('.inline-cat-icon-grid');
+      const iconPreview = btn.querySelector('.inline-cat-icon-preview');
+      const colorValInput = btn.querySelector('.inline-cat-color-val');
+      const colorDots = btn.querySelectorAll('.inline-color-dot');
+
+      const resetCatPanels = () => {
+        if (mainPanel) mainPanel.classList.remove('hidden');
+        if (editPanel) editPanel.classList.add('hidden');
+        if (iconPopover) iconPopover.classList.add('hidden');
+      };
 
       if (menuBtn && menuDropdown) {
         menuBtn.addEventListener('click', (e) => {
@@ -2857,15 +2932,116 @@
           document.querySelectorAll('.cat-dropdown-menu').forEach(m => {
             if (m !== menuDropdown) m.classList.add('hidden');
           });
+          resetCatPanels();
           menuDropdown.classList.toggle('hidden');
         });
       }
 
-      if (editBtn) {
+      if (editBtn && mainPanel && editPanel) {
         editBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (menuDropdown) menuDropdown.classList.add('hidden');
-          openCategoryModal(editBtn.dataset.id);
+          mainPanel.classList.add('hidden');
+          editPanel.classList.remove('hidden');
+          if (nameInput) setTimeout(() => nameInput.focus(), 50);
+        });
+      }
+
+      if (editBackBtn && mainPanel && editPanel) {
+        editBackBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          resetCatPanels();
+        });
+      }
+
+      // Render mini icon grid
+      const renderMiniIconGrid = (query = '') => {
+        if (!iconGrid) return;
+        const q = query.trim().toLowerCase();
+        const filtered = CATEGORY_ICONS.filter(i => !q || i.name.toLowerCase().includes(q) || i.tags.toLowerCase().includes(q));
+        const currentIcon = iconValInput ? iconValInput.value : 'fa-folder';
+
+        iconGrid.innerHTML = filtered.map(i => `
+          <button type="button" class="icon-picker-btn ${i.id === currentIcon ? 'active' : ''}" data-icon-id="${i.id}" style="width:24px; height:24px; font-size:0.75rem; border-radius:4px; padding:0;" title="${escapeHtml(i.name)}">
+            <i class="fa-solid ${i.id}"></i>
+          </button>
+        `).join('');
+
+        iconGrid.querySelectorAll('.icon-picker-btn').forEach(b => {
+          b.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const chosenId = b.dataset.iconId;
+            if (iconValInput) iconValInput.value = chosenId;
+            const curColor = colorValInput ? colorValInput.value : '#8b5cf6';
+            if (iconPreview) iconPreview.innerHTML = `<i class="fa-solid ${chosenId}" style="color:${curColor}; font-size:0.82rem;"></i>`;
+            if (iconPopover) iconPopover.classList.add('hidden');
+          });
+        });
+      };
+
+      if (iconBtn && iconPopover) {
+        iconBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isHidden = iconPopover.classList.contains('hidden');
+          if (isHidden) {
+            renderMiniIconGrid();
+            iconPopover.classList.remove('hidden');
+            if (iconSearch) {
+              iconSearch.value = '';
+              setTimeout(() => iconSearch.focus(), 50);
+            }
+          } else {
+            iconPopover.classList.add('hidden');
+          }
+        });
+      }
+
+      if (iconSearch) {
+        iconSearch.addEventListener('input', (e) => {
+          renderMiniIconGrid(e.target.value);
+        });
+        iconSearch.addEventListener('click', (e) => e.stopPropagation());
+      }
+
+      if (iconPopover) {
+        iconPopover.addEventListener('click', (e) => e.stopPropagation());
+      }
+
+      colorDots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+          e.stopPropagation();
+          colorDots.forEach(d => d.style.border = '2px solid transparent');
+          dot.style.border = '2px solid #ffffff';
+          const newColor = dot.dataset.color;
+          if (colorValInput) colorValInput.value = newColor;
+          const curIcon = iconValInput ? iconValInput.value : 'fa-folder';
+          if (iconPreview) iconPreview.innerHTML = `<i class="fa-solid ${curIcon}" style="color:${newColor}; font-size:0.82rem;"></i>`;
+        });
+      });
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const catId = saveBtn.dataset.id;
+          const newName = nameInput ? nameInput.value.trim() : '';
+          const newIcon = iconValInput ? iconValInput.value : 'fa-folder';
+          const newColor = colorValInput ? colorValInput.value : '#8b5cf6';
+
+          if (!newName) {
+            showToast('Please enter a category name', 'error');
+            return;
+          }
+
+          const cat = state.customCategories ? state.customCategories.find(c => c.id === catId) : null;
+          if (cat) {
+            cat.name = newName;
+            cat.icon = newIcon;
+            cat.color = newColor;
+
+            showToast('Category updated', 'success');
+            if (menuDropdown) menuDropdown.classList.add('hidden');
+            renderVault();
+            await saveVaultToGitHub();
+          }
         });
       }
 
@@ -2879,11 +3055,9 @@
 
       btn.addEventListener('click', async (e) => {
         if (e.target.closest('.cat-dropdown-wrapper')) return;
-        document.querySelectorAll('.sidebar-nav .nav-item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.currentCategory = btn.dataset.category;
+        const catId = btn.dataset.category;
+        state.currentCategory = catId;
         state.selectedTag = null;
-        sessionStorage.setItem('cipher_active_category', state.currentCategory);
         sessionStorage.removeItem('cipher_active_tag');
         switchView(DOM.viewVault);
         await renderVault();
