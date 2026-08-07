@@ -1263,17 +1263,13 @@ select option,
 
 
 .item-card[draggable="true"] {
-
   cursor: grab;
-
+  -webkit-user-drag: element;
+  user-select: none;
 }
 
-
-
 .item-card[draggable="true"]:active {
-
   cursor: grabbing;
-
 }
 
 

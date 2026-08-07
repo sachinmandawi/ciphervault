@@ -1579,14 +1579,18 @@
           e.preventDefault();
           return;
         }
+        card.dataset.isDragging = 'true';
         card.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', String(item.id));
-        e.dataTransfer.effectAllowed = 'move';
+        if (e.dataTransfer) {
+          e.dataTransfer.setData('text/plain', String(item.id));
+          e.dataTransfer.effectAllowed = 'move';
+        }
       });
       
       card.addEventListener('dragend', (e) => {
         card.classList.remove('dragging');
         document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
+        setTimeout(() => { delete card.dataset.isDragging; }, 150);
       });
       
       card.addEventListener('dragover', (e) => {
@@ -1810,10 +1814,19 @@
       </div>
     `;
 
-    card.querySelector('.item-favicon').addEventListener('click', (e) => { e.stopPropagation(); openPreviewModal(item.id); });
-    card.querySelector('.item-title-block').addEventListener('click', (e) => { e.stopPropagation(); openPreviewModal(item.id); });
+    card.querySelector('.item-favicon').addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      if (card.dataset.isDragging === 'true') return;
+      openPreviewModal(item.id); 
+    });
+    card.querySelector('.item-title-block').addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      if (card.dataset.isDragging === 'true') return;
+      openPreviewModal(item.id); 
+    });
     card.querySelector('.item-body').addEventListener('click', (e) => {
       if (e.target.closest('.btn-toggle-vis') || e.target.closest('.btn-copy-pass') || e.target.closest('a')) return;
+      if (card.dataset.isDragging === 'true') return;
       openPreviewModal(item.id);
     });
 
