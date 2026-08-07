@@ -2341,12 +2341,14 @@
           <button type="button" class="btn-icon btn-cat-menu" title="Category Options" style="width:20px; height:20px; font-size:0.75rem; opacity:0.6; display:flex; align-items:center; justify-content:center; border-radius:4px;">
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </button>
-          <div class="cat-dropdown-menu hidden" style="position:absolute; right:0; top:calc(100% + 4px); background:rgba(18,20,30,0.98); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:0.35rem; z-index:1000; min-width:120px; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
-            <button type="button" class="btn-cat-edit" data-id="${escapeHtml(cat.id)}" style="display:flex; align-items:center; gap:0.5rem; width:100%; padding:0.4rem 0.6rem; border:none; background:transparent; color:#f8fafc; font-size:0.78rem; cursor:pointer; border-radius:4px; text-align:left;">
-              <i class="fa-solid fa-pen" style="color:var(--accent-purple);"></i> Edit
+          <div class="cat-dropdown-menu card-dropdown-menu hidden">
+            <button type="button" class="dropdown-item btn-cat-edit" data-id="${escapeHtml(cat.id)}">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>Edit Category</span>
             </button>
-            <button type="button" class="btn-cat-delete text-danger" data-id="${escapeHtml(cat.id)}" style="display:flex; align-items:center; gap:0.5rem; width:100%; padding:0.4rem 0.6rem; border:none; background:transparent; color:#ef4444; font-size:0.78rem; cursor:pointer; border-radius:4px; text-align:left;">
-              <i class="fa-solid fa-trash"></i> Delete
+            <button type="button" class="dropdown-item btn-cat-delete text-danger" data-id="${escapeHtml(cat.id)}">
+              <i class="fa-solid fa-trash"></i>
+              <span>Delete Category</span>
             </button>
           </div>
         </div>
