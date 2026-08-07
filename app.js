@@ -2936,7 +2936,22 @@
             if (m !== menuDropdown) m.classList.add('hidden');
           });
           resetCatPanels();
-          menuDropdown.classList.toggle('hidden');
+          const isHidden = menuDropdown.classList.toggle('hidden');
+
+          if (!isHidden) {
+            const rect = menuBtn.getBoundingClientRect();
+            menuDropdown.style.position = 'fixed';
+            menuDropdown.style.left = `${rect.right + 10}px`;
+            
+            let top = rect.top - 5;
+            const menuHeight = 240;
+            if (top + menuHeight > window.innerHeight - 15) {
+              top = window.innerHeight - menuHeight - 15;
+            }
+            if (top < 10) top = 10;
+            menuDropdown.style.top = `${top}px`;
+            menuDropdown.style.zIndex = '100000';
+          }
         });
       }
 
@@ -2945,6 +2960,14 @@
           e.stopPropagation();
           mainPanel.classList.add('hidden');
           editPanel.classList.remove('hidden');
+          const rect = menuBtn.getBoundingClientRect();
+          let top = rect.top - 5;
+          const menuHeight = 220;
+          if (top + menuHeight > window.innerHeight - 15) {
+            top = window.innerHeight - menuHeight - 15;
+          }
+          if (top < 10) top = 10;
+          menuDropdown.style.top = `${top}px`;
           if (nameInput) setTimeout(() => nameInput.focus(), 50);
         });
       }
