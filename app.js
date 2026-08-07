@@ -1180,7 +1180,7 @@
     
     if (state.customCategories) {
       const cat = state.customCategories.find(c => c.id === item.type);
-      if (cat) return `<i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')};"></i>`;
+      if (cat) return `<i class="${formatIconClass(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')};"></i>`;
     }
     return '<i class="fa-solid fa-globe"></i>';
   }
@@ -1759,7 +1759,7 @@
 
         moveFlyout.innerHTML = categories.map(cat => `
           <button type="button" class="bulk-move-item" data-cat="${escapeHtml(cat.id)}">
-            <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${cat.color || 'var(--text-muted)'};"></i>
+            <i class="${formatIconClass(cat.icon || 'fa-folder')}" style="color:${cat.color || 'var(--text-muted)'};"></i>
             <span>${escapeHtml(cat.name)}</span>
           </button>
         `).join('');
@@ -2560,8 +2560,64 @@
     renderCustomCategoriesSidebar();
   }
 
-  // --- NOTION VISUAL ICON PICKER DATASET (250+ ICONS) ---
+  function formatIconClass(iconStr) {
+    if (!iconStr) return 'fa-solid fa-folder';
+    const s = String(iconStr).trim();
+    if (s.includes('fa-brands') || s.includes('fa-regular') || s.includes('fa-solid')) {
+      return s;
+    }
+    return `fa-solid ${s}`;
+  }
+
+  // --- NOTION VISUAL ICON PICKER DATASET (300+ ICONS) ---
   const CATEGORY_ICONS = [
+    // Social Media & Popular Brands
+    { id: 'fa-brands fa-github', name: 'GitHub', tags: 'github code repo git social brand' },
+    { id: 'fa-brands fa-google', name: 'Google', tags: 'google gmail search drive social brand' },
+    { id: 'fa-brands fa-twitter', name: 'Twitter', tags: 'twitter tweet social brand' },
+    { id: 'fa-brands fa-x-twitter', name: 'X / Twitter', tags: 'x twitter social brand' },
+    { id: 'fa-brands fa-instagram', name: 'Instagram', tags: 'instagram insta photo social brand' },
+    { id: 'fa-brands fa-facebook', name: 'Facebook', tags: 'facebook fb meta social brand' },
+    { id: 'fa-brands fa-linkedin', name: 'LinkedIn', tags: 'linkedin work job social brand' },
+    { id: 'fa-brands fa-youtube', name: 'YouTube', tags: 'youtube video media social brand' },
+    { id: 'fa-brands fa-whatsapp', name: 'WhatsApp', tags: 'whatsapp chat message social brand' },
+    { id: 'fa-brands fa-telegram', name: 'Telegram', tags: 'telegram chat channel social brand' },
+    { id: 'fa-brands fa-discord', name: 'Discord', tags: 'discord chat voice gaming social brand' },
+    { id: 'fa-brands fa-spotify', name: 'Spotify', tags: 'spotify music audio streaming brand' },
+    { id: 'fa-brands fa-reddit', name: 'Reddit', tags: 'reddit forum discussion social brand' },
+    { id: 'fa-brands fa-twitch', name: 'Twitch', tags: 'twitch stream gaming live brand' },
+    { id: 'fa-brands fa-tiktok', name: 'TikTok', tags: 'tiktok video short social brand' },
+    { id: 'fa-brands fa-snapchat', name: 'Snapchat', tags: 'snapchat photo story social brand' },
+    { id: 'fa-brands fa-steam', name: 'Steam', tags: 'steam games store valve brand' },
+    { id: 'fa-brands fa-apple', name: 'Apple', tags: 'apple mac iphone ios brand' },
+    { id: 'fa-brands fa-amazon', name: 'Amazon', tags: 'amazon shop prime aws brand' },
+    { id: 'fa-brands fa-microsoft', name: 'Microsoft', tags: 'microsoft windows office azure brand' },
+    { id: 'fa-brands fa-chrome', name: 'Chrome', tags: 'chrome google browser brand' },
+    { id: 'fa-brands fa-firefox', name: 'Firefox', tags: 'firefox mozilla browser brand' },
+    { id: 'fa-brands fa-stripe', name: 'Stripe', tags: 'stripe payment checkout brand' },
+    { id: 'fa-brands fa-paypal', name: 'PayPal', tags: 'paypal payment wallet brand' },
+    { id: 'fa-brands fa-bitcoin', name: 'Bitcoin', tags: 'bitcoin btc crypto brand' },
+    { id: 'fa-brands fa-ethereum', name: 'Ethereum', tags: 'ethereum eth crypto brand' },
+    { id: 'fa-brands fa-dribbble', name: 'Dribbble', tags: 'dribbble design portfolio brand' },
+    { id: 'fa-brands fa-figma', name: 'Figma', tags: 'figma design ui mockup brand' },
+    { id: 'fa-brands fa-slack', name: 'Slack', tags: 'slack chat work team brand' },
+    { id: 'fa-brands fa-notion', name: 'Notion', tags: 'notion notes wiki workspace brand' },
+    { id: 'fa-brands fa-trello', name: 'Trello', tags: 'trello kanban board tasks brand' },
+    { id: 'fa-brands fa-pinterest', name: 'Pinterest', tags: 'pinterest pin board image brand' },
+    { id: 'fa-brands fa-medium', name: 'Medium', tags: 'medium blog article write brand' },
+    { id: 'fa-brands fa-quora', name: 'Quora', tags: 'quora qa answer social brand' },
+    { id: 'fa-brands fa-vimeo', name: 'Vimeo', tags: 'vimeo video stream brand' },
+    { id: 'fa-brands fa-soundcloud', name: 'SoundCloud', tags: 'soundcloud music audio brand' },
+    { id: 'fa-brands fa-gitlab', name: 'GitLab', tags: 'gitlab code repo git brand' },
+    { id: 'fa-brands fa-bitbucket', name: 'Bitbucket', tags: 'bitbucket code repo git brand' },
+    { id: 'fa-brands fa-docker', name: 'Docker', tags: 'docker container devops brand' },
+    { id: 'fa-brands fa-aws', name: 'AWS', tags: 'aws amazon cloud server brand' },
+    { id: 'fa-brands fa-npm', name: 'npm', tags: 'npm node js package brand' },
+    { id: 'fa-brands fa-python', name: 'Python', tags: 'python py code brand' },
+    { id: 'fa-brands fa-js', name: 'JavaScript', tags: 'javascript js web brand' },
+    { id: 'fa-brands fa-react', name: 'React', tags: 'react js ui web brand' },
+    { id: 'fa-brands fa-node', name: 'NodeJS', tags: 'node js server brand' },
+
     // General & Interface
     { id: 'fa-folder', name: 'Folder', tags: 'general file directory' },
     { id: 'fa-folder-open', name: 'Open Folder', tags: 'file directory open' },
@@ -2836,7 +2892,7 @@
 
     grid.innerHTML = filtered.map(icon => `
       <button type="button" class="icon-picker-btn ${icon.id === currentIcon ? 'active' : ''}" data-icon-id="${icon.id}" title="${escapeHtml(icon.name)}">
-        <i class="fa-solid ${icon.id}"></i>
+        <i class="${formatIconClass(icon.id)}"></i>
       </button>
     `).join('');
 
@@ -2861,7 +2917,7 @@
     if (hiddenInput) hiddenInput.value = iconData.id;
 
     if (previewEl) {
-      previewEl.innerHTML = `<i class="fa-solid ${iconData.id}" style="color:${color};"></i>`;
+      previewEl.innerHTML = `<i class="${formatIconClass(iconData.id)}" style="color:${color};"></i>`;
     }
     if (labelEl) {
       labelEl.textContent = iconData.name;
@@ -2969,7 +3025,7 @@
         html += `
           <button type="button" class="inline-move-opt-btn ${isCurrent ? 'active' : ''}" data-cat-id="${cat.id}">
             <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              <i class="fa-solid ${cat.icon}" style="color:${cat.color}; font-size:0.82rem; width:14px; text-align:center;"></i>
+              <i class="${formatIconClass(cat.icon)}" style="color:${cat.color}; font-size:0.82rem; width:14px; text-align:center;"></i>
               <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(cat.name)}</span>
             </div>
             ${isCurrent ? '<i class="fa-solid fa-check" style="color:var(--accent-purple); font-size:0.75rem; flex-shrink:0;"></i>' : ''}
@@ -2985,7 +3041,7 @@
         html += `
           <button type="button" class="inline-move-opt-btn ${isCurrent ? 'active' : ''}" data-cat-id="${cat.id}">
             <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.82rem; width:14px; text-align:center;"></i>
+              <i class="${formatIconClass(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.82rem; width:14px; text-align:center;"></i>
               <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(cat.name)}</span>
             </div>
             ${isCurrent ? '<i class="fa-solid fa-check" style="color:var(--accent-purple); font-size:0.75rem; flex-shrink:0;"></i>' : ''}
@@ -3068,7 +3124,7 @@
       btn.className = `nav-item ${state.currentCategory === cat.id ? 'active' : ''}`;
       btn.dataset.category = cat.id;
       btn.innerHTML = `
-        <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.95rem;"></i>
+        <i class="${formatIconClass(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.95rem;"></i>
         <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88rem;">${escapeHtml(cat.name)}</span>
         <div class="cat-dropdown-wrapper">
           <button type="button" class="btn-icon btn-cat-menu" title="Category Options">
@@ -3106,7 +3162,7 @@
                 <input type="hidden" class="inline-cat-icon-val" value="${escapeHtml(cat.icon || 'fa-folder')}">
                 <button type="button" class="inline-cat-icon-btn" style="width:100%; display:flex; align-items:center; justify-content:space-between; padding:0.2rem 0.45rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:5px; color:var(--text-main); font-size:0.78rem; cursor:pointer; font-family:inherit; height:26px; box-sizing:border-box;">
                   <div style="display:flex; align-items:center; gap:0.4rem;">
-                    <span class="inline-cat-icon-preview"><i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.82rem;"></i></span>
+                    <span class="inline-cat-icon-preview"><i class="${formatIconClass(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.82rem;"></i></span>
                     <span class="inline-cat-icon-label" style="font-size:0.75rem; color:var(--text-muted);">Change Icon</span>
                   </div>
                   <i class="fa-solid fa-chevron-down" style="font-size:0.65rem; color:var(--text-dim);"></i>
@@ -3248,7 +3304,7 @@
 
         iconGrid.innerHTML = filtered.map(i => `
           <button type="button" class="icon-picker-btn ${i.id === currentIcon ? 'active' : ''}" data-icon-id="${i.id}" style="width:24px; height:24px; font-size:0.75rem; border-radius:4px; padding:0;" title="${escapeHtml(i.name)}">
-            <i class="fa-solid ${i.id}"></i>
+            <i class="${formatIconClass(i.id)}"></i>
           </button>
         `).join('');
 
@@ -3258,7 +3314,7 @@
             const chosenId = b.dataset.iconId;
             if (iconValInput) iconValInput.value = chosenId;
             const curColor = colorValInput ? colorValInput.value : '#8b5cf6';
-            if (iconPreview) iconPreview.innerHTML = `<i class="fa-solid ${chosenId}" style="color:${curColor}; font-size:0.82rem;"></i>`;
+            if (iconPreview) iconPreview.innerHTML = `<i class="${formatIconClass(chosenId)}" style="color:${curColor}; font-size:0.82rem;"></i>`;
             if (iconPopover) iconPopover.classList.add('hidden');
             adjustCatDropdownPosition(false);
           });
@@ -4318,7 +4374,7 @@
 
       inlineCreateIconGrid.innerHTML = filtered.map(i => `
         <button type="button" class="icon-picker-btn ${i.id === currentIcon ? 'active' : ''}" data-icon-id="${i.id}" style="width:24px; height:24px; font-size:0.75rem; border-radius:4px; padding:0;" title="${escapeHtml(i.name)}">
-          <i class="fa-solid ${i.id}"></i>
+          <i class="${formatIconClass(i.id)}"></i>
         </button>
       `).join('');
 
@@ -4330,7 +4386,7 @@
           const colorInput = document.getElementById('inline-create-cat-color');
           const curColor = colorInput ? colorInput.value : '#8b5cf6';
           const previewEl = document.getElementById('inline-create-icon-preview');
-          if (previewEl) previewEl.innerHTML = `<i class="fa-solid ${chosenId}" style="color:${curColor}; font-size:0.82rem;"></i>`;
+          if (previewEl) previewEl.innerHTML = `<i class="${formatIconClass(chosenId)}" style="color:${curColor}; font-size:0.82rem;"></i>`;
           if (inlineCreateIconPopover) inlineCreateIconPopover.classList.add('hidden');
         });
       });
