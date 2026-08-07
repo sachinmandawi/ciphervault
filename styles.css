@@ -657,8 +657,10 @@ body {
   pointer-events: auto;
 }
 
-.btn-cat-menu:hover {
-  background: rgba(255, 255, 255, 0.12);
+.btn-cat-menu:hover,
+.btn-cat-menu:focus,
+.btn-cat-menu:active {
+  background: transparent !important;
   color: var(--text-main);
 }
 
