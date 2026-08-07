@@ -1403,24 +1403,30 @@ select option,
   top: 100%;
   right: 0;
   margin-top: 0.35rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  background: #181926;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
   min-width: 150px;
+  width: max-content;
+  max-width: 220px;
   z-index: 1000;
   padding: 0.35rem;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
   animation: fadeIn 0.15s ease-out;
+  box-sizing: border-box;
 }
 
 .cat-dropdown-menu {
-  min-width: 115px;
+  min-width: 130px;
+  width: max-content;
+  max-width: 220px;
   padding: 0.25rem;
-  border-radius: 6px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+  background: #181926;
 }
 
 /* Notion Visual Icon Picker */

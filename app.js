@@ -2942,6 +2942,8 @@
             const rect = menuBtn.getBoundingClientRect();
             menuDropdown.style.position = 'fixed';
             menuDropdown.style.left = `${rect.right + 10}px`;
+            menuDropdown.style.width = 'max-content';
+            menuDropdown.style.maxWidth = '215px';
             
             let top = rect.top - 5;
             const menuHeight = 240;
@@ -2961,6 +2963,9 @@
           mainPanel.classList.add('hidden');
           editPanel.classList.remove('hidden');
           const rect = menuBtn.getBoundingClientRect();
+          menuDropdown.style.position = 'fixed';
+          menuDropdown.style.left = `${rect.right + 10}px`;
+          menuDropdown.style.width = '210px';
           let top = rect.top - 5;
           const menuHeight = 220;
           if (top + menuHeight > window.innerHeight - 15) {
