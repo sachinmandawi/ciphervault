@@ -1055,7 +1055,12 @@
     showToast('Logged out successfully!', 'info');
   }
 
-  function resetAutoLockTimer() {
+  let lastAutoLockReset = 0;
+  function resetAutoLockTimer(force = false) {
+    const now = Date.now();
+    if (!force && (now - lastAutoLockReset < 2000)) return;
+    lastAutoLockReset = now;
+
     if (state.autoLockTimer) clearTimeout(state.autoLockTimer);
     if (state.autoLockMinutes > 0) {
       state.autoLockTimer = setTimeout(() => {
@@ -2431,16 +2436,16 @@
         
         if (idxA !== idxB) return idxA - idxB;
         // fallback to created date if not found in custom order
-        return (b.createdAt || 0) - (a.createdAt || 0);
+        return getTimeVal(b.createdAt) - getTimeVal(a.createdAt);
       }
       if (state.sortBy === 'title') return (a.title || '').localeCompare(b.title || '');
-      if (state.sortBy === 'created') return (b.createdAt || 0) - (a.createdAt || 0);
+      if (state.sortBy === 'created') return getTimeVal(b.createdAt) - getTimeVal(a.createdAt);
       if (state.sortBy === 'strength') {
         const strA = a.password ? Generator.calculateStrength(a.password).entropy : 0;
         const strB = b.password ? Generator.calculateStrength(b.password).entropy : 0;
         return strB - strA;
       }
-      return (b.updatedAt || 0) - (a.updatedAt || 0);
+      return getTimeVal(b.updatedAt) - getTimeVal(a.updatedAt);
     });
 
     return items;
@@ -3592,18 +3597,29 @@
     showToast('Item restored', 'success');
   }
 
+  function getTimeVal(val) {
+    if (!val) return 0;
+    if (typeof val === 'number') return val;
+    const t = new Date(val).getTime();
+    return isNaN(t) ? 0 : t;
+  }
+
   async function purgeExpiredTrashItems() {
     const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
     const now = Date.now();
     const before = state.vaultItems.length;
     state.vaultItems = state.vaultItems.filter(item => {
       if (!item.deleted) return true;
-      // Keep if no timestamp (legacy items — give them grace period from now)
       if (!item.deletedAt) {
-        item.deletedAt = now; // stamp them now, delete in 30 days
+        item.deletedAt = now;
         return true;
       }
-      return (now - item.deletedAt) < THIRTY_DAYS_MS;
+      const deletedTime = getTimeVal(item.deletedAt);
+      if (deletedTime === 0) {
+        item.deletedAt = now;
+        return true;
+      }
+      return (now - deletedTime) < THIRTY_DAYS_MS;
     });
     const purged = before - state.vaultItems.length;
     if (purged > 0) {
@@ -4563,7 +4579,8 @@
     if (DOM.settingAutolock) {
       DOM.settingAutolock.addEventListener('change', (e) => {
         state.autoLockMinutes = parseInt(e.target.value, 10);
-        resetAutoLockTimer();
+        localStorage.setItem('cipher_autolock_mins', String(state.autoLockMinutes));
+        resetAutoLockTimer(true);
         const txt = state.autoLockMinutes === 0 ? 'Auto-lock disabled (Manual Logout Only)' : `Auto-lock set to ${state.autoLockMinutes} mins`;
         showToast(txt, 'info');
       });
@@ -4583,6 +4600,13 @@
     ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
       window.addEventListener(evt, resetAutoLockTimer, { passive: true });
     });
+
+    window.addEventListener('scroll', () => {
+      document.querySelectorAll('.card-dropdown-menu:not(.hidden)').forEach(m => m.classList.add('hidden'));
+      document.querySelectorAll('.cat-dropdown-menu:not(.hidden)').forEach(m => m.classList.add('hidden'));
+      const bulkMoveFlyout = document.getElementById('bulk-move-flyout');
+      if (bulkMoveFlyout) bulkMoveFlyout.classList.add('hidden');
+    }, { passive: true });
 
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === '/') {
@@ -4798,7 +4822,7 @@
       // Use URLSearchParams to safely parse hash (handles = inside token values)
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const token = hashParams.get('oauth_token');
-      if (token && token.length > 20 && /^(gho_|ghp_|github_pat_)/.test(token)) {
+      if (token && token.length > 20 && /^(gho_|ghp_|ghu_|ghs_|github_pat_)/.test(token)) {
         localStorage.setItem('cipher_gh_token', token.trim());
       }
       // Force auth overlay so new users land on setup form, not landing page
@@ -4870,6 +4894,14 @@
 
     initCustomSelects();
     setupEventListeners();
+    
+    // Restore saved Auto-lock setting
+    const savedAutolock = localStorage.getItem('cipher_autolock_mins');
+    if (savedAutolock !== null) {
+      state.autoLockMinutes = parseInt(savedAutolock, 10) || 0;
+      if (DOM.settingAutolock) DOM.settingAutolock.value = String(state.autoLockMinutes);
+      resetAutoLockTimer(true);
+    }
     
     if (DOM.btnGithubLogin) {
       DOM.btnGithubLogin.addEventListener('click', () => {
