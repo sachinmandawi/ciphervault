@@ -544,7 +544,6 @@
     customFieldsContainer: document.getElementById('custom-fields-container'),
     btnAddCustomField: document.getElementById('btn-add-custom-field'),
     btnModalGen: document.getElementById('btn-modal-gen'),
-    itemStrengthBar: document.getElementById('item-strength-bar'),
 
     // Toast
     toastContainer: document.getElementById('toast-container'),
@@ -552,14 +551,7 @@
 
     // Custom Category Elements
     btnAddCategory: document.getElementById('btn-add-category'),
-    sidebarCustomCategoriesContainer: document.getElementById('sidebar-custom-categories-container'),
-    modalCategoryOverlay: document.getElementById('modal-category-overlay'),
-    categoryForm: document.getElementById('category-form'),
-    catNameInput: document.getElementById('cat-name-input'),
-    catIconSelect: document.getElementById('cat-icon-select'),
-    catColorVal: document.getElementById('cat-color-val'),
-    btnCloseCatModal: document.getElementById('btn-close-cat-modal'),
-    btnCancelCat: document.getElementById('btn-cancel-cat')
+    sidebarCustomCategoriesContainer: document.getElementById('sidebar-custom-categories-container')
   };
 
   // --- Custom Fields Logic ---
@@ -2760,64 +2752,13 @@
         showToast(`Moved "${item.title}" to ${targetName}`, 'success');
 
         renderVault();
-        updateCountsAndStats();
         await saveVaultToGitHub();
       });
     });
   }
 
-  async function handleCreateCategory(e) {
-    e.preventDefault();
-    const idInput = document.getElementById('cat-id-input');
-    const nameInput = document.getElementById('cat-name-input');
-    const iconSelect = document.getElementById('cat-icon-select');
-    const colorVal = document.getElementById('cat-color-val');
 
-    const catId = idInput ? idInput.value : '';
-    const name = nameInput ? nameInput.value.trim() : '';
-    const icon = iconSelect ? iconSelect.value : 'fa-folder';
-    const color = colorVal ? colorVal.value : '#8b5cf6';
-
-    if (!name) {
-      showToast('Please enter a category name', 'error');
-      return;
-    }
-
-    if (!state.customCategories) state.customCategories = [];
-
-    if (catId) {
-      // Edit existing category
-      const existingCat = state.customCategories.find(c => c.id === catId);
-      if (existingCat) {
-        existingCat.name = name;
-        existingCat.icon = icon;
-        existingCat.color = color;
-        showToast(`Category "${name}" updated!`, 'success');
-      }
-    } else {
-      // Duplicate name check for new category
-      if (state.customCategories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-        showToast('Category with this name already exists', 'error');
-        return;
-      }
-
-      const newCat = {
-        id: 'cat_' + Date.now(),
-        name: name,
-        icon: icon,
-        color: color,
-        createdAt: Date.now()
-      };
-
-      state.customCategories.push(newCat);
-      showToast(`Category "${name}" created!`, 'success');
-    }
-
-    closeCategoryModal();
-    await saveVaultToGitHub();
-    renderVault();
-    populateItemTypeDropdown();
-  }
+  // Note: handleCreateCategory() was removed - replaced by handleInlineCreateCategory() in the inline flyout panel.
 
   async function deleteCustomCategory(catId) {
     const cat = state.customCategories ? state.customCategories.find(c => c.id === catId) : null;

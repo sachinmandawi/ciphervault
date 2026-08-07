@@ -28,6 +28,7 @@
   --accent-red: #ef4444;
 
   --text-main: #d4d4d4; /* Softened to avoid chamak */
+  --text-light: #e5e5e5;  /* Slightly brighter for values/passwords */
   --text-muted: #a3a3a3;
   --text-dim: #737373;
 
@@ -602,7 +603,7 @@ body {
 }
 
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-hover);
   color: var(--text-main);
   font-weight: 600;
   border: none;
