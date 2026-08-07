@@ -1564,10 +1564,20 @@
     }
 
     const isTrashView = (state.currentCategory === 'trash');
+    const isFavoriteView = (state.currentCategory === 'favorite');
+    const isArchiveView = (state.currentCategory === 'archive');
+
     const btnMoveWrapper = document.querySelector('.bulk-dropdown-wrapper');
     const btnPin = document.getElementById('btn-bulk-pin');
+    const pinText = document.getElementById('bulk-pin-text');
     const btnArchive = document.getElementById('btn-bulk-archive');
+    const archiveText = document.getElementById('bulk-archive-text');
     const btnRestore = document.getElementById('btn-bulk-restore');
+
+    // Get selected item objects to check mixed selection states (Idea 2)
+    const selectedObjects = state.vaultItems ? state.vaultItems.filter(i => state.selectedItemIds.has(i.id)) : [];
+    const allSelectedArePinned = selectedObjects.length > 0 && selectedObjects.every(i => i.favorite);
+    const allSelectedAreArchived = selectedObjects.length > 0 && selectedObjects.every(i => i.archived);
 
     if (isTrashView) {
       if (btnMoveWrapper) btnMoveWrapper.classList.add('hidden');
@@ -1577,10 +1587,42 @@
       if (trashText) trashText.textContent = 'Delete Permanently';
     } else {
       if (btnMoveWrapper) btnMoveWrapper.classList.remove('hidden');
-      if (btnPin) btnPin.classList.remove('hidden');
-      if (btnArchive) btnArchive.classList.remove('hidden');
       if (btnRestore) btnRestore.classList.add('hidden');
       if (trashText) trashText.textContent = 'Trash';
+
+      // Pin Button Intelligence (Idea 1 + Idea 2)
+      if (isArchiveView) {
+        if (btnPin) btnPin.classList.add('hidden');
+      } else {
+        if (btnPin) {
+          btnPin.classList.remove('hidden');
+          const pinIcon = btnPin.querySelector('i');
+          if (isFavoriteView || allSelectedArePinned) {
+            if (pinText) pinText.textContent = 'Unpin';
+            if (pinIcon) pinIcon.className = 'fa-regular fa-star';
+          } else {
+            if (pinText) pinText.textContent = 'Pin';
+            if (pinIcon) pinIcon.className = 'fa-solid fa-star';
+          }
+        }
+      }
+
+      // Archive Button Intelligence (Idea 1 + Idea 2)
+      if (isFavoriteView) {
+        if (btnArchive) btnArchive.classList.add('hidden');
+      } else {
+        if (btnArchive) {
+          btnArchive.classList.remove('hidden');
+          const archiveIcon = btnArchive.querySelector('i');
+          if (isArchiveView || allSelectedAreArchived) {
+            if (archiveText) archiveText.textContent = 'Unarchive';
+            if (archiveIcon) archiveIcon.className = 'fa-solid fa-box-open';
+          } else {
+            if (archiveText) archiveText.textContent = 'Archive';
+            if (archiveIcon) archiveIcon.className = 'fa-solid fa-box-archive';
+          }
+        }
+      }
     }
   }
 
@@ -1640,11 +1682,12 @@
         if (!state.selectedItemIds || state.selectedItemIds.size === 0) return;
         const selectedItems = state.vaultItems.filter(i => state.selectedItemIds.has(i.id));
         const allPinned = selectedItems.every(i => i.favorite);
+        const targetPinState = !allPinned;
         selectedItems.forEach(i => {
-          i.favorite = !allPinned;
+          i.favorite = targetPinState;
           i.updatedAt = new Date().toISOString();
         });
-        showToast(allPinned ? 'Items unpinned' : 'Items pinned to top', 'success');
+        showToast(targetPinState ? `Pinned ${selectedItems.length} item(s) to top` : `Unpinned ${selectedItems.length} item(s)`, 'success');
         state.selectedItemIds.clear();
         renderVault();
         await saveVaultToGitHub();
@@ -1654,14 +1697,14 @@
     if (btnArchive) {
       btnArchive.addEventListener('click', async () => {
         if (!state.selectedItemIds || state.selectedItemIds.size === 0) return;
-        const isArchiveView = state.currentCategory === 'archive';
-        state.vaultItems.forEach(i => {
-          if (state.selectedItemIds.has(i.id)) {
-            i.archived = !isArchiveView;
-            i.updatedAt = new Date().toISOString();
-          }
+        const selectedItems = state.vaultItems.filter(i => state.selectedItemIds.has(i.id));
+        const allArchived = selectedItems.every(i => i.archived);
+        const targetArchiveState = !allArchived;
+        selectedItems.forEach(i => {
+          i.archived = targetArchiveState;
+          i.updatedAt = new Date().toISOString();
         });
-        showToast(isArchiveView ? 'Items unarchived' : 'Items archived', 'success');
+        showToast(targetArchiveState ? `Archived ${selectedItems.length} item(s)` : `Unarchived ${selectedItems.length} item(s)`, 'success');
         state.selectedItemIds.clear();
         renderVault();
         await saveVaultToGitHub();
