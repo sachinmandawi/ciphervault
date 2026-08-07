@@ -1475,12 +1475,12 @@ select option,
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0.55rem 0.75rem;
-  border-radius: 8px;
+  padding: 0.42rem 0.65rem;
+  border-radius: 6px;
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-main);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   text-align: left;
