@@ -2917,7 +2917,7 @@
               </div>
 
               <!-- Save Button -->
-              <button type="button" class="btn-save-cat-inline" data-id="${escapeHtml(cat.id)}" style="width:100%; background:#8b5cf6 !important; color:#ffffff !important; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; padding:0.35rem 0; cursor:pointer; font-family:inherit;">
+              <button type="button" class="btn-save-cat-inline" data-id="${escapeHtml(cat.id)}">
                 Save Changes
               </button>
             </div>
@@ -3974,11 +3974,18 @@
     }
 
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.card-dropdown-wrapper')) {
+      // Close item card dropdown menus (exclude category flyout panels which also use card-dropdown-menu class)
+      if (!e.target.closest('.card-dropdown-wrapper') && 
+          !e.target.closest('#inline-create-category-panel') &&
+          !e.target.closest('.cat-dropdown-menu')) {
         document.querySelectorAll('.card-dropdown-menu').forEach(m => {
-          m.classList.add('hidden');
-          const card = m.closest('.item-card');
-          if (card) card.classList.remove('dropdown-open');
+          // Only hide if it belongs to an item card (inside .item-card or .card-dropdown-wrapper)
+          const isItemMenu = m.closest('.item-card') || m.closest('.card-dropdown-wrapper');
+          if (isItemMenu) {
+            m.classList.add('hidden');
+            const card = m.closest('.item-card');
+            if (card) card.classList.remove('dropdown-open');
+          }
         });
       }
       if (!e.target.closest('.cat-dropdown-wrapper')) {

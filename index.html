@@ -1031,7 +1031,7 @@
       <!-- Action Buttons -->
       <div style="display:flex; gap:0.4rem; margin-top:0.35rem;">
         <button type="button" id="btn-cancel-inline-create-cat" style="background:transparent; border:1px solid rgba(255,255,255,0.12); border-radius:5px; color:var(--text-muted); font-size:0.75rem; font-weight:500; padding:0.25rem 0.5rem; cursor:pointer; flex:1; font-family:inherit;">Cancel</button>
-        <button type="submit" class="btn-save-cat-inline" style="flex:1; background:#8b5cf6 !important; color:#ffffff !important; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; padding:0.35rem 0; cursor:pointer; font-family:inherit; box-shadow:none !important;">Create</button>
+        <button type="submit" class="btn-save-cat-inline" style="flex:1;">Create</button>
       </div>
     </form>
   </div>
@@ -1040,8 +1040,7 @@
   <div id="toast-container" class="toast-container"></div>
 
   
-  <!-- Mobile Drag and Drop Polyfill -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
+  <!-- Mobile Drag and Drop Polyfill (JS only - CSS loaded in head) -->
   <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/scroll-behaviour.min.js"></script>
   <script src="app.js?v=202608032359.1"></script>

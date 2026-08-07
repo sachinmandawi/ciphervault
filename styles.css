@@ -18,11 +18,11 @@
   --bg-input: #2a2a2a;
   --bg-hover: #2f2f2f;
 
-  --accent-primary: #ffffff;
-  --accent-secondary: #e0e0e0;
-  --accent-purple: #ffffff;
-  --accent-magenta: #ffffff;
-  --accent-cyan: #ffffff;
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #7c3aed;
+  --accent-purple: #8b5cf6;
+  --accent-magenta: #ec4899;
+  --accent-cyan: #06b6d4;
   --accent-green: #10b981; /* Keep semantic colors for status */
   --accent-yellow: #f59e0b;
   --accent-red: #ef4444;
@@ -1520,26 +1520,26 @@ select option,
 }
 
 .btn-save-cat-inline {
-  width: 100% !important;
-  background: var(--accent-purple, #8b5cf6) !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 6px !important;
-  font-size: 0.78rem !important;
-  font-weight: 600 !important;
-  padding: 0.35rem 0 !important;
-  cursor: pointer !important;
-  font-family: inherit !important;
-  transition: all 0.15s ease !important;
-  box-shadow: none !important;
-  display: block !important;
-  text-align: center !important;
+  width: 100%;
+  background: var(--accent-purple);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+  box-shadow: none;
+  display: block;
+  text-align: center;
 }
 
 .btn-save-cat-inline:hover {
-  background: #7c3aed !important;
-  color: #ffffff !important;
-  box-shadow: none !important;
+  background: var(--accent-secondary);
+  color: #ffffff;
+  box-shadow: none;
 }
 
 .dropdown-item {
@@ -2292,13 +2292,14 @@ select option,
 
 
 .btn-primary {
-  background: var(--accent-primary);
-  color: #000000;
+  background: var(--accent-purple);
+  color: #ffffff;
   box-shadow: none;
 }
 
 .btn-primary:hover {
   background: var(--accent-secondary);
+  color: #ffffff;
   box-shadow: none;
 }
 
