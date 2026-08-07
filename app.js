@@ -2201,12 +2201,18 @@
     const modal = document.getElementById('modal-category-overlay');
     const input = document.getElementById('cat-name-input');
     if (input) input.value = '';
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('active');
+    }
   }
 
   function closeCategoryModal() {
     const modal = document.getElementById('modal-category-overlay');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('active');
+    }
   }
 
   async function handleCreateCategory(e) {
