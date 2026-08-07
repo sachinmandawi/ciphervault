@@ -839,7 +839,7 @@
       if (DOM.unlockError) DOM.unlockError.classList.add('hidden');
 
       try {
-        if (user.toLowerCase() !== GITHUB_CONFIG.owner.toLowerCase()) {
+        if (GITHUB_CONFIG.owner && user.toLowerCase() !== GITHUB_CONFIG.owner.toLowerCase()) {
           if (DOM.unlockError) DOM.unlockError.classList.remove('hidden');
           return;
         }
@@ -3531,7 +3531,7 @@
       updatedAt: Date.now(),
       createdAt: id ? (state.vaultItems.find(i => i.id === id)?.createdAt || Date.now()) : Date.now(),
       passwordUpdatedAt: id ? (state.vaultItems.find(i => i.id === id)?.passwordUpdatedAt || Date.now()) : Date.now(),
-      passwordHistory: id ? (state.vaultItems.find(i => i.id === id)?.passwordHistory || []) : []
+      passwordHistory: id ? [...(state.vaultItems.find(i => i.id === id)?.passwordHistory || [])] : []
     };
 
     if (id) {
@@ -3835,7 +3835,7 @@
     if (!DOM.viewSec) return;
     const container = DOM.viewSec.querySelector('#security-audit-container');
     if (!container) return;
-    const all = state.vaultItems;
+    const all = state.vaultItems ? state.vaultItems.filter(i => !i.deleted && !i.archived) : [];
 
     let weakItems = [];
     let reusedMap = {};
