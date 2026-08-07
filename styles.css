@@ -415,78 +415,34 @@ body {
 
 
 .sidebar-brand {
-
   padding: 1rem 1rem;
-
   display: flex;
-
   align-items: center;
-
-  gap: 0.5rem;
-
+  gap: 0.65rem;
   border-bottom: 1px solid var(--border-color);
-
   position: relative;
-
 }
 
-
-
 .brand-icon-small {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: var(--bg-hover);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #06b6d4;
-  font-size: 0.9rem;
-
-  box-shadow: none;
-
+  font-size: 0.95rem;
+  flex-shrink: 0;
 }
-
-
-
-.brand-text {
-
-  display: flex;
-
-  flex-direction: column;
-
-  flex: 1; /* Push close button to the right */
-
-}
-
-
 
 .brand-name {
-
-  font-weight: 800;
-
-  font-size: 1.25rem;
-
-  color: var(--text-main);
-
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #ffffff;
   letter-spacing: -0.01em;
-
-}
-
-
-
-.brand-status {
-
-  font-size: 0.72rem;
-
-  color: var(--text-muted);
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 0.4rem;
-
+  flex: 1;
 }
 
 
