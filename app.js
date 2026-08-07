@@ -2348,7 +2348,7 @@
         <span style="flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88rem;">${escapeHtml(cat.name)}</span>
         <div class="cat-dropdown-wrapper">
           <button type="button" class="btn-icon btn-cat-menu" title="Category Options">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
+            <i class="fa-solid fa-ellipsis"></i>
           </button>
           <div class="cat-dropdown-menu card-dropdown-menu hidden">
             <button type="button" class="dropdown-item btn-cat-edit" data-id="${escapeHtml(cat.id)}">
