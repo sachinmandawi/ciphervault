@@ -470,33 +470,20 @@ body {
 
 
 .sidebar-section {
-
-  padding: 1.25rem 1rem 0.5rem 1rem;
-
+  padding: 0.85rem 1rem 0.2rem 1rem;
 }
-
-
 
 .sidebar-label {
-
   font-size: 0.7rem;
-
   font-weight: 700;
-
   color: var(--text-dim);
-
   letter-spacing: 0.08em;
-
-  padding: 0 0.75rem 0.5rem 0.75rem;
-
+  padding: 0 0.75rem 0.35rem 0.75rem;
   display: block;
-
 }
 
-
-
 .section-header-collapsible {
-  padding: 0 0.75rem 0.5rem 0.75rem;
+  padding: 0 0.75rem 0.35rem 0.75rem;
   cursor: pointer;
   user-select: none;
   display: flex;
