@@ -1789,6 +1789,10 @@
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>Edit Item</span>
               </button>
+              <button type="button" class="dropdown-item btn-move-item">
+                <i class="fa-solid fa-folder-arrow-right"></i>
+                <span>Move to...</span>
+              </button>
               <button type="button" class="dropdown-item btn-share">
                 <i class="fa-solid fa-share-nodes"></i>
                 <span>Share Securely</span>
@@ -1928,6 +1932,15 @@
         e.stopPropagation();
         if (menuDropdown) menuDropdown.classList.add('hidden');
         openEditModal(item.id);
+      });
+    }
+
+    const btnMoveItem = card.querySelector('.btn-move-item');
+    if (btnMoveItem) {
+      btnMoveItem.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        openMoveModal(item.id);
       });
     }
 
@@ -2575,6 +2588,121 @@
       modal.classList.add('hidden');
       modal.classList.remove('active');
     }
+  }
+
+  // --- NOTION MOVE ITEM TO CATEGORY FUNCTIONS ---
+  function openMoveModal(itemId) {
+    const modal = document.getElementById('modal-move-overlay');
+    const idInput = document.getElementById('move-item-id-input');
+    const searchInput = document.getElementById('move-search-input');
+
+    const item = state.vaultItems.find(i => String(i.id) === String(itemId));
+    if (!item) return;
+
+    if (idInput) idInput.value = item.id;
+    if (searchInput) searchInput.value = '';
+
+    renderMoveCategoriesList(item);
+
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('active');
+    }
+  }
+
+  function closeMoveModal() {
+    const modal = document.getElementById('modal-move-overlay');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('active');
+    }
+  }
+
+  function renderMoveCategoriesList(item, filterQuery = '') {
+    const container = document.getElementById('move-categories-list');
+    if (!container || !item) return;
+
+    const query = filterQuery.trim().toLowerCase();
+
+    // Built-in Work categories
+    const builtInWork = [
+      { id: 'login', name: 'Logins', icon: 'fa-key', color: '#8b5cf6' },
+      { id: 'card', name: 'Debit Cards', icon: 'fa-credit-card', color: '#10b981' },
+      { id: 'bank', name: 'Bank Accounts', icon: 'fa-building-columns', color: '#06b6d4' },
+      { id: 'note', name: 'Secure Notes', icon: 'fa-note-sticky', color: '#f59e0b' }
+    ];
+
+    // Custom categories
+    const customCats = state.customCategories || [];
+
+    const filteredWork = builtInWork.filter(c => !query || c.name.toLowerCase().includes(query));
+    const filteredPrivate = customCats.filter(c => !query || c.name.toLowerCase().includes(query));
+
+    let html = '';
+
+    if (filteredWork.length > 0) {
+      html += `<div style="font-size: 0.68rem; font-weight: 700; color: var(--text-dim); letter-spacing: 0.08em; padding: 0.35rem 0.5rem 0.15rem 0.5rem;">WORK CATEGORIES</div>`;
+      filteredWork.forEach(cat => {
+        const isCurrent = (item.type === cat.id);
+        html += `
+          <button type="button" class="move-cat-option-btn ${isCurrent ? 'active' : ''}" data-cat-id="${cat.id}">
+            <div style="display:flex; align-items:center; gap:0.65rem;">
+              <i class="fa-solid ${cat.icon}" style="color:${cat.color}; font-size:0.95rem;"></i>
+              <span>${escapeHtml(cat.name)}</span>
+            </div>
+            ${isCurrent ? '<i class="fa-solid fa-check" style="color:var(--accent-purple); font-size:0.85rem;"></i>' : ''}
+          </button>
+        `;
+      });
+    }
+
+    if (filteredPrivate.length > 0) {
+      html += `<div style="font-size: 0.68rem; font-weight: 700; color: var(--text-dim); letter-spacing: 0.08em; padding: 0.6rem 0.5rem 0.15rem 0.5rem;">PRIVATE CATEGORIES</div>`;
+      filteredPrivate.forEach(cat => {
+        const isCurrent = (item.type === cat.id);
+        html += `
+          <button type="button" class="move-cat-option-btn ${isCurrent ? 'active' : ''}" data-cat-id="${cat.id}">
+            <div style="display:flex; align-items:center; gap:0.65rem;">
+              <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.95rem;"></i>
+              <span>${escapeHtml(cat.name)}</span>
+            </div>
+            ${isCurrent ? '<i class="fa-solid fa-check" style="color:var(--accent-purple); font-size:0.85rem;"></i>' : ''}
+          </button>
+        `;
+      });
+    }
+
+    if (!html) {
+      html = `<div style="padding: 1.5rem; text-align: center; color: var(--text-dim); font-size: 0.82rem;">No matching categories found</div>`;
+    }
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('.move-cat-option-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const targetCatId = btn.dataset.catId;
+        if (targetCatId === item.type) {
+          closeMoveModal();
+          return;
+        }
+
+        let targetName = targetCatId;
+        const foundBuiltIn = builtInWork.find(c => c.id === targetCatId);
+        if (foundBuiltIn) targetName = foundBuiltIn.name;
+        const foundCustom = customCats.find(c => c.id === targetCatId);
+        if (foundCustom) targetName = foundCustom.name;
+
+        item.type = targetCatId;
+        item.updatedAt = new Date().toISOString();
+
+        closeMoveModal();
+        showToast(`Moved "${item.title}" to ${targetName}`, 'success');
+
+        renderVault();
+        updateCountsAndStats();
+        await saveVaultToGitHub();
+      });
+    });
   }
 
   async function handleCreateCategory(e) {
@@ -3570,6 +3698,25 @@
         if (popover) popover.classList.add('hidden');
       }
     });
+
+    const btnCloseMoveModal = document.getElementById('btn-close-move-modal');
+    if (btnCloseMoveModal) btnCloseMoveModal.addEventListener('click', closeMoveModal);
+
+    const moveSearchInput = document.getElementById('move-search-input');
+    if (moveSearchInput) {
+      moveSearchInput.addEventListener('input', (e) => {
+        const itemId = document.getElementById('move-item-id-input')?.value;
+        const item = state.vaultItems.find(i => String(i.id) === String(itemId));
+        if (item) renderMoveCategoriesList(item, e.target.value);
+      });
+    }
+
+    const modalMoveOverlay = document.getElementById('modal-move-overlay');
+    if (modalMoveOverlay) {
+      modalMoveOverlay.addEventListener('click', (e) => {
+        if (e.target === modalMoveOverlay) closeMoveModal();
+      });
+    }
 
     setupCollapsibleHeaders();
 

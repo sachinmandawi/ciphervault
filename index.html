@@ -966,6 +966,34 @@
     </div>
   </div>
 
+  <!-- NOTION MOVE ITEM TO CATEGORY MODAL OVERLAY -->
+  <div id="modal-move-overlay" class="modal-overlay hidden" style="z-index: 10015;">
+    <div class="auth-card glass-panel" style="max-width: 420px; padding: 1.75rem; background:#181926; border:1px solid rgba(255,255,255,0.18); box-shadow:0 16px 40px rgba(0,0,0,0.85);">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1.25rem;">
+        <h3 style="margin:0; font-size:1.2rem; color:#fff; font-weight:700; display:flex; align-items:center; gap:0.6rem;">
+          <i class="fa-solid fa-folder-arrow-right" style="color:var(--accent-purple);"></i>
+          <span>Move item to...</span>
+        </h3>
+        <button type="button" id="btn-close-move-modal" class="btn-icon" style="opacity:0.7;" title="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="move-item-id-input" value="">
+
+      <!-- Search Category Input -->
+      <div style="display:flex; align-items:center; gap:0.5rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:0.4rem 0.7rem; margin-bottom:1rem;">
+        <i class="fa-solid fa-magnifying-glass" style="font-size:0.8rem; color:var(--text-dim);"></i>
+        <input type="text" id="move-search-input" placeholder="Move item to..." style="background:transparent; border:none; color:var(--text-main); font-size:0.85rem; outline:none; width:100%; font-family:inherit;">
+      </div>
+
+      <!-- Categories List Container -->
+      <div id="move-categories-list" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.25rem; padding-right: 0.2rem;">
+        <!-- Dynamic Category Options Rendered Here -->
+      </div>
+    </div>
+  </div>
+
   <!-- CREATE CUSTOM CATEGORY MODAL OVERLAY -->
   <div id="modal-category-overlay" class="modal-overlay hidden" style="z-index: 10005;">
     <div class="auth-card glass-panel" style="max-width: 440px; padding: 2rem;">
