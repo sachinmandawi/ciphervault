@@ -483,6 +483,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  line-height: 1;
 }
 
 .section-header-collapsible {
@@ -492,6 +493,31 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 22px;
+  box-sizing: border-box;
+}
+
+#btn-add-category {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.2s, color 0.2s;
+  line-height: 1;
+}
+
+#btn-add-category:hover {
+  opacity: 1;
+  color: var(--text-main);
 }
 
 .section-header-collapsible .section-arrow {
