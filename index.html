@@ -978,72 +978,62 @@
     </div>
   </div>
 
-  <!-- CREATE CUSTOM CATEGORY MODAL OVERLAY -->
-  <div id="modal-category-overlay" class="modal-overlay hidden" style="z-index: 10005;">
-    <div class="auth-card glass-panel" style="max-width: 440px; padding: 2rem;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1.5rem;">
-        <h3 style="margin:0; font-size:1.3rem; color:#fff; font-weight:700; display:flex; align-items:center; gap:0.6rem;">
-          <i class="fa-solid fa-folder-plus" style="color:var(--accent-purple);"></i>
-          <span id="modal-cat-title-text">Create Category</span>
-        </h3>
-        <button type="button" id="btn-close-cat-modal" class="btn-icon" style="opacity:0.7;" title="Close">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+  <!-- INLINE CREATE CUSTOM CATEGORY FLYOUT PANEL -->
+  <div id="inline-create-category-panel" class="card-dropdown-menu hidden" style="position:fixed; width: 210px; padding: 0.35rem; z-index: 100000; background: #181926; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.85);">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding: 0.15rem 0.2rem 0.35rem 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.4rem;">
+      <h4 style="margin:0; font-size:0.82rem; color:#fff; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
+        <i class="fa-solid fa-folder-plus" style="color:var(--accent-purple); font-size:0.85rem;"></i>
+        <span>Create Category</span>
+      </h4>
+      <button type="button" id="btn-close-inline-create-cat" class="btn-icon" style="opacity:0.7; width:18px; height:18px; font-size:0.7rem;" title="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form id="inline-create-category-form" style="margin:0;">
+      <!-- Category Name Input -->
+      <div style="margin-bottom:0.4rem;">
+        <input type="text" id="inline-create-cat-name" required placeholder="Category Name" style="width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:5px; padding:0.25rem 0.45rem; color:var(--text-main); font-size:0.78rem; outline:none; height:26px; box-sizing:border-box; font-family:inherit;">
       </div>
 
-      <form id="category-form">
-        <input type="hidden" id="cat-id-input" value="">
-        <div class="form-group mb-3">
-          <label for="cat-name-input">Category Name</label>
-          <input type="text" id="cat-name-input" required placeholder="e.g. Work, Gaming, Crypto..." autocomplete="off">
-        </div>
+      <!-- Choose Icon Button & Popover Grid -->
+      <div style="position:relative; margin-bottom:0.4rem;">
+        <input type="hidden" id="inline-create-cat-icon" value="fa-folder">
+        <button type="button" id="inline-create-icon-btn" style="width:100%; display:flex; align-items:center; justify-content:space-between; padding:0.2rem 0.45rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:5px; color:var(--text-main); font-size:0.78rem; cursor:pointer; font-family:inherit; height:26px; box-sizing:border-box;">
+          <div style="display:flex; align-items:center; gap:0.4rem;">
+            <span id="inline-create-icon-preview"><i class="fa-solid fa-folder" style="color:#8b5cf6; font-size:0.82rem;"></i></span>
+            <span id="inline-create-icon-label" style="font-size:0.75rem; color:var(--text-muted);">Choose Icon</span>
+          </div>
+          <i class="fa-solid fa-chevron-down" style="font-size:0.65rem; color:var(--text-dim);"></i>
+        </button>
 
-        <div class="form-group mb-3" style="position:relative;">
-          <label>Choose Icon</label>
-          <input type="hidden" id="cat-icon-select" value="fa-folder">
-          <button type="button" id="btn-open-icon-picker" style="width:100%; display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0.85rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:var(--text-main); font-size:0.9rem; cursor:pointer; font-family:inherit; transition:border-color 0.2s;">
-            <div style="display:flex; align-items:center; gap:0.65rem;">
-              <span id="selected-icon-preview" style="font-size:1.1rem; width:22px; display:inline-flex; justify-content:center; align-items:center;">
-                <i class="fa-solid fa-folder" style="color:var(--accent-purple);"></i>
-              </span>
-              <span id="selected-icon-label" style="font-weight:500;">Folder</span>
-            </div>
-            <i class="fa-solid fa-chevron-down" style="font-size:0.75rem; color:var(--text-muted);"></i>
-          </button>
-
-          <!-- NOTION VISUAL ICON PICKER POPOVER -->
-          <div id="icon-picker-popover" class="hidden" style="position:absolute; left:0; top:calc(100% + 6px); width:100%; background:#181926; border:1px solid rgba(255,255,255,0.18); border-radius:12px; padding:0.65rem; z-index:10020; box-shadow:0 16px 40px rgba(0,0,0,0.85); max-height:300px; display:flex; flex-direction:column; gap:0.5rem;">
-            <div style="display:flex; align-items:center; gap:0.4rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:6px; padding:0.25rem 0.5rem; height:28px; box-sizing:border-box;">
-              <i class="fa-solid fa-magnifying-glass" style="font-size:0.75rem; color:var(--text-dim);"></i>
-              <input type="text" id="icon-search-input" placeholder="Search 250+ icons..." style="background:transparent; border:none; color:var(--text-main); font-size:0.78rem; outline:none; width:100%; font-family:inherit; height:100%;">
-            </div>
-            <div id="icon-grid-container" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:0.35rem; overflow-y:auto; max-height:220px; padding-right:0.2rem;">
-              <!-- Icons rendered dynamically -->
-            </div>
+        <!-- Mini Icon Picker Popover Grid -->
+        <div id="inline-create-icon-popover" class="hidden" style="position:absolute; left:0; top:calc(100% + 4px); width:100%; background:#181926; border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:0.4rem; z-index:10050; box-shadow:0 12px 30px rgba(0,0,0,0.85); display:flex; flex-direction:column; gap:0.3rem;">
+          <input type="text" id="inline-create-icon-search" placeholder="Search icon..." style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:0.15rem 0.35rem; color:var(--text-main); font-size:0.72rem; outline:none; width:100%; font-family:inherit; height:22px; box-sizing:border-box;">
+          <div id="inline-create-icon-grid" style="display:grid; grid-template-columns: repeat(5, 1fr); gap:0.25rem; overflow-y:auto; max-height:120px; padding-right:0.1rem;">
           </div>
         </div>
+      </div>
 
-        <div class="form-group mb-4">
-          <label>Color Theme</label>
-          <div style="display:flex; gap:0.65rem; align-items:center; margin-top:0.35rem;" id="cat-color-options">
-            <button type="button" class="cat-color-btn active" data-color="#8b5cf6" style="background:#8b5cf6; width:30px; height:30px; border-radius:50%; border:2px solid #fff; cursor:pointer;"></button>
-            <button type="button" class="cat-color-btn" data-color="#10b981" style="background:#10b981; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
-            <button type="button" class="cat-color-btn" data-color="#06b6d4" style="background:#06b6d4; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
-            <button type="button" class="cat-color-btn" data-color="#f59e0b" style="background:#f59e0b; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
-            <button type="button" class="cat-color-btn" data-color="#ef4444" style="background:#ef4444; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
-            <button type="button" class="cat-color-btn" data-color="#ec4899" style="background:#ec4899; width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer;"></button>
-          </div>
-          <input type="hidden" id="cat-color-val" value="#8b5cf6">
+      <!-- Color Selector -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem; padding:0 0.1rem;">
+        <input type="hidden" id="inline-create-cat-color" value="#8b5cf6">
+        <div style="display:flex; gap:0.35rem; align-items:center; width:100%; justify-content:space-between;">
+          <button type="button" class="inline-create-color-dot active" data-color="#8b5cf6" style="background:#8b5cf6; width:18px; height:18px; border-radius:50%; border:2px solid #fff; cursor:pointer; padding:0;"></button>
+          <button type="button" class="inline-create-color-dot" data-color="#10b981" style="background:#10b981; width:18px; height:18px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;"></button>
+          <button type="button" class="inline-create-color-dot" data-color="#06b6d4" style="background:#06b6d4; width:18px; height:18px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;"></button>
+          <button type="button" class="inline-create-color-dot" data-color="#f59e0b" style="background:#f59e0b; width:18px; height:18px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;"></button>
+          <button type="button" class="inline-create-color-dot" data-color="#ef4444" style="background:#ef4444; width:18px; height:18px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;"></button>
+          <button type="button" class="inline-create-color-dot" data-color="#ec4899" style="background:#ec4899; width:18px; height:18px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;"></button>
         </div>
+      </div>
 
-        <div style="display:flex; gap:0.75rem;">
-          <button type="button" id="btn-cancel-cat" class="btn btn-outline flex-1">Cancel</button>
-          <button type="submit" class="btn btn-primary flex-1">
-            <i class="fa-solid fa-check"></i> Create
-          </button>
-        </div>
-      </form>
-    </div>
+      <!-- Action Buttons -->
+      <div style="display:flex; gap:0.4rem; margin-top:0.35rem;">
+        <button type="button" id="btn-cancel-inline-create-cat" style="background:transparent; border:1px solid rgba(255,255,255,0.12); border-radius:5px; color:var(--text-muted); font-size:0.75rem; font-weight:500; padding:0.25rem 0.5rem; cursor:pointer; flex:1; font-family:inherit;">Cancel</button>
+        <button type="submit" class="btn-save-cat-inline" style="flex:1;">Create</button>
+      </div>
+    </form>
   </div>
 
   <!-- TOAST NOTIFICATION CONTAINER -->

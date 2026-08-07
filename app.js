@@ -2586,64 +2586,73 @@
     renderIconPickerGrid();
   }
 
-  // --- CUSTOM CATEGORIES HELPER FUNCTIONS ---
-  function openCategoryModal(catId = null) {
-    const modal = document.getElementById('modal-category-overlay');
-    const titleEl = document.getElementById('modal-cat-title-text');
-    const idInput = document.getElementById('cat-id-input');
-    const nameInput = document.getElementById('cat-name-input');
-    const colorValEl = document.getElementById('cat-color-val');
-    const popover = document.getElementById('icon-picker-popover');
-    const searchInput = document.getElementById('icon-search-input');
+  // --- INLINE CREATE CATEGORY FLYOUT PANEL FUNCTIONS ---
+  function openInlineCreateCategoryPanel() {
+    const panel = document.getElementById('inline-create-category-panel');
+    const btnAddCat = document.getElementById('btn-add-category');
+    const nameInput = document.getElementById('inline-create-cat-name');
+    const popover = document.getElementById('inline-create-icon-popover');
+
+    if (!panel || !btnAddCat) return;
 
     if (popover) popover.classList.add('hidden');
-    if (searchInput) searchInput.value = '';
+    if (nameInput) nameInput.value = '';
 
-    if (catId) {
-      const cat = state.customCategories ? state.customCategories.find(c => c.id === catId) : null;
-      if (cat) {
-        if (titleEl) titleEl.textContent = 'Edit Category';
-        if (idInput) idInput.value = cat.id;
-        if (nameInput) nameInput.value = cat.name;
-        if (colorValEl) colorValEl.value = cat.color || '#8b5cf6';
-        
-        document.querySelectorAll('.cat-color-btn').forEach(btn => {
-          if (btn.dataset.color === (cat.color || '#8b5cf6')) {
-            btn.style.border = '2px solid #ffffff';
-          } else {
-            btn.style.border = '2px solid transparent';
-          }
-        });
+    const rect = btnAddCat.getBoundingClientRect();
+    panel.style.position = 'fixed';
+    panel.style.left = `${rect.right + 10}px`;
 
-        selectCategoryIcon(cat.icon || 'fa-folder');
-      }
-    } else {
-      if (titleEl) titleEl.textContent = 'Create Category';
-      if (idInput) idInput.value = '';
-      if (nameInput) nameInput.value = '';
-      if (colorValEl) colorValEl.value = '#8b5cf6';
-      
-      document.querySelectorAll('.cat-color-btn').forEach((btn, idx) => {
-        btn.style.border = idx === 0 ? '2px solid #ffffff' : '2px solid transparent';
-      });
-
-      selectCategoryIcon('fa-briefcase');
+    let top = rect.top - 5;
+    const height = 210;
+    if (top + height > window.innerHeight - 15) {
+      top = window.innerHeight - height - 15;
     }
+    if (top < 10) top = 10;
+    panel.style.top = `${top}px`;
+    panel.style.zIndex = '100000';
 
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.classList.add('active');
-    }
+    panel.classList.remove('hidden');
+    if (nameInput) setTimeout(() => nameInput.focus(), 50);
   }
 
-  function closeCategoryModal() {
-    const modal = document.getElementById('modal-category-overlay');
-    const popover = document.getElementById('icon-picker-popover');
+  function closeInlineCreateCategoryPanel() {
+    const panel = document.getElementById('inline-create-category-panel');
+    const popover = document.getElementById('inline-create-icon-popover');
     if (popover) popover.classList.add('hidden');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('active');
+    if (panel) panel.classList.add('hidden');
+  }
+
+  async function handleInlineCreateCategory(e) {
+    e.preventDefault();
+    const nameInput = document.getElementById('inline-create-cat-name');
+    const iconInput = document.getElementById('inline-create-cat-icon');
+    const colorInput = document.getElementById('inline-create-cat-color');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const icon = iconInput ? iconInput.value : 'fa-folder';
+    const color = colorInput ? colorInput.value : '#8b5cf6';
+
+    if (!name) {
+      showToast('Please enter a category name', 'error');
+      return;
     }
+
+    if (!state.customCategories) state.customCategories = [];
+
+    const newCat = {
+      id: 'cat_' + Date.now(),
+      name,
+      icon,
+      color,
+      createdAt: new Date().toISOString()
+    };
+
+    state.customCategories.push(newCat);
+    closeInlineCreateCategoryPanel();
+
+    showToast(`Category "${name}" created!`, 'success');
+    renderVault();
+    await saveVaultToGitHub();
   }
 
   // --- INLINE NOTION MOVE TO SUBMENU FUNCTION ---
@@ -3961,6 +3970,9 @@
           m.classList.add('hidden');
         });
       }
+      if (!e.target.closest('#btn-add-category') && !e.target.closest('#inline-create-category-panel')) {
+        closeInlineCreateCategoryPanel();
+      }
       if (!e.target.closest('#btn-open-icon-picker') && !e.target.closest('#icon-picker-popover')) {
         const popover = document.getElementById('icon-picker-popover');
         if (popover) popover.classList.add('hidden');
@@ -4002,27 +4014,103 @@
     if (DOM.btnDangerWipe) DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
 
     const btnAddCat = document.getElementById('btn-add-category');
-    if (btnAddCat) btnAddCat.addEventListener('click', openCategoryModal);
+    if (btnAddCat) {
+      btnAddCat.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openInlineCreateCategoryPanel();
+      });
+    }
 
-    const btnCloseCat = document.getElementById('btn-close-cat-modal');
-    if (btnCloseCat) btnCloseCat.addEventListener('click', closeCategoryModal);
+    const inlineCreatePanel = document.getElementById('inline-create-category-panel');
+    if (inlineCreatePanel) {
+      inlineCreatePanel.addEventListener('click', (e) => e.stopPropagation());
+    }
 
-    const btnCancelCat = document.getElementById('btn-cancel-cat');
-    if (btnCancelCat) btnCancelCat.addEventListener('click', closeCategoryModal);
+    const btnCloseInlineCreateCat = document.getElementById('btn-close-inline-create-cat');
+    if (btnCloseInlineCreateCat) btnCloseInlineCreateCat.addEventListener('click', closeInlineCreateCategoryPanel);
 
-    const catForm = document.getElementById('category-form');
-    if (catForm) catForm.addEventListener('submit', handleCreateCategory);
+    const btnCancelInlineCreateCat = document.getElementById('btn-cancel-inline-create-cat');
+    if (btnCancelInlineCreateCat) btnCancelInlineCreateCat.addEventListener('click', closeInlineCreateCategoryPanel);
 
-    document.querySelectorAll('.cat-color-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.cat-color-btn').forEach(b => {
-          b.style.border = '2px solid transparent';
-        });
-        btn.style.border = '2px solid #ffffff';
-        const colorValEl = document.getElementById('cat-color-val');
-        if (colorValEl) colorValEl.value = btn.dataset.color;
+    const inlineCreateCatForm = document.getElementById('inline-create-category-form');
+    if (inlineCreateCatForm) inlineCreateCatForm.addEventListener('submit', handleInlineCreateCategory);
+
+    // Color dots for inline create
+    document.querySelectorAll('.inline-create-color-dot').forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.inline-create-color-dot').forEach(d => d.style.border = '2px solid transparent');
+        dot.style.border = '2px solid #ffffff';
+        const colorInput = document.getElementById('inline-create-cat-color');
+        if (colorInput) colorInput.value = dot.dataset.color;
+
+        const previewEl = document.getElementById('inline-create-icon-preview');
+        const iconInput = document.getElementById('inline-create-cat-icon');
+        const curIcon = iconInput ? iconInput.value : 'fa-folder';
+        if (previewEl) previewEl.innerHTML = `<i class="fa-solid ${curIcon}" style="color:${dot.dataset.color}; font-size:0.82rem;"></i>`;
       });
     });
+
+    // Icon picker for inline create
+    const inlineCreateIconBtn = document.getElementById('inline-create-icon-btn');
+    const inlineCreateIconPopover = document.getElementById('inline-create-icon-popover');
+    const inlineCreateIconSearch = document.getElementById('inline-create-icon-search');
+    const inlineCreateIconGrid = document.getElementById('inline-create-icon-grid');
+
+    const renderInlineCreateIconGrid = (query = '') => {
+      if (!inlineCreateIconGrid) return;
+      const q = query.trim().toLowerCase();
+      const filtered = CATEGORY_ICONS.filter(i => !q || i.name.toLowerCase().includes(q) || i.tags.toLowerCase().includes(q));
+      const iconInput = document.getElementById('inline-create-cat-icon');
+      const currentIcon = iconInput ? iconInput.value : 'fa-folder';
+
+      inlineCreateIconGrid.innerHTML = filtered.map(i => `
+        <button type="button" class="icon-picker-btn ${i.id === currentIcon ? 'active' : ''}" data-icon-id="${i.id}" style="width:24px; height:24px; font-size:0.75rem; border-radius:4px; padding:0;" title="${escapeHtml(i.name)}">
+          <i class="fa-solid ${i.id}"></i>
+        </button>
+      `).join('');
+
+      inlineCreateIconGrid.querySelectorAll('.icon-picker-btn').forEach(b => {
+        b.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const chosenId = b.dataset.iconId;
+          if (iconInput) iconInput.value = chosenId;
+          const colorInput = document.getElementById('inline-create-cat-color');
+          const curColor = colorInput ? colorInput.value : '#8b5cf6';
+          const previewEl = document.getElementById('inline-create-icon-preview');
+          if (previewEl) previewEl.innerHTML = `<i class="fa-solid ${chosenId}" style="color:${curColor}; font-size:0.82rem;"></i>`;
+          if (inlineCreateIconPopover) inlineCreateIconPopover.classList.add('hidden');
+        });
+      });
+    };
+
+    if (inlineCreateIconBtn && inlineCreateIconPopover) {
+      inlineCreateIconBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = inlineCreateIconPopover.classList.contains('hidden');
+        if (isHidden) {
+          renderInlineCreateIconGrid();
+          inlineCreateIconPopover.classList.remove('hidden');
+          if (inlineCreateIconSearch) {
+            inlineCreateIconSearch.value = '';
+            setTimeout(() => inlineCreateIconSearch.focus(), 50);
+          }
+        } else {
+          inlineCreateIconPopover.classList.add('hidden');
+        }
+      });
+    }
+
+    if (inlineCreateIconSearch) {
+      inlineCreateIconSearch.addEventListener('input', (e) => {
+        renderInlineCreateIconGrid(e.target.value);
+      });
+      inlineCreateIconSearch.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    if (inlineCreateIconPopover) {
+      inlineCreateIconPopover.addEventListener('click', (e) => e.stopPropagation());
+    }
 
     const btnAddTagAction = document.getElementById('btn-add-label-action');
     if (btnAddTagAction) btnAddTagAction.addEventListener('click', handleAddNewLabel);
