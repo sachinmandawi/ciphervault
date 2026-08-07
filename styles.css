@@ -1523,7 +1523,7 @@ select option,
   cursor: pointer !important;
   font-family: inherit !important;
   transition: all 0.15s ease !important;
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4) !important;
+  box-shadow: none !important;
   display: block !important;
   text-align: center !important;
 }
@@ -1531,7 +1531,7 @@ select option,
 .btn-save-cat-inline:hover {
   background: #7c3aed !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.6) !important;
+  box-shadow: none !important;
 }
 
 .dropdown-item {
