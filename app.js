@@ -1575,8 +1575,12 @@
       
       // Desktop HTML5 Drag & Drop
       card.addEventListener('dragstart', (e) => {
+        if (e.target.closest('button, a, input, select, .card-dropdown-wrapper')) {
+          e.preventDefault();
+          return;
+        }
         card.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', item.id);
+        e.dataTransfer.setData('text/plain', String(item.id));
         e.dataTransfer.effectAllowed = 'move';
       });
       
@@ -1587,18 +1591,20 @@
       
       card.addEventListener('dragover', (e) => {
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
         card.classList.add('drag-over');
       });
       
-      card.addEventListener('dragleave', () => {
-        card.classList.remove('drag-over');
+      card.addEventListener('dragleave', (e) => {
+        if (!card.contains(e.relatedTarget)) {
+          card.classList.remove('drag-over');
+        }
       });
       
       card.addEventListener('drop', (e) => {
         e.preventDefault();
         card.classList.remove('drag-over');
-        const draggedId = e.dataTransfer.getData('text/plain');
+        const draggedId = e.dataTransfer ? e.dataTransfer.getData('text/plain') : '';
         if (draggedId && draggedId !== String(item.id)) {
           handleDropReorder(draggedId, String(item.id));
         }
