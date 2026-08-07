@@ -569,12 +569,14 @@ body {
   align-items: center;
   gap: 0.6rem;
   padding: 0.35rem 0.6rem;
+  height: 32px;
+  box-sizing: border-box;
   border-radius: 4px;
   color: var(--text-muted);
   background: transparent;
   border: none;
   font-size: 0.875rem;
-  font-weight: 500; /* Inter 500 is medium, not too thick */
+  font-weight: 500;
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -582,58 +584,33 @@ body {
   outline: none;
 }
 
-
-
 .nav-item i {
-
   font-size: 1.1rem;
-
   width: 20px;
-
   text-align: center;
-
   color: var(--text-dim);
-
   transition: color var(--transition-fast);
-
 }
-
-
 
 .nav-item:hover {
-
   background: var(--bg-hover);
-
   color: var(--text-main);
-
 }
-
-
 
 .nav-item:hover i {
-
   color: var(--accent-purple);
-
 }
-
-
 
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.05); /* very faint active background */
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-main);
-  font-weight: 600; /* Semi-bold for active */
-  border: none; /* Notion active items have no border */
+  font-weight: 600;
+  border: none;
 }
-
-
 
 .nav-item.active i {
-
   color: var(--accent-purple);
-
 }
-
-
 
 .nav-item .badge {
   margin-left: auto;
@@ -658,14 +635,14 @@ body {
 }
 
 .btn-cat-menu {
-  width: 28px;
-  height: 28px;
-  font-size: 0.85rem;
+  width: 22px;
+  height: 22px;
+  font-size: 0.8rem;
   color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 4px;
   background: transparent;
   border: none;
   cursor: pointer;
