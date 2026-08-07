@@ -1630,7 +1630,7 @@
 
         touchTimer = setTimeout(() => {
           touchDragged = true;
-          card.classList.add('dragging-touch');
+          card.classList.add('dragging');
           if (navigator.vibrate) navigator.vibrate(30);
         }, 140);
       }, { passive: true });
@@ -1665,7 +1665,6 @@
       card.addEventListener('touchend', () => {
         clearTimeout(touchTimer);
         if (touchDragged) {
-          card.classList.remove('dragging-touch');
           card.classList.remove('dragging');
           document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
 
@@ -1682,7 +1681,6 @@
 
       card.addEventListener('touchcancel', () => {
         clearTimeout(touchTimer);
-        card.classList.remove('dragging-touch');
         card.classList.remove('dragging');
         document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
         touchDragged = false;
