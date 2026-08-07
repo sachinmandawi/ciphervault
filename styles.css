@@ -1423,6 +1423,43 @@ select option,
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
+/* Notion Visual Icon Picker */
+#icon-grid-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+#icon-grid-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.icon-picker-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.icon-picker-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  transform: scale(1.08);
+}
+
+.icon-picker-btn.active {
+  border-color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.2);
+  color: #fff;
+}
+
 .dropdown-item {
   display: flex;
   align-items: center;

@@ -986,19 +986,29 @@
           <input type="text" id="cat-name-input" required placeholder="e.g. Work, Gaming, Crypto..." autocomplete="off">
         </div>
 
-        <div class="form-group mb-3">
-          <label for="cat-icon-select">Choose Icon</label>
-          <select id="cat-icon-select" class="form-select">
-            <option value="fa-briefcase">💼 Work / Office</option>
-            <option value="fa-gamepad">🎮 Gaming</option>
-            <option value="fa-coins">🪙 Crypto / Finance</option>
-            <option value="fa-plane">✈️ Travel</option>
-            <option value="fa-cart-shopping">🛒 Shopping</option>
-            <option value="fa-key">🔑 API / Keys</option>
-            <option value="fa-id-card">🆔 Identity / Docs</option>
-            <option value="fa-heart">❤️ Personal</option>
-            <option value="fa-folder">📁 General Folder</option>
-          </select>
+        <div class="form-group mb-3" style="position:relative;">
+          <label>Choose Icon</label>
+          <input type="hidden" id="cat-icon-select" value="fa-folder">
+          <button type="button" id="btn-open-icon-picker" style="width:100%; display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0.85rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:var(--text-main); font-size:0.9rem; cursor:pointer; font-family:inherit; transition:border-color 0.2s;">
+            <div style="display:flex; align-items:center; gap:0.65rem;">
+              <span id="selected-icon-preview" style="font-size:1.1rem; width:22px; display:inline-flex; justify-content:center; align-items:center;">
+                <i class="fa-solid fa-folder" style="color:var(--accent-purple);"></i>
+              </span>
+              <span id="selected-icon-label" style="font-weight:500;">Folder</span>
+            </div>
+            <i class="fa-solid fa-chevron-down" style="font-size:0.75rem; color:var(--text-muted);"></i>
+          </button>
+
+          <!-- NOTION VISUAL ICON PICKER POPOVER -->
+          <div id="icon-picker-popover" class="hidden" style="position:absolute; left:0; top:calc(100% + 6px); width:100%; background:rgba(22,24,35,0.98); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:0.85rem; z-index:10010; box-shadow:0 12px 32px rgba(0,0,0,0.7); max-height:280px; display:flex; flex-direction:column; gap:0.6rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0.35rem 0.6rem;">
+              <i class="fa-solid fa-magnifying-glass" style="font-size:0.8rem; color:var(--text-dim);"></i>
+              <input type="text" id="icon-search-input" placeholder="Search 45+ icons (e.g. work, code, crypto)..." style="background:transparent; border:none; color:var(--text-main); font-size:0.82rem; outline:none; width:100%; font-family:inherit;">
+            </div>
+            <div id="icon-grid-container" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:0.4rem; overflow-y:auto; max-height:200px; padding-right:0.2rem;">
+              <!-- Icons rendered dynamically -->
+            </div>
+          </div>
         </div>
 
         <div class="form-group mb-4">

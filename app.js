@@ -2207,14 +2207,122 @@
     renderCustomCategoriesSidebar();
   }
 
+  // --- NOTION VISUAL ICON PICKER DATASET & FUNCTIONS ---
+  const CATEGORY_ICONS = [
+    { id: 'fa-folder', name: 'Folder', tags: 'general file directory' },
+    { id: 'fa-briefcase', name: 'Work', tags: 'office job business' },
+    { id: 'fa-laptop-code', name: 'Code', tags: 'dev devops programming script' },
+    { id: 'fa-gamepad', name: 'Gaming', tags: 'game steam play console' },
+    { id: 'fa-coins', name: 'Crypto', tags: 'bitcoin token finance money' },
+    { id: 'fa-wallet', name: 'Wallet', tags: 'pay money card finance' },
+    { id: 'fa-credit-card', name: 'Card', tags: 'debit credit bank' },
+    { id: 'fa-building-columns', name: 'Bank', tags: 'vault account finance' },
+    { id: 'fa-shield-halved', name: 'Security', tags: '2fa auth lock protection' },
+    { id: 'fa-key', name: 'Keys', tags: 'password api secret' },
+    { id: 'fa-lock', name: 'Lock', tags: 'private secure vault' },
+    { id: 'fa-user-shield', name: 'Account', tags: 'identity profile user' },
+    { id: 'fa-terminal', name: 'Terminal', tags: 'cli bash dev server' },
+    { id: 'fa-server', name: 'Server', tags: 'infra cloud hosting node' },
+    { id: 'fa-cloud', name: 'Cloud', tags: 'aws gcp storage drive' },
+    { id: 'fa-database', name: 'Database', tags: 'sql mongo redis data' },
+    { id: 'fa-globe', name: 'Web', tags: 'domain website url internet' },
+    { id: 'fa-mobile-screen', name: 'Mobile', tags: 'phone app android ios' },
+    { id: 'fa-plane', name: 'Travel', tags: 'flight hotel vacation trip' },
+    { id: 'fa-cart-shopping', name: 'Shopping', tags: 'store buy amazon shop' },
+    { id: 'fa-heart', name: 'Personal', tags: 'love favorite health me' },
+    { id: 'fa-star', name: 'Starred', tags: 'pin favorite top' },
+    { id: 'fa-rocket', name: 'Rocket', tags: 'launch startup fast' },
+    { id: 'fa-lightbulb', name: 'Ideas', tags: 'note thought brain' },
+    { id: 'fa-box-archive', name: 'Archive', tags: 'file storage zip' },
+    { id: 'fa-file-lines', name: 'Docs', tags: 'note paper pdf text' },
+    { id: 'fa-bookmark', name: 'Bookmark', tags: 'save link reading' },
+    { id: 'fa-tag', name: 'Tag', tags: 'label category mark' },
+    { id: 'fa-bell', name: 'Alerts', tags: 'notification reminder' },
+    { id: 'fa-music', name: 'Music', tags: 'spotify audio song' },
+    { id: 'fa-video', name: 'Video', tags: 'youtube netflix media' },
+    { id: 'fa-envelope', name: 'Mail', tags: 'email gmail outlook' },
+    { id: 'fa-mug-hot', name: 'Coffee', tags: 'daily cafe break' },
+    { id: 'fa-bolt', name: 'Zap', tags: 'fast energy power' },
+    { id: 'fa-compass', name: 'Explore', tags: 'map navigate location' },
+    { id: 'fa-graduation-cap', name: 'Study', tags: 'school course learn' },
+    { id: 'fa-hospital', name: 'Medical', tags: 'health doctor insurance' },
+    { id: 'fa-car', name: 'Vehicle', tags: 'auto drive transport' },
+    { id: 'fa-house', name: 'Home', tags: 'family house property' },
+    { id: 'fa-film', name: 'Movies', tags: 'cinema tv stream' },
+    { id: 'fa-camera', name: 'Photos', tags: 'image pic media' },
+    { id: 'fa-diagram-project', name: 'Projects', tags: 'team plan jira' },
+    { id: 'fa-comments', name: 'Chat', tags: 'discord slack social' },
+    { id: 'fa-gear', name: 'Settings', tags: 'tools config system' },
+    { id: 'fa-store', name: 'Business', tags: 'shop vendor merchant' },
+    { id: 'fa-gift', name: 'Rewards', tags: 'present coupon bonus' },
+    { id: 'fa-infinity', name: 'Unlimited', tags: 'forever permanent' }
+  ];
+
+  function renderIconPickerGrid(filterQuery = '') {
+    const grid = document.getElementById('icon-grid-container');
+    const selectedInput = document.getElementById('cat-icon-select');
+    if (!grid) return;
+
+    const query = filterQuery.trim().toLowerCase();
+    const filtered = CATEGORY_ICONS.filter(icon => 
+      !query || icon.name.toLowerCase().includes(query) || icon.tags.toLowerCase().includes(query) || icon.id.toLowerCase().includes(query)
+    );
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div style="grid-column: 1 / -1; padding: 1rem; text-align: center; color: var(--text-dim); font-size: 0.8rem;">No matching icons found</div>`;
+      return;
+    }
+
+    const currentIcon = selectedInput ? selectedInput.value : 'fa-folder';
+
+    grid.innerHTML = filtered.map(icon => `
+      <button type="button" class="icon-picker-btn ${icon.id === currentIcon ? 'active' : ''}" data-icon-id="${icon.id}" title="${escapeHtml(icon.name)}">
+        <i class="fa-solid ${icon.id}"></i>
+      </button>
+    `).join('');
+
+    grid.querySelectorAll('.icon-picker-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectCategoryIcon(btn.dataset.iconId);
+        const popover = document.getElementById('icon-picker-popover');
+        if (popover) popover.classList.add('hidden');
+      });
+    });
+  }
+
+  function selectCategoryIcon(iconId) {
+    const hiddenInput = document.getElementById('cat-icon-select');
+    const previewEl = document.getElementById('selected-icon-preview');
+    const labelEl = document.getElementById('selected-icon-label');
+    const colorValEl = document.getElementById('cat-color-val');
+    const color = colorValEl ? colorValEl.value : '#8b5cf6';
+
+    const iconData = CATEGORY_ICONS.find(i => i.id === iconId) || { id: iconId, name: 'Folder' };
+    if (hiddenInput) hiddenInput.value = iconData.id;
+
+    if (previewEl) {
+      previewEl.innerHTML = `<i class="fa-solid ${iconData.id}" style="color:${color};"></i>`;
+    }
+    if (labelEl) {
+      labelEl.textContent = iconData.name;
+    }
+
+    renderIconPickerGrid();
+  }
+
   // --- CUSTOM CATEGORIES HELPER FUNCTIONS ---
   function openCategoryModal(catId = null) {
     const modal = document.getElementById('modal-category-overlay');
     const titleEl = document.getElementById('modal-cat-title-text');
     const idInput = document.getElementById('cat-id-input');
     const nameInput = document.getElementById('cat-name-input');
-    const iconSelect = document.getElementById('cat-icon-select');
     const colorValEl = document.getElementById('cat-color-val');
+    const popover = document.getElementById('icon-picker-popover');
+    const searchInput = document.getElementById('icon-search-input');
+
+    if (popover) popover.classList.add('hidden');
+    if (searchInput) searchInput.value = '';
 
     if (catId) {
       const cat = state.customCategories ? state.customCategories.find(c => c.id === catId) : null;
@@ -2222,7 +2330,6 @@
         if (titleEl) titleEl.textContent = 'Edit Category';
         if (idInput) idInput.value = cat.id;
         if (nameInput) nameInput.value = cat.name;
-        if (iconSelect) iconSelect.value = cat.icon || 'fa-folder';
         if (colorValEl) colorValEl.value = cat.color || '#8b5cf6';
         
         document.querySelectorAll('.cat-color-btn').forEach(btn => {
@@ -2232,17 +2339,20 @@
             btn.style.border = '2px solid transparent';
           }
         });
+
+        selectCategoryIcon(cat.icon || 'fa-folder');
       }
     } else {
       if (titleEl) titleEl.textContent = 'Create Category';
       if (idInput) idInput.value = '';
       if (nameInput) nameInput.value = '';
-      if (iconSelect) iconSelect.value = 'fa-briefcase';
       if (colorValEl) colorValEl.value = '#8b5cf6';
       
       document.querySelectorAll('.cat-color-btn').forEach((btn, idx) => {
         btn.style.border = idx === 0 ? '2px solid #ffffff' : '2px solid transparent';
       });
+
+      selectCategoryIcon('fa-briefcase');
     }
 
     if (modal) {
@@ -2253,6 +2363,8 @@
 
   function closeCategoryModal() {
     const modal = document.getElementById('modal-category-overlay');
+    const popover = document.getElementById('icon-picker-popover');
+    if (popover) popover.classList.add('hidden');
     if (modal) {
       modal.classList.add('hidden');
       modal.classList.remove('active');
@@ -3202,6 +3314,38 @@
     if (cardStatWeak) cardStatWeak.addEventListener('click', () => { if (DOM.navSec) DOM.navSec.click(); });
 
 
+    const btnOpenIconPicker = document.getElementById('btn-open-icon-picker');
+    const iconPickerPopover = document.getElementById('icon-picker-popover');
+    const iconSearchInput = document.getElementById('icon-search-input');
+
+    if (btnOpenIconPicker && iconPickerPopover) {
+      btnOpenIconPicker.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = iconPickerPopover.classList.contains('hidden');
+        if (isHidden) {
+          renderIconPickerGrid();
+          iconPickerPopover.classList.remove('hidden');
+          if (iconSearchInput) {
+            iconSearchInput.value = '';
+            setTimeout(() => iconSearchInput.focus(), 50);
+          }
+        } else {
+          iconPickerPopover.classList.add('hidden');
+        }
+      });
+    }
+
+    if (iconSearchInput) {
+      iconSearchInput.addEventListener('input', (e) => {
+        renderIconPickerGrid(e.target.value);
+      });
+      iconSearchInput.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    if (iconPickerPopover) {
+      iconPickerPopover.addEventListener('click', (e) => e.stopPropagation());
+    }
+
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.card-dropdown-wrapper')) {
         document.querySelectorAll('.card-dropdown-menu').forEach(m => {
@@ -3214,6 +3358,10 @@
         document.querySelectorAll('.cat-dropdown-menu').forEach(m => {
           m.classList.add('hidden');
         });
+      }
+      if (!e.target.closest('#btn-open-icon-picker') && !e.target.closest('#icon-picker-popover')) {
+        const popover = document.getElementById('icon-picker-popover');
+        if (popover) popover.classList.add('hidden');
       }
     });
 
