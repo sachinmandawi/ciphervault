@@ -407,6 +407,7 @@
     totpTimer: null,
     isSyncBroken: false,
     customCategories: [],
+    selectedItemIds: new Set()
   };
 
   // Auto-resize textareas
@@ -1536,10 +1537,183 @@
     await saveVaultToGitHub();
   }
 
+  // --- HORIZONTAL BULK ACTION TOOLBAR (Option 3) ---
+  function updateBulkActionToolbar() {
+    const toolbar = document.getElementById('bulk-action-toolbar');
+    const countBadge = document.getElementById('bulk-count-badge');
+    const selectAllText = document.getElementById('bulk-select-all-text');
+    const trashText = document.getElementById('bulk-trash-text');
+
+    if (!toolbar) return;
+
+    const count = state.selectedItemIds ? state.selectedItemIds.size : 0;
+    if (count === 0) {
+      toolbar.classList.add('hidden');
+      document.querySelectorAll('.item-card.selected').forEach(c => c.classList.remove('selected'));
+      return;
+    }
+
+    toolbar.classList.remove('hidden');
+    if (countBadge) countBadge.textContent = `${count} Selected`;
+
+    const visibleItems = getFilteredAndSortedItems();
+    const allSelected = visibleItems.length > 0 && visibleItems.every(i => state.selectedItemIds.has(i.id));
+
+    if (selectAllText) {
+      selectAllText.textContent = allSelected ? 'Deselect All' : 'Select All';
+    }
+
+    if (trashText) {
+      trashText.textContent = (state.currentCategory === 'trash') ? 'Delete Forever' : 'Trash';
+    }
+  }
+
+  function setupBulkActionToolbarEvents() {
+    const btnSelectAll = document.getElementById('btn-bulk-select-all');
+    const btnMove = document.getElementById('btn-bulk-move');
+    const moveFlyout = document.getElementById('bulk-move-flyout');
+    const btnPin = document.getElementById('btn-bulk-pin');
+    const btnArchive = document.getElementById('btn-bulk-archive');
+    const btnTrash = document.getElementById('btn-bulk-trash');
+    const btnCancel = document.getElementById('btn-bulk-cancel');
+
+    if (btnCancel) {
+      btnCancel.addEventListener('click', () => {
+        state.selectedItemIds.clear();
+        updateBulkActionToolbar();
+        renderVault();
+      });
+    }
+
+    if (btnSelectAll) {
+      btnSelectAll.addEventListener('click', () => {
+        const visibleItems = getFilteredAndSortedItems();
+        const allSelected = visibleItems.length > 0 && visibleItems.every(i => state.selectedItemIds.has(i.id));
+        if (allSelected) {
+          state.selectedItemIds.clear();
+        } else {
+          visibleItems.forEach(i => state.selectedItemIds.add(i.id));
+        }
+        updateBulkActionToolbar();
+        renderVault();
+      });
+    }
+
+    if (btnPin) {
+      btnPin.addEventListener('click', async () => {
+        if (!state.selectedItemIds || state.selectedItemIds.size === 0) return;
+        const selectedItems = state.vaultItems.filter(i => state.selectedItemIds.has(i.id));
+        const allPinned = selectedItems.every(i => i.favorite);
+        selectedItems.forEach(i => {
+          i.favorite = !allPinned;
+          i.updatedAt = new Date().toISOString();
+        });
+        showToast(allPinned ? 'Items unpinned' : 'Items pinned to top', 'success');
+        state.selectedItemIds.clear();
+        renderVault();
+        await saveVaultToGitHub();
+      });
+    }
+
+    if (btnArchive) {
+      btnArchive.addEventListener('click', async () => {
+        if (!state.selectedItemIds || state.selectedItemIds.size === 0) return;
+        const isArchiveView = state.currentCategory === 'archive';
+        state.vaultItems.forEach(i => {
+          if (state.selectedItemIds.has(i.id)) {
+            i.archived = !isArchiveView;
+            i.updatedAt = new Date().toISOString();
+          }
+        });
+        showToast(isArchiveView ? 'Items unarchived' : 'Items archived', 'success');
+        state.selectedItemIds.clear();
+        renderVault();
+        await saveVaultToGitHub();
+      });
+    }
+
+    if (btnTrash) {
+      btnTrash.addEventListener('click', async () => {
+        if (!state.selectedItemIds || state.selectedItemIds.size === 0) return;
+        const isTrashView = state.currentCategory === 'trash';
+        if (isTrashView) {
+          if (!confirm(`Permanently delete ${state.selectedItemIds.size} item(s)? This cannot be undone.`)) return;
+          state.vaultItems = state.vaultItems.filter(i => !state.selectedItemIds.has(i.id));
+          showToast('Items permanently deleted', 'info');
+        } else {
+          state.vaultItems.forEach(i => {
+            if (state.selectedItemIds.has(i.id)) {
+              i.deleted = true;
+              i.deletedAt = new Date().toISOString();
+            }
+          });
+          showToast('Items moved to Trash', 'success');
+        }
+        state.selectedItemIds.clear();
+        renderVault();
+        await saveVaultToGitHub();
+      });
+    }
+
+    if (btnMove && moveFlyout) {
+      btnMove.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = moveFlyout.classList.contains('hidden');
+        if (!isHidden) {
+          moveFlyout.classList.add('hidden');
+          return;
+        }
+
+        // Render category options
+        const categories = [
+          { id: 'login', name: 'Logins', icon: 'fa-key' },
+          { id: 'card', name: 'Debit / Credit Cards', icon: 'fa-credit-card' },
+          { id: 'bank', name: 'Bank Accounts', icon: 'fa-building-columns' },
+          { id: 'note', name: 'Secure Notes', icon: 'fa-note-sticky' },
+          ...(state.customCategories || [])
+        ];
+
+        moveFlyout.innerHTML = categories.map(cat => `
+          <button type="button" class="bulk-move-item" data-cat="${escapeHtml(cat.id)}">
+            <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${cat.color || 'var(--text-muted)'};"></i>
+            <span>${escapeHtml(cat.name)}</span>
+          </button>
+        `).join('');
+
+        moveFlyout.querySelectorAll('.bulk-move-item').forEach(b => {
+          b.addEventListener('click', async (evt) => {
+            evt.stopPropagation();
+            const targetCat = b.dataset.cat;
+            state.vaultItems.forEach(i => {
+              if (state.selectedItemIds.has(i.id)) {
+                i.type = targetCat;
+                i.updatedAt = new Date().toISOString();
+              }
+            });
+            moveFlyout.classList.add('hidden');
+            showToast(`Moved ${state.selectedItemIds.size} item(s)`, 'success');
+            state.selectedItemIds.clear();
+            renderVault();
+            await saveVaultToGitHub();
+          });
+        });
+
+        moveFlyout.classList.remove('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#btn-bulk-move') && !e.target.closest('#bulk-move-flyout')) {
+          moveFlyout.classList.add('hidden');
+        }
+      });
+    }
+  }
+
   // --- RENDER VAULT ITEMS ---
   async function renderVault() {
     const items = getFilteredAndSortedItems();
     updateCountsAndStats();
+    updateBulkActionToolbar();
 
     if (DOM.vaultStatsGrid) {
       if ((!state.currentCategory || state.currentCategory === 'all') && !state.searchQuery && !state.selectedTag) {
@@ -1602,7 +1776,7 @@
 
   async function createItemCard(item) {
     const card = document.createElement('div');
-    card.className = 'item-card glass-panel';
+    card.className = 'item-card glass-panel' + (state.selectedItemIds.has(item.id) ? ' selected' : '');
     card.dataset.id = item.id;
     
     if (!state.searchQuery) {
@@ -1767,6 +1941,9 @@
 
     card.innerHTML = `
       <div class="item-header">
+        <div class="item-card-checkbox" title="Select Item">
+          <i class="fa-solid fa-check"></i>
+        </div>
         <div class="item-favicon" style="cursor:pointer;" title="Click to View Details">${iconHtml}</div>
         <div class="item-title-block" style="cursor:pointer;" title="Click to View Details">
           <div class="item-title" style="display:flex; align-items:center; gap:0.35rem;">
@@ -1877,6 +2054,21 @@
         ${item.password ? `<span class="strength-text">${Generator.calculateStrength(item.password).text}</span>` : ''}
       </div>
     `;
+
+    const cb = card.querySelector('.item-card-checkbox');
+    if (cb) {
+      cb.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (state.selectedItemIds.has(item.id)) {
+          state.selectedItemIds.delete(item.id);
+          card.classList.remove('selected');
+        } else {
+          state.selectedItemIds.add(item.id);
+          card.classList.add('selected');
+        }
+        updateBulkActionToolbar();
+      });
+    }
 
     card.querySelector('.item-favicon').addEventListener('click', (e) => { 
       e.stopPropagation(); 
@@ -3963,6 +4155,7 @@
     }
 
     setupCollapsibleHeaders();
+    setupBulkActionToolbarEvents();
 
     if (DOM.dangerWipeInput) {
       DOM.dangerWipeInput.addEventListener('input', (e) => {

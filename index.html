@@ -430,6 +430,44 @@
               <span id="items-counter" class="sub-text">0 items found</span>
             </div>
 
+            <!-- HORIZONTAL BULK ACTION TOOLBAR (Option 3 - Between Title & Controls) -->
+            <div id="bulk-action-toolbar" class="bulk-action-toolbar hidden">
+              <span id="bulk-count-badge" class="bulk-count-badge">0 Selected</span>
+              
+              <button type="button" id="btn-bulk-select-all" class="bulk-btn" title="Select All / Deselect All">
+                <i class="fa-regular fa-square-check"></i>
+                <span id="bulk-select-all-text">Select All</span>
+              </button>
+
+              <div class="bulk-dropdown-wrapper" style="position:relative;">
+                <button type="button" id="btn-bulk-move" class="bulk-btn" title="Move Selected to Category">
+                  <i class="fa-solid fa-folder-tree"></i>
+                  <span>Move</span>
+                  <i class="fa-solid fa-chevron-down" style="font-size:0.65rem; margin-left:0.15rem;"></i>
+                </button>
+                <div id="bulk-move-flyout" class="bulk-move-flyout hidden"></div>
+              </div>
+
+              <button type="button" id="btn-bulk-pin" class="bulk-btn" title="Pin / Unpin Selected">
+                <i class="fa-solid fa-star"></i>
+                <span>Pin</span>
+              </button>
+
+              <button type="button" id="btn-bulk-archive" class="bulk-btn" title="Archive Selected">
+                <i class="fa-solid fa-box-archive"></i>
+                <span>Archive</span>
+              </button>
+
+              <button type="button" id="btn-bulk-trash" class="bulk-btn text-danger" title="Move Selected to Trash">
+                <i class="fa-solid fa-trash"></i>
+                <span id="bulk-trash-text">Trash</span>
+              </button>
+
+              <button type="button" id="btn-bulk-cancel" class="bulk-btn-close" title="Clear Selection">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
             <div class="toolbar-controls">
               <div class="select-wrapper">
                 <select id="sort-select" class="form-select">
