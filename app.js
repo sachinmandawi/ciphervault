@@ -2198,19 +2198,26 @@
 
   // --- CUSTOM CATEGORIES HELPER FUNCTIONS ---
   function openCategoryModal() {
-    if (DOM.catNameInput) DOM.catNameInput.value = '';
-    if (DOM.modalCategoryOverlay) DOM.modalCategoryOverlay.classList.remove('hidden');
+    const modal = document.getElementById('modal-category-overlay');
+    const input = document.getElementById('cat-name-input');
+    if (input) input.value = '';
+    if (modal) modal.classList.remove('hidden');
   }
 
   function closeCategoryModal() {
-    if (DOM.modalCategoryOverlay) DOM.modalCategoryOverlay.classList.add('hidden');
+    const modal = document.getElementById('modal-category-overlay');
+    if (modal) modal.classList.add('hidden');
   }
 
   async function handleCreateCategory(e) {
     e.preventDefault();
-    const name = DOM.catNameInput ? DOM.catNameInput.value.trim() : '';
-    const icon = DOM.catIconSelect ? DOM.catIconSelect.value : 'fa-folder';
-    const color = DOM.catColorVal ? DOM.catColorVal.value : '#8b5cf6';
+    const nameInput = document.getElementById('cat-name-input');
+    const iconSelect = document.getElementById('cat-icon-select');
+    const colorVal = document.getElementById('cat-color-val');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const icon = iconSelect ? iconSelect.value : 'fa-folder';
+    const color = colorVal ? colorVal.value : '#8b5cf6';
 
     if (!name) {
       showToast('Please enter a category name', 'error');
@@ -3072,10 +3079,17 @@
 
     if (DOM.btnDangerWipe) DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
 
-    if (DOM.btnAddCategory) DOM.btnAddCategory.addEventListener('click', openCategoryModal);
-    if (DOM.btnCloseCatModal) DOM.btnCloseCatModal.addEventListener('click', closeCategoryModal);
-    if (DOM.btnCancelCat) DOM.btnCancelCat.addEventListener('click', closeCategoryModal);
-    if (DOM.categoryForm) DOM.categoryForm.addEventListener('submit', handleCreateCategory);
+    const btnAddCat = document.getElementById('btn-add-category');
+    if (btnAddCat) btnAddCat.addEventListener('click', openCategoryModal);
+
+    const btnCloseCat = document.getElementById('btn-close-cat-modal');
+    if (btnCloseCat) btnCloseCat.addEventListener('click', closeCategoryModal);
+
+    const btnCancelCat = document.getElementById('btn-cancel-cat');
+    if (btnCancelCat) btnCancelCat.addEventListener('click', closeCategoryModal);
+
+    const catForm = document.getElementById('category-form');
+    if (catForm) catForm.addEventListener('submit', handleCreateCategory);
 
     document.querySelectorAll('.cat-color-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3083,7 +3097,8 @@
           b.style.border = '2px solid transparent';
         });
         btn.style.border = '2px solid #ffffff';
-        if (DOM.catColorVal) DOM.catColorVal.value = btn.dataset.color;
+        const colorValEl = document.getElementById('cat-color-val');
+        if (colorValEl) colorValEl.value = btn.dataset.color;
       });
     });
 
