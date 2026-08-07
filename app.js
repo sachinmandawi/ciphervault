@@ -1772,43 +1772,65 @@
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </button>
           <div class="card-dropdown-menu hidden">
-            ${item.deleted ? `
-              <button type="button" class="dropdown-item btn-restore"><i class="fa-solid fa-rotate-left"></i> Restore Item</button>
-              <div class="dropdown-divider"></div>
-              <button type="button" class="dropdown-item btn-wipe text-danger"><i class="fa-solid fa-fire"></i> Delete Forever</button>
-            ` : `
-              <button type="button" class="dropdown-item btn-star ${item.favorite ? 'active' : ''}">
-                <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
-                <span>${item.favorite ? 'Unpin from Top' : 'Pin to Top'}</span>
-              </button>
-              <button type="button" class="dropdown-item btn-manage-labels">
-                <i class="fa-solid fa-tags"></i>
-                <span>Manage Labels</span>
-              </button>
-              <button type="button" class="dropdown-item btn-edit">
-                <i class="fa-solid fa-pen-to-square"></i>
-                <span>Edit Item</span>
-              </button>
-              <button type="button" class="dropdown-item btn-move-item">
-                <i class="fa-solid fa-folder-arrow-right"></i>
-                <span>Move to...</span>
-              </button>
-              <button type="button" class="dropdown-item btn-share">
-                <i class="fa-solid fa-share-nodes"></i>
-                <span>Share Securely</span>
-              </button>
-              ${(isLoginOrCustom || item.username) && item.username ? `<button type="button" class="dropdown-item btn-copy-username" data-val="${escapeHtml(item.username)}"><i class="fa-regular fa-copy"></i> Copy Username</button>` : ''}
-              ${(isLoginOrCustom || item.url) && item.url ? `<button type="button" class="dropdown-item btn-launch-url" data-val="${escapeHtml(item.url)}"><i class="fa-solid fa-arrow-up-right-from-square"></i> Launch URL</button>` : ''}
-              <div class="dropdown-divider"></div>
-              <button type="button" class="dropdown-item btn-archive">
-                <i class="fa-solid fa-box-archive"></i>
-                <span>${item.archived ? 'Unarchive Item' : 'Archive Item'}</span>
-              </button>
-              <button type="button" class="dropdown-item btn-delete text-danger">
-                <i class="fa-solid fa-trash"></i>
-                <span>Move to Trash</span>
-              </button>
-            `}
+            <div class="card-menu-main-panel">
+              ${item.deleted ? `
+                <button type="button" class="dropdown-item btn-restore"><i class="fa-solid fa-rotate-left"></i> Restore Item</button>
+                <div class="dropdown-divider"></div>
+                <button type="button" class="dropdown-item btn-wipe text-danger"><i class="fa-solid fa-fire"></i> Delete Forever</button>
+              ` : `
+                <button type="button" class="dropdown-item btn-star ${item.favorite ? 'active' : ''}">
+                  <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
+                  <span>${item.favorite ? 'Unpin from Top' : 'Pin to Top'}</span>
+                </button>
+                <button type="button" class="dropdown-item btn-manage-labels">
+                  <i class="fa-solid fa-tags"></i>
+                  <span>Manage Labels</span>
+                </button>
+                <button type="button" class="dropdown-item btn-edit">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span>Edit Item</span>
+                </button>
+                <button type="button" class="dropdown-item btn-move-item">
+                  <i class="fa-solid fa-folder-arrow-right"></i>
+                  <span>Move to...</span>
+                </button>
+                <button type="button" class="dropdown-item btn-share">
+                  <i class="fa-solid fa-share-nodes"></i>
+                  <span>Share Securely</span>
+                </button>
+                ${(isLoginOrCustom || item.username) && item.username ? `<button type="button" class="dropdown-item btn-copy-username" data-val="${escapeHtml(item.username)}"><i class="fa-regular fa-copy"></i> Copy Username</button>` : ''}
+                ${(isLoginOrCustom || item.url) && item.url ? `<button type="button" class="dropdown-item btn-launch-url" data-val="${escapeHtml(item.url)}"><i class="fa-solid fa-arrow-up-right-from-square"></i> Launch URL</button>` : ''}
+                <div class="dropdown-divider"></div>
+                <button type="button" class="dropdown-item btn-archive">
+                  <i class="fa-solid fa-box-archive"></i>
+                  <span>${item.archived ? 'Unarchive Item' : 'Archive Item'}</span>
+                </button>
+                <button type="button" class="dropdown-item btn-delete text-danger">
+                  <i class="fa-solid fa-trash"></i>
+                  <span>Move to Trash</span>
+                </button>
+              `}
+            </div>
+
+            <!-- INLINE NOTION MOVE TO SUBMENU PANEL -->
+            <div class="card-menu-move-panel hidden" style="width: 185px; padding: 0.15rem;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding: 0.15rem 0.2rem 0.35rem 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.35rem;">
+                <button type="button" class="btn-move-back-panel" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.35rem; font-family:inherit; padding:0;">
+                  <i class="fa-solid fa-arrow-left"></i>
+                  <span>Move to...</span>
+                </button>
+              </div>
+
+              <!-- Search Bar -->
+              <div style="display:flex; align-items:center; gap:0.35rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:5px; padding:0.2rem 0.45rem; height:24px; box-sizing:border-box; margin-bottom:0.35rem;">
+                <i class="fa-solid fa-magnifying-glass" style="font-size:0.7rem; color:var(--text-dim);"></i>
+                <input type="text" class="card-move-search-input" placeholder="Move to..." style="background:transparent; border:none; color:var(--text-main); font-size:0.75rem; outline:none; width:100%; font-family:inherit; height:100%;">
+              </div>
+
+              <!-- Dynamic Categories Options List -->
+              <div class="card-move-options-list" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.15rem; padding-right: 0.1rem;">
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1886,6 +1908,17 @@
     const menuBtn = card.querySelector('.btn-card-menu');
     const menuDropdown = card.querySelector('.card-dropdown-menu');
 
+    const mainPanel = card.querySelector('.card-menu-main-panel');
+    const movePanel = card.querySelector('.card-menu-move-panel');
+    const btnMoveBack = card.querySelector('.btn-move-back-panel');
+    const moveSearchInput = card.querySelector('.card-move-search-input');
+
+    const resetMenuPanels = () => {
+      if (mainPanel) mainPanel.classList.remove('hidden');
+      if (movePanel) movePanel.classList.add('hidden');
+      if (moveSearchInput) moveSearchInput.value = '';
+    };
+
     if (menuBtn && menuDropdown) {
       menuBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1896,6 +1929,7 @@
             if (parentCard) parentCard.classList.remove('dropdown-open');
           }
         });
+        resetMenuPanels();
         const isHidden = menuDropdown.classList.toggle('hidden');
         const parentCard = card;
         if (parentCard) {
@@ -1936,12 +1970,31 @@
     }
 
     const btnMoveItem = card.querySelector('.btn-move-item');
-    if (btnMoveItem) {
+    if (btnMoveItem && mainPanel && movePanel) {
       btnMoveItem.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (menuDropdown) menuDropdown.classList.add('hidden');
-        openMoveModal(item.id);
+        mainPanel.classList.add('hidden');
+        movePanel.classList.remove('hidden');
+        renderInlineCardMoveOptions(item, movePanel);
+        if (moveSearchInput) {
+          moveSearchInput.value = '';
+          setTimeout(() => moveSearchInput.focus(), 50);
+        }
       });
+    }
+
+    if (btnMoveBack && mainPanel && movePanel) {
+      btnMoveBack.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetMenuPanels();
+      });
+    }
+
+    if (moveSearchInput && movePanel) {
+      moveSearchInput.addEventListener('input', (e) => {
+        renderInlineCardMoveOptions(item, movePanel, e.target.value);
+      });
+      moveSearchInput.addEventListener('click', (e) => e.stopPropagation());
     }
 
     const btnShare = card.querySelector('.btn-share');
@@ -2590,37 +2643,10 @@
     }
   }
 
-  // --- NOTION MOVE ITEM TO CATEGORY FUNCTIONS ---
-  function openMoveModal(itemId) {
-    const modal = document.getElementById('modal-move-overlay');
-    const idInput = document.getElementById('move-item-id-input');
-    const searchInput = document.getElementById('move-search-input');
-
-    const item = state.vaultItems.find(i => String(i.id) === String(itemId));
-    if (!item) return;
-
-    if (idInput) idInput.value = item.id;
-    if (searchInput) searchInput.value = '';
-
-    renderMoveCategoriesList(item);
-
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.classList.add('active');
-    }
-  }
-
-  function closeMoveModal() {
-    const modal = document.getElementById('modal-move-overlay');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('active');
-    }
-  }
-
-  function renderMoveCategoriesList(item, filterQuery = '') {
-    const container = document.getElementById('move-categories-list');
-    if (!container || !item) return;
+  // --- INLINE NOTION MOVE TO SUBMENU FUNCTION ---
+  function renderInlineCardMoveOptions(item, movePanel, filterQuery = '') {
+    const optionsContainer = movePanel.querySelector('.card-move-options-list');
+    if (!optionsContainer || !item) return;
 
     const query = filterQuery.trim().toLowerCase();
 
@@ -2641,48 +2667,53 @@
     let html = '';
 
     if (filteredWork.length > 0) {
-      html += `<div style="font-size: 0.68rem; font-weight: 700; color: var(--text-dim); letter-spacing: 0.08em; padding: 0.35rem 0.5rem 0.15rem 0.5rem;">WORK CATEGORIES</div>`;
+      html += `<div style="font-size: 0.62rem; font-weight: 700; color: var(--text-dim); letter-spacing: 0.08em; padding: 0.25rem 0.35rem 0.1rem 0.35rem;">WORK</div>`;
       filteredWork.forEach(cat => {
         const isCurrent = (item.type === cat.id);
         html += `
-          <button type="button" class="move-cat-option-btn ${isCurrent ? 'active' : ''}" data-cat-id="${cat.id}">
-            <div style="display:flex; align-items:center; gap:0.65rem;">
-              <i class="fa-solid ${cat.icon}" style="color:${cat.color}; font-size:0.95rem;"></i>
-              <span>${escapeHtml(cat.name)}</span>
+          <button type="button" class="inline-move-opt-btn ${isCurrent ? 'active' : ''}" data-cat-id="${cat.id}">
+            <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              <i class="fa-solid ${cat.icon}" style="color:${cat.color}; font-size:0.82rem; width:14px; text-align:center;"></i>
+              <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(cat.name)}</span>
             </div>
-            ${isCurrent ? '<i class="fa-solid fa-check" style="color:var(--accent-purple); font-size:0.85rem;"></i>' : ''}
+            ${isCurrent ? '<i class="fa-solid fa-check" style="color:var(--accent-purple); font-size:0.75rem; flex-shrink:0;"></i>' : ''}
           </button>
         `;
       });
     }
 
     if (filteredPrivate.length > 0) {
-      html += `<div style="font-size: 0.68rem; font-weight: 700; color: var(--text-dim); letter-spacing: 0.08em; padding: 0.6rem 0.5rem 0.15rem 0.5rem;">PRIVATE CATEGORIES</div>`;
+      html += `<div style="font-size: 0.62rem; font-weight: 700; color: var(--text-dim); letter-spacing: 0.08em; padding: 0.4rem 0.35rem 0.1rem 0.35rem;">PRIVATE</div>`;
       filteredPrivate.forEach(cat => {
         const isCurrent = (item.type === cat.id);
         html += `
-          <button type="button" class="move-cat-option-btn ${isCurrent ? 'active' : ''}" data-cat-id="${cat.id}">
-            <div style="display:flex; align-items:center; gap:0.65rem;">
-              <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.95rem;"></i>
-              <span>${escapeHtml(cat.name)}</span>
+          <button type="button" class="inline-move-opt-btn ${isCurrent ? 'active' : ''}" data-cat-id="${cat.id}">
+            <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              <i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')}; font-size:0.82rem; width:14px; text-align:center;"></i>
+              <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(cat.name)}</span>
             </div>
-            ${isCurrent ? '<i class="fa-solid fa-check" style="color:var(--accent-purple); font-size:0.85rem;"></i>' : ''}
+            ${isCurrent ? '<i class="fa-solid fa-check" style="color:var(--accent-purple); font-size:0.75rem; flex-shrink:0;"></i>' : ''}
           </button>
         `;
       });
     }
 
     if (!html) {
-      html = `<div style="padding: 1.5rem; text-align: center; color: var(--text-dim); font-size: 0.82rem;">No matching categories found</div>`;
+      html = `<div style="padding: 0.8rem; text-align: center; color: var(--text-dim); font-size: 0.75rem;">No matching categories</div>`;
     }
 
-    container.innerHTML = html;
+    optionsContainer.innerHTML = html;
 
-    container.querySelectorAll('.move-cat-option-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
+    optionsContainer.querySelectorAll('.inline-move-opt-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         const targetCatId = btn.dataset.catId;
+        const menuDropdown = movePanel.closest('.card-dropdown-menu');
+        const parentCard = movePanel.closest('.item-card');
+
         if (targetCatId === item.type) {
-          closeMoveModal();
+          if (menuDropdown) menuDropdown.classList.add('hidden');
+          if (parentCard) parentCard.classList.remove('dropdown-open');
           return;
         }
 
@@ -2695,7 +2726,9 @@
         item.type = targetCatId;
         item.updatedAt = new Date().toISOString();
 
-        closeMoveModal();
+        if (menuDropdown) menuDropdown.classList.add('hidden');
+        if (parentCard) parentCard.classList.remove('dropdown-open');
+
         showToast(`Moved "${item.title}" to ${targetName}`, 'success');
 
         renderVault();

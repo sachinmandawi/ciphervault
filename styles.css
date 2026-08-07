@@ -1460,27 +1460,27 @@ select option,
   color: #fff;
 }
 
-/* Notion Move to Category Modal Styles */
-#move-categories-list::-webkit-scrollbar {
-  width: 4px;
+/* Notion Inline Submenu Move to Styles */
+.card-move-options-list::-webkit-scrollbar {
+  width: 3px;
 }
 
-#move-categories-list::-webkit-scrollbar-thumb {
+.card-move-options-list::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
-.move-cat-option-btn {
+.inline-move-opt-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0.42rem 0.65rem;
-  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-main);
-  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   text-align: left;
@@ -1488,14 +1488,14 @@ select option,
   font-family: inherit;
 }
 
-.move-cat-option-btn:hover {
+.inline-move-opt-btn:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
 }
 
-.move-cat-option-btn.active {
+.inline-move-opt-btn.active {
   background: rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.3);
+  color: var(--text-main);
   font-weight: 600;
 }
 
