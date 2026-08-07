@@ -1176,11 +1176,15 @@
 
 
   function getIconHtml(item) {
-    let iconHtml = '<i class="fa-solid fa-globe"></i>';
-    if (item.type === 'card') iconHtml = '<i class="fa-regular fa-credit-card"></i>';
-    if (item.type === 'bank') iconHtml = '<i class="fa-solid fa-building-columns"></i>';
-    if (item.type === 'note') iconHtml = '<i class="fa-regular fa-note-sticky"></i>';
-    return iconHtml;
+    if (item.type === 'card') return '<i class="fa-regular fa-credit-card"></i>';
+    if (item.type === 'bank') return '<i class="fa-solid fa-building-columns"></i>';
+    if (item.type === 'note') return '<i class="fa-regular fa-note-sticky"></i>';
+    
+    if (state.customCategories) {
+      const cat = state.customCategories.find(c => c.id === item.type);
+      if (cat) return `<i class="fa-solid ${escapeHtml(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')};"></i>`;
+    }
+    return '<i class="fa-solid fa-globe"></i>';
   }
 
   async function generateItemPreviewHtml(item) {
@@ -1210,11 +1214,16 @@
       `;
     }
 
-    if (item.type === 'login') {
+    const isCard = (item.type === 'card');
+    const isBank = (item.type === 'bank');
+    const isNote = (item.type === 'note');
+    const isLoginOrCustom = (!isCard && !isBank && !isNote);
+
+    if (isLoginOrCustom) {
       if (item.username || (!item.username && !item.email)) rowsHtml += createDetailRow('Username', item.username || '');
       if (item.email) rowsHtml += createDetailRow('Email', item.email);
       if (item.mobile) rowsHtml += createDetailRow('Mobile Number', item.mobile);
-      rowsHtml += createDetailRow('Password', item.password, true);
+      if (item.password) rowsHtml += createDetailRow('Password', item.password, true);
       
       if (item.totp) {
         const totpData = await TOTPEngine.generateTOTP(item.totp);
@@ -1746,6 +1755,8 @@
     }
 
 
+    const isLoginOrCustom = (item.type === 'login' || !['card', 'bank', 'note'].includes(item.type));
+
     card.innerHTML = `
       <div class="item-header">
         <div class="item-favicon" style="cursor:pointer;" title="Click to View Details">${iconHtml}</div>
@@ -1782,8 +1793,8 @@
                 <i class="fa-solid fa-share-nodes"></i>
                 <span>Share Securely</span>
               </button>
-              ${item.type === 'login' && item.username ? `<button type="button" class="dropdown-item btn-copy-username" data-val="${escapeHtml(item.username)}"><i class="fa-regular fa-copy"></i> Copy Username</button>` : ''}
-              ${item.type === 'login' && item.url ? `<button type="button" class="dropdown-item btn-launch-url" data-val="${escapeHtml(item.url)}"><i class="fa-solid fa-arrow-up-right-from-square"></i> Launch URL</button>` : ''}
+              ${(isLoginOrCustom || item.username) && item.username ? `<button type="button" class="dropdown-item btn-copy-username" data-val="${escapeHtml(item.username)}"><i class="fa-regular fa-copy"></i> Copy Username</button>` : ''}
+              ${(isLoginOrCustom || item.url) && item.url ? `<button type="button" class="dropdown-item btn-launch-url" data-val="${escapeHtml(item.url)}"><i class="fa-solid fa-arrow-up-right-from-square"></i> Launch URL</button>` : ''}
               <div class="dropdown-divider"></div>
               <button type="button" class="dropdown-item btn-archive">
                 <i class="fa-solid fa-box-archive"></i>
@@ -1812,7 +1823,7 @@
                 <i class="fa-regular fa-copy"></i>
               </button>
             ` : ''}
-            ${item.type === 'login' && item.url ? `
+            ${(isLoginOrCustom || item.url) && item.url ? `
               <a href="${escapeHtml(item.url)}" target="_blank" class="btn-icon" title="Open Link" onclick="event.stopPropagation();">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </a>
@@ -2433,10 +2444,16 @@
     if (DOM.modalItemTitle) DOM.modalItemTitle.textContent = 'Add New Vault Item';
     if (DOM.itemId) DOM.itemId.value = '';
     if (DOM.itemForm) DOM.itemForm.reset();
-    if (DOM.itemType) DOM.itemType.value = 'login';
+
+    let defaultType = 'login';
+    if (state.currentCategory && !['all', 'favorite', 'archive', 'trash'].includes(state.currentCategory)) {
+      defaultType = state.currentCategory;
+    }
+
+    if (DOM.itemType) DOM.itemType.value = defaultType;
     if (DOM.itemTags) DOM.itemTags.value = '';
     if (DOM.customFieldsContainer) DOM.customFieldsContainer.innerHTML = '';
-    switchCategoryFields('login');
+    switchCategoryFields(defaultType);
     if (DOM.itemStrengthBar) DOM.itemStrengthBar.className = 'strength-bar';
     switchView(DOM.viewItemEdit);
   }
@@ -2496,12 +2513,16 @@
     const fBank = document.getElementById('fields-bank');
     const fNote = document.getElementById('fields-note');
 
-    if (fLogin) fLogin.classList.toggle('hidden', type !== 'login');
-    if (fCard) fCard.classList.toggle('hidden', type !== 'card');
-    if (fBank) fBank.classList.toggle('hidden', type !== 'bank');
+    const isCard = (type === 'card');
+    const isBank = (type === 'bank');
+    const isNote = (type === 'note');
+    const isLoginOrCustom = (!isCard && !isBank && !isNote);
+
+    if (fLogin) fLogin.classList.toggle('hidden', !isLoginOrCustom);
+    if (fCard) fCard.classList.toggle('hidden', !isCard);
+    if (fBank) fBank.classList.toggle('hidden', !isBank);
     if (fNote) {
-      fNote.classList.toggle('hidden', type !== 'note');
-      // Force height recalculation once element is rendered for any visible auto-expand textareas
+      fNote.classList.toggle('hidden', !isNote);
       setTimeout(() => {
         document.querySelectorAll('textarea.auto-expand').forEach(ta => ta.dispatchEvent(new Event('input')));
       }, 10);
