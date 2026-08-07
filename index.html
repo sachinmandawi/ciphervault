@@ -232,13 +232,9 @@
         </button>
       </div>
 
+      <!-- WORK SECTION -->
       <div class="sidebar-section">
-        <div style="display:flex; align-items:center; justify-content:space-between; padding:0 0.5rem; margin-bottom:0.4rem;">
-          <span class="sidebar-label" style="margin-bottom:0;">VAULT</span>
-          <button type="button" id="btn-add-category" class="btn-icon" title="Create Custom Category" style="font-size:0.85rem; color:var(--text-muted); width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); cursor:pointer;">
-            <i class="fa-solid fa-plus"></i>
-          </button>
-        </div>
+        <span class="sidebar-label">WORK</span>
         <nav class="sidebar-nav">
           <button class="nav-item active" data-category="all">
             <i class="fa-solid fa-vault"></i>
@@ -265,10 +261,6 @@
             <span>Secure Notes</span>
             <span class="badge" id="count-note">0</span>
           </button>
-          
-          <!-- Custom Categories Nav Container -->
-          <div id="sidebar-custom-categories-container"></div>
-
           <button class="nav-item" data-category="favorite">
             <i class="fa-regular fa-star"></i>
             <span>Favorites (Pinned)</span>
@@ -285,6 +277,17 @@
             <span class="badge" id="count-trash">0</span>
           </button>
         </nav>
+      </div>
+
+      <!-- PRIVATE SECTION -->
+      <div class="sidebar-section" style="padding-top: 0.5rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:0 0.75rem 0.5rem 0.75rem;">
+          <span class="sidebar-label" style="margin-bottom:0; padding:0;">PRIVATE</span>
+          <button type="button" id="btn-add-category" class="btn-icon" title="Create Private Custom Category" style="font-size:0.85rem; color:var(--text-muted); width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); cursor:pointer;">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+        <nav class="sidebar-nav" id="sidebar-custom-categories-container"></nav>
       </div>
 
       <!-- DYNAMIC TAGS FILTER SECTION -->
