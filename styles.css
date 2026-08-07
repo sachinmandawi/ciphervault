@@ -1523,11 +1523,13 @@ select option,
   border-radius: 4px;
 }
 
-.dropdown-item i {
+.dropdown-item i,
+.dropdown-item svg {
   font-size: 0.9rem;
   width: 16px;
   text-align: center;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .cat-dropdown-menu .dropdown-item i {

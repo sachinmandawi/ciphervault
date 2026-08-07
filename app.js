@@ -1791,8 +1791,11 @@
                   <span>Edit Item</span>
                 </button>
                 <button type="button" class="dropdown-item btn-move-item">
-                  <i class="fa-solid fa-folder-arrow-right"></i>
-                  <span>Move to...</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; flex-shrink:0;">
+                    <path d="M5 19V9a2 2 0 0 1 2-2h12"></path>
+                    <polyline points="15 3 19 7 15 11"></polyline>
+                  </svg>
+                  <span>Move to</span>
                 </button>
                 <button type="button" class="dropdown-item btn-share">
                   <i class="fa-solid fa-share-nodes"></i>
@@ -1817,7 +1820,7 @@
               <div style="display:flex; align-items:center; justify-content:space-between; padding: 0.15rem 0.2rem 0.35rem 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.35rem;">
                 <button type="button" class="btn-move-back-panel" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.78rem; font-weight:600; display:flex; align-items:center; gap:0.35rem; font-family:inherit; padding:0;">
                   <i class="fa-solid fa-arrow-left"></i>
-                  <span>Move to...</span>
+                  <span>Move to</span>
                 </button>
               </div>
 
