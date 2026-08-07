@@ -2892,7 +2892,7 @@
               </div>
 
               <!-- Save Button -->
-              <button type="button" class="btn-save-cat-inline" data-id="${escapeHtml(cat.id)}" style="width:100%; background:var(--accent-purple); border:none; border-radius:5px; color:#fff; font-size:0.78rem; font-weight:600; padding:0.25rem 0; cursor:pointer; font-family:inherit;">
+              <button type="button" class="btn-save-cat-inline" data-id="${escapeHtml(cat.id)}" style="width:100%; background:#8b5cf6 !important; color:#ffffff !important; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; padding:0.35rem 0; cursor:pointer; font-family:inherit;">
                 Save Changes
               </button>
             </div>
