@@ -1257,10 +1257,23 @@
     if (id.includes('visa')) return 'color:#1A1F71;';
     if (id.includes('mastercard')) return 'color:#EB001B;';
     if (id.includes('airbnb')) return 'color:#FF5A5F;';
-    if (id.includes('uber')) return 'color:#ffffff;';
-    if (id.includes('apple') && !id.includes('pay')) return 'color:#ffffff;';
+    // Utility & General Category Icons - Vibrant Curated HSL Palette (No Plain White!)
+    if (id.includes('star') || id.includes('crown') || id.includes('award') || id.includes('certificate')) return 'color:#f59e0b;';
+    if (id.includes('heart') || id.includes('favorite')) return 'color:#ec4899;';
+    if (id.includes('fire') || id.includes('hot') || id.includes('flame') || id.includes('trash')) return 'color:#ef4444;';
+    if (id.includes('bolt') || id.includes('zap') || id.includes('battery') || id.includes('plug')) return 'color:#eab308;';
+    if (id.includes('folder')) return 'color:#8b5cf6;';
+    if (id.includes('lock') || id.includes('shield') || id.includes('key') || id.includes('padlock') || id.includes('check')) return 'color:#10b981;';
+    if (id.includes('globe') || id.includes('cloud') || id.includes('wifi') || id.includes('network') || id.includes('link')) return 'color:#06b6d4;';
+    if (id.includes('briefcase') || id.includes('building') || id.includes('store') || id.includes('shop') || id.includes('office') || id.includes('handshake')) return 'color:#3b82f6;';
+    if (id.includes('chart') || id.includes('graph') || id.includes('calculator') || id.includes('receipt') || id.includes('invoice') || id.includes('stamp')) return 'color:#10b981;';
+    if (id.includes('laptop') || id.includes('terminal') || id.includes('code') || id.includes('bug') || id.includes('robot') || id.includes('microchip') || id.includes('server') || id.includes('database')) return 'color:#6366f1;';
+    if (id.includes('user') || id.includes('users') || id.includes('profile') || id.includes('people') || id.includes('address') || id.includes('id-card')) return 'color:#a855f7;';
+    if (id.includes('bell') || id.includes('tag') || id.includes('bookmark') || id.includes('flag') || id.includes('sun') || id.includes('lightbulb')) return 'color:#f97316;';
+    if (id.includes('house') || id.includes('home') || id.includes('compass') || id.includes('target') || id.includes('bullseye')) return 'color:#38bdf8;';
+    if (id.includes('desktop') || id.includes('tv') || id.includes('hard-drive') || id.includes('sim-card') || id.includes('floppy') || id.includes('keyboard')) return 'color:#818cf8;';
 
-    return 'color:#ffffff;';
+    return 'color:#8b5cf6;';
   }
 
   function getIconHtml(item) {
