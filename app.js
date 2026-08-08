@@ -1174,19 +1174,97 @@
   }
 
 
+  function getBrandColorStyle(iconId = '') {
+    if (!iconId) return '';
+    const id = iconId.toLowerCase();
+
+    if (id.includes('instagram')) return 'color:#E4405F; background: -webkit-linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;';
+    if (id.includes('google') && !id.includes('drive') && !id.includes('pay')) return 'color:#4285F4;';
+    if (id.includes('youtube')) return 'color:#FF0000;';
+    if (id.includes('facebook') || id.includes('meta')) return 'color:#1877F2;';
+    if (id.includes('whatsapp')) return 'color:#25D366;';
+    if (id.includes('telegram')) return 'color:#24A1DE;';
+    if (id.includes('discord')) return 'color:#5865F2;';
+    if (id.includes('twitter') || id.includes('x-twitter')) return 'color:#1DA1F2;';
+    if (id.includes('linkedin')) return 'color:#0A66C2;';
+    if (id.includes('spotify')) return 'color:#1DB954;';
+    if (id.includes('reddit')) return 'color:#FF4500;';
+    if (id.includes('pinterest')) return 'color:#E60023;';
+    if (id.includes('snapchat')) return 'color:#FFFC00; text-shadow: 0 0 2px #000;';
+    if (id.includes('twitch')) return 'color:#9146FF;';
+    if (id.includes('amazon')) return 'color:#FF9900;';
+    if (id.includes('microsoft') || id.includes('windows')) return 'color:#00A4EF;';
+    if (id.includes('paypal')) return 'color:#003087;';
+    if (id.includes('stripe')) return 'color:#635BFF;';
+    if (id.includes('bitcoin') || id.includes('btc')) return 'color:#F7931A;';
+    if (id.includes('ethereum') || id.includes('eth')) return 'color:#627EEA;';
+    if (id.includes('gitlab')) return 'color:#FC6D26;';
+    if (id.includes('docker')) return 'color:#2496ED;';
+    if (id.includes('python')) return 'color:#3776AB;';
+    if (id.includes('js') || id.includes('javascript')) return 'color:#F7DF1E;';
+    if (id.includes('react')) return 'color:#61DAFB;';
+    if (id.includes('node')) return 'color:#339933;';
+    if (id.includes('vue')) return 'color:#4FC08D;';
+    if (id.includes('angular')) return 'color:#DD0031;';
+    if (id.includes('wordpress')) return 'color:#21759B;';
+    if (id.includes('shopify')) return 'color:#96BF48;';
+    if (id.includes('dribbble')) return 'color:#EA4C89;';
+    if (id.includes('figma')) return 'color:#F24E1E;';
+    if (id.includes('slack')) return 'color:#E01E5A;';
+    if (id.includes('steam')) return 'color:#66C0F4;';
+    if (id.includes('playstation')) return 'color:#003791;';
+    if (id.includes('xbox')) return 'color:#107C41;';
+    if (id.includes('visa')) return 'color:#1A1F71;';
+    if (id.includes('mastercard')) return 'color:#EB001B;';
+    if (id.includes('apple') && !id.includes('pay')) return 'color:#ffffff;';
+
+    return '';
+  }
+
   function getIconHtml(item) {
-    if (item.icon) {
-      return `<i class="${formatIconClass(item.icon)}"></i>`;
+    if (!item) return '<i class="fa-solid fa-globe"></i>';
+
+    // 1. If item has URL, fetch original high-res official brand favicon logo image (sz=128)
+    if (item.url && typeof item.url === 'string' && item.url.trim()) {
+      try {
+        let domain = item.url.trim().replace(/^https?:\/\//i, '').split('/')[0].split('?')[0].split(':')[0];
+        if (domain && domain.includes('.')) {
+          const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+          const brandClass = item.icon ? formatIconClass(item.icon) : 'fa-solid fa-globe';
+          const brandStyle = item.icon ? getBrandColorStyle(item.icon) : '';
+          return `
+            <img src="${faviconUrl}" alt="${escapeHtml(item.title || 'logo')}" class="vault-item-real-logo" style="width:26px; height:26px; border-radius:6px; object-fit:contain; vertical-align:middle; flex-shrink:0;" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
+            <i class="${brandClass}" style="display:none; ${brandStyle}"></i>
+          `;
+        }
+      } catch (err) {}
     }
-    if (item.type === 'card') return '<i class="fa-regular fa-credit-card"></i>';
-    if (item.type === 'bank') return '<i class="fa-solid fa-building-columns"></i>';
-    if (item.type === 'note') return '<i class="fa-regular fa-note-sticky"></i>';
+
+    // 2. If item has custom chosen icon, use it with authentic official brand color
+    if (item.icon) {
+      return `<i class="${formatIconClass(item.icon)}" style="${getBrandColorStyle(item.icon)}"></i>`;
+    }
+
+    // 3. Fallback based on item.type
+    if (item.type === 'card') return '<i class="fa-regular fa-credit-card" style="color:var(--accent-purple);"></i>';
+    if (item.type === 'bank') return '<i class="fa-solid fa-building-columns" style="color:var(--accent-purple);"></i>';
+    if (item.type === 'note') return '<i class="fa-regular fa-note-sticky" style="color:var(--accent-purple);"></i>';
     
     if (state.customCategories) {
       const cat = state.customCategories.find(c => c.id === item.type);
       if (cat) return `<i class="${formatIconClass(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')};"></i>`;
     }
-    return '<i class="fa-solid fa-globe"></i>';
+
+    // Auto-detect brand from title if no URL (e.g. Title = "Instagram", "YouTube", "Google", "WhatsApp", "Discord", "Spotify", "GitHub")
+    if (item.title) {
+      const titleLower = item.title.toLowerCase();
+      const matchedBrand = CATEGORY_ICONS.find(b => b.id.startsWith('fa-brands') && (titleLower.includes(b.name.toLowerCase()) || titleLower.includes(b.id.replace('fa-brands fa-', '').toLowerCase())));
+      if (matchedBrand) {
+        return `<i class="${formatIconClass(matchedBrand.id)}" style="${getBrandColorStyle(matchedBrand.id)}"></i>`;
+      }
+    }
+
+    return '<i class="fa-solid fa-globe" style="color:var(--text-muted);"></i>';
   }
 
   async function generateItemPreviewHtml(item) {
@@ -2938,7 +3016,7 @@
 
     if (input) input.value = iconId || '';
     if (preview) {
-      preview.innerHTML = iconId ? `<i class="${formatIconClass(iconId)}"></i>` : '<i class="fa-solid fa-globe"></i>';
+      preview.innerHTML = iconId ? `<i class="${formatIconClass(iconId)}" style="${getBrandColorStyle(iconId)}"></i>` : '<i class="fa-solid fa-globe"></i>';
     }
     if (label) {
       if (name) {
@@ -2970,12 +3048,13 @@
       btn.type = 'button';
       btn.className = 'btn-icon-tile';
       btn.title = icon.name;
+      const brandStyle = getBrandColorStyle(icon.id);
       btn.style.cssText = `
         width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
         background: rgba(255,255,255,0.04); color: #fff; display: flex; align-items: center; justify-content: center;
         font-size: 1rem; cursor: pointer; transition: all 0.15s ease;
       `;
-      btn.innerHTML = `<i class="${formatIconClass(icon.id)}"></i>`;
+      btn.innerHTML = `<i class="${formatIconClass(icon.id)}" style="${brandStyle}"></i>`;
 
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
