@@ -1188,7 +1188,7 @@ body {
 }
 
 /* When any item is selected (selection-mode active), show ALL checkboxes */
-.selection-mode .item-card .item-card-checkbox {
+#vault-items-container.selection-mode .item-card .item-card-checkbox {
   opacity: 1;
 }
 

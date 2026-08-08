@@ -1677,7 +1677,7 @@
     if (!toolbar) return;
 
     const count = state.selectedItemIds ? state.selectedItemIds.size : 0;
-    const itemsContainer = document.getElementById('items-container');
+    const itemsContainer = DOM.itemsContainer;
     if (count === 0) {
       toolbar.classList.add('hidden');
       if (itemsContainer) itemsContainer.classList.remove('selection-mode');
