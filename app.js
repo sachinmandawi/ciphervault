@@ -1677,11 +1677,15 @@
     if (!toolbar) return;
 
     const count = state.selectedItemIds ? state.selectedItemIds.size : 0;
+    const itemsContainer = document.getElementById('items-container');
     if (count === 0) {
       toolbar.classList.add('hidden');
+      if (itemsContainer) itemsContainer.classList.remove('selection-mode');
       document.querySelectorAll('.item-card.selected').forEach(c => c.classList.remove('selected'));
       return;
     }
+
+    if (itemsContainer) itemsContainer.classList.add('selection-mode');
 
     toolbar.classList.remove('hidden');
     if (countBadge) countBadge.textContent = `${count} Selected`;
