@@ -2704,7 +2704,7 @@
 
     // Neobanks, UPI & Banking
     { id: 'fa-solid fa-pizza-slice brand-slice', name: 'Slice Bank', tags: 'slice slice.bank.in card neobank finance bank' },
-    { id: 'fa-solid fa-planet-ring brand-jupiter', name: 'Jupiter Money', tags: 'jupiter jupiter.money neobank bank finance' },
+    { id: 'fa-solid fa-rocket brand-jupiter', name: 'Jupiter Money', tags: 'jupiter jupiter.money neobank bank finance' },
     { id: 'fa-solid fa-building-columns brand-sbi', name: 'SBI Bank', tags: 'sbi state bank of india bank building' },
     { id: 'fa-solid fa-money-check-dollar brand-hdfc', name: 'HDFC Bank', tags: 'hdfc hdfcbank bank card finance' },
     { id: 'fa-solid fa-piggy-bank brand-icici', name: 'ICICI Bank', tags: 'icici icicibank bank card finance' },
