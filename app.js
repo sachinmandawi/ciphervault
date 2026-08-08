@@ -1294,10 +1294,14 @@
       if (cat) return `<i class="${formatIconClass(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')};"></i>`;
     }
 
-    // Auto-detect brand from title or URL string if no custom icon (e.g. Title/URL = "Instagram", "YouTube", "Google", "WhatsApp", "Discord", "Spotify", "GitHub")
+    // Auto-detect brand from title or URL string if no custom icon (e.g. Title/URL = "Instagram", "Render", "Jupiter", "SBI", "HDFC", "Truecaller", "Google", "WhatsApp", etc.)
     const searchString = `${item.title || ''} ${item.url || ''}`.toLowerCase();
     if (searchString.trim()) {
-      const matchedBrand = CATEGORY_ICONS.find(b => b.id.startsWith('fa-brands') && (searchString.includes(b.name.toLowerCase()) || searchString.includes(b.id.replace('fa-brands fa-', '').toLowerCase())));
+      const matchedBrand = CATEGORY_ICONS.find(b => {
+        const nameLower = b.name.toLowerCase();
+        const tagStr = (b.tags || '').toLowerCase();
+        return searchString.includes(nameLower) || (b.id.includes('brand-') && tagStr.split(' ').some(t => t.length > 3 && searchString.includes(t)));
+      });
       if (matchedBrand) {
         return `<i class="${formatIconClass(matchedBrand.id)}" style="${getBrandColorStyle(matchedBrand.id)}"></i>`;
       }
