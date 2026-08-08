@@ -564,7 +564,7 @@
               <div class="modal-body" style="flex: 1; overflow-y: auto; padding-right: 1rem; padding-bottom: 2rem;">
                 <input type="hidden" id="item-id">
                 
-                <div class="form-row">
+                <div class="form-row" style="align-items: flex-start; gap: 0.75rem;">
                   <div class="form-group flex-1">
                     <label for="item-type">Item Category</label>
                     <select id="item-type" class="form-select">
@@ -578,6 +578,30 @@
                   <div class="form-group flex-1">
                     <label for="item-title-input">Title <span style="color:#ef4444; font-weight:700;">*</span></label>
                     <input type="text" id="item-title-input" required placeholder="e.g. Google, SBI, Netflix...">
+                  </div>
+
+                  <!-- CARD ICON PICKER -->
+                  <div class="form-group" style="width: auto; min-width: 130px; position: relative;">
+                    <label>Card Icon</label>
+                    <button type="button" id="btn-choose-item-icon" class="btn" style="display:flex; align-items:center; gap:0.45rem; width:100%; padding:0.48rem 0.65rem; background:var(--bg-input); border:1px solid var(--border-color); color:var(--text-main); font-size:0.85rem; border-radius:var(--radius-md); cursor:pointer;">
+                      <span id="item-icon-preview" style="display:flex; align-items:center; font-size:1.05rem; color:var(--accent-purple);"><i class="fa-solid fa-globe"></i></span>
+                      <span id="item-icon-label" style="flex:1; text-align:left; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.8rem;">Auto</span>
+                      <i class="fa-solid fa-chevron-down" style="font-size:0.65rem; color:var(--text-muted);"></i>
+                    </button>
+                    <input type="hidden" id="item-icon" value="">
+
+                    <!-- ITEM ICON POPOVER -->
+                    <div id="item-icon-popover" class="card-dropdown-menu hidden" style="position:absolute; top:calc(100% + 5px); right:0; width:280px; z-index:10005; padding:0.65rem; background:#252525; border:1px solid rgba(255,255,255,0.12); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.6);">
+                      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Choose Logo / Icon</span>
+                        <button type="button" id="btn-reset-item-icon" style="background:transparent; border:none; color:var(--accent-purple); font-size:0.72rem; font-weight:600; cursor:pointer;">Auto</button>
+                      </div>
+                      <input type="text" id="item-icon-search" placeholder="Search brands (e.g. github, google, instagram)..." style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:6px; padding:0.35rem 0.6rem; color:#fff; font-size:0.78rem; margin-bottom:0.5rem; outline:none;">
+                      
+                      <div id="item-icon-grid" style="display:grid; grid-template-columns:repeat(6, 1fr); gap:0.35rem; max-height:200px; overflow-y:auto; padding-right:0.2rem;">
+                        <!-- Dynamically rendered icons -->
+                      </div>
+                    </div>
                   </div>
                 </div>
 

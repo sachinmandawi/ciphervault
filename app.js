@@ -542,6 +542,7 @@
     itemPin: document.getElementById('item-pin'),
     itemNotes: document.getElementById('item-notes'),
     itemTags: document.getElementById('item-tags'),
+    itemIcon: document.getElementById('item-icon'),
     customFieldsContainer: document.getElementById('custom-fields-container'),
     btnAddCustomField: document.getElementById('btn-add-custom-field'),
     btnModalGen: document.getElementById('btn-modal-gen'),
@@ -1174,6 +1175,9 @@
 
 
   function getIconHtml(item) {
+    if (item.icon) {
+      return `<i class="${formatIconClass(item.icon)}"></i>`;
+    }
     if (item.type === 'card') return '<i class="fa-regular fa-credit-card"></i>';
     if (item.type === 'bank') return '<i class="fa-solid fa-building-columns"></i>';
     if (item.type === 'note') return '<i class="fa-regular fa-note-sticky"></i>';
@@ -2926,6 +2930,64 @@
     renderIconPickerGrid();
   }
 
+  // --- ITEM CARD ICON PICKER FUNCTIONS ---
+  function setItemIconValue(iconId = '', name = '') {
+    const input = document.getElementById('item-icon');
+    const preview = document.getElementById('item-icon-preview');
+    const label = document.getElementById('item-icon-label');
+
+    if (input) input.value = iconId || '';
+    if (preview) {
+      preview.innerHTML = iconId ? `<i class="${formatIconClass(iconId)}"></i>` : '<i class="fa-solid fa-globe"></i>';
+    }
+    if (label) {
+      if (name) {
+        label.textContent = name;
+      } else if (iconId) {
+        const found = CATEGORY_ICONS.find(i => i.id === iconId);
+        label.textContent = found ? found.name : 'Custom';
+      } else {
+        label.textContent = 'Auto';
+      }
+    }
+  }
+
+  function renderItemIconGrid(query = '') {
+    const grid = document.getElementById('item-icon-grid');
+    if (!grid) return;
+
+    const q = query.trim().toLowerCase();
+    const filtered = CATEGORY_ICONS.filter(i => !q || i.name.toLowerCase().includes(q) || i.tags.toLowerCase().includes(q) || i.id.toLowerCase().includes(q));
+
+    grid.innerHTML = '';
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div style="grid-column: span 6; text-align:center; padding:1rem; color:var(--text-dim); font-size:0.75rem;">No logos found</div>';
+      return;
+    }
+
+    filtered.forEach(icon => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-icon-tile';
+      btn.title = icon.name;
+      btn.style.cssText = `
+        width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04); color: #fff; display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; cursor: pointer; transition: all 0.15s ease;
+      `;
+      btn.innerHTML = `<i class="${formatIconClass(icon.id)}"></i>`;
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setItemIconValue(icon.id, icon.name);
+        const popover = document.getElementById('item-icon-popover');
+        if (popover) popover.classList.add('hidden');
+      });
+
+      grid.appendChild(btn);
+    });
+  }
+
   // --- INLINE CREATE CATEGORY FLYOUT PANEL FUNCTIONS ---
   function openInlineCreateCategoryPanel() {
     const panel = document.getElementById('inline-create-category-panel');
@@ -3449,6 +3511,8 @@
 
     if (DOM.itemType) DOM.itemType.value = defaultType;
     if (DOM.itemTags) DOM.itemTags.value = '';
+    if (DOM.itemIcon) DOM.itemIcon.value = '';
+    setItemIconValue('', 'Auto');
     if (DOM.customFieldsContainer) DOM.customFieldsContainer.innerHTML = '';
     switchCategoryFields(defaultType);
     if (DOM.itemStrengthBar) DOM.itemStrengthBar.className = 'strength-bar';
@@ -3481,6 +3545,8 @@
     if (DOM.itemPin) DOM.itemPin.value = item.pin || '';
     if (DOM.itemNotes) DOM.itemNotes.value = item.notes || '';
     if (DOM.itemTags) DOM.itemTags.value = item.tags ? (Array.isArray(item.tags) ? item.tags.map(t => `#${t}`).join(', ') : item.tags) : '';
+    if (DOM.itemIcon) DOM.itemIcon.value = item.icon || '';
+    setItemIconValue(item.icon || '', item.icon ? '' : 'Auto');
     
     if (DOM.customFieldsContainer) {
       DOM.customFieldsContainer.innerHTML = '';
@@ -3580,6 +3646,7 @@
       pin: DOM.itemPin ? DOM.itemPin.value.trim() : '',
       notes: DOM.itemNotes ? DOM.itemNotes.value.trim() : '',
       tags: cleanTags,
+      icon: DOM.itemIcon ? DOM.itemIcon.value.trim() : (id ? (state.vaultItems.find(i => i.id === id)?.icon || '') : ''),
       customFields: customFields,
       favorite: id ? (state.vaultItems.find(i => i.id === id)?.favorite || false) : false,
       archived: id ? (state.vaultItems.find(i => i.id === id)?.archived || false) : false,
@@ -4269,6 +4336,43 @@
         const raw = tagsInputEl.value;
         const currentTags = raw.split(/[,#\s]+/).map(t => t.trim().toLowerCase().replace(/^#/, '')).filter(Boolean);
         renderInlineFormLabels(currentTags);
+      });
+    }
+
+    const btnChooseItemIcon = document.getElementById('btn-choose-item-icon');
+    const itemIconPopover = document.getElementById('item-icon-popover');
+    const itemIconSearch = document.getElementById('item-icon-search');
+    const btnResetItemIcon = document.getElementById('btn-reset-item-icon');
+
+    if (btnChooseItemIcon && itemIconPopover) {
+      btnChooseItemIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = itemIconPopover.classList.toggle('hidden');
+        if (!isHidden) {
+          renderItemIconGrid();
+          if (itemIconSearch) {
+            itemIconSearch.value = '';
+            setTimeout(() => itemIconSearch.focus(), 50);
+          }
+        }
+      });
+    }
+
+    if (itemIconPopover) {
+      itemIconPopover.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    if (btnResetItemIcon) {
+      btnResetItemIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setItemIconValue('', 'Auto');
+        if (itemIconPopover) itemIconPopover.classList.add('hidden');
+      });
+    }
+
+    if (itemIconSearch) {
+      itemIconSearch.addEventListener('input', () => {
+        renderItemIconGrid(itemIconSearch.value);
       });
     }
 
