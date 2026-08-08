@@ -1178,6 +1178,20 @@
     if (!iconId) return '';
     const id = iconId.toLowerCase();
 
+    if (id.includes('slice') || id.includes('pizza-slice')) return 'color:#8000FF;';
+    if (id.includes('jupiter')) return 'color:#00D2A0;';
+    if (id.includes('sbi')) return 'color:#0072BC;';
+    if (id.includes('hdfc')) return 'color:#004C8F;';
+    if (id.includes('icici')) return 'color:#F37021;';
+    if (id.includes('axis')) return 'color:#97144D;';
+    if (id.includes('kotak')) return 'color:#EE1C25;';
+    if (id.includes('paytm')) return 'color:#00BAF2;';
+    if (id.includes('phonepe')) return 'color:#5F259F;';
+    if (id.includes('cred')) return 'color:#FFFFFF;';
+    if (id.includes('fi.money') || id.includes('fi money')) return 'color:#00D084;';
+    if (id.includes('niyo')) return 'color:#0052FF;';
+    if (id.includes('idfc')) return 'color:#990000;';
+    if (id.includes('baroda')) return 'color:#F24E1E;';
     if (id.includes('truecaller') || id.includes('phone-volume')) return 'color:#0087FF;';
     if (id.includes('github')) return 'color:#ffffff;';
     if (id.includes('x-twitter')) return 'color:#ffffff;';
@@ -2653,6 +2667,19 @@
 
   // --- NOTION VISUAL ICON PICKER DATASET (300+ ICONS) ---
   const CATEGORY_ICONS = [
+    // Neobanks, UPI & Banking
+    { id: 'fa-solid fa-pizza-slice', name: 'Slice Bank', tags: 'slice slice.bank.in card neobank finance bank' },
+    { id: 'fa-solid fa-planet-ring', name: 'Jupiter Money', tags: 'jupiter jupiter.money neobank bank finance' },
+    { id: 'fa-solid fa-building-columns', name: 'SBI Bank', tags: 'sbi state bank of india bank building' },
+    { id: 'fa-solid fa-money-check-dollar', name: 'HDFC Bank', tags: 'hdfc hdfcbank bank card finance' },
+    { id: 'fa-solid fa-piggy-bank', name: 'ICICI Bank', tags: 'icici icicibank bank card finance' },
+    { id: 'fa-solid fa-wallet', name: 'Axis Bank', tags: 'axis axisbank bank card finance' },
+    { id: 'fa-solid fa-shield-halved', name: 'CRED', tags: 'cred cred.club credit card rewards finance' },
+    { id: 'fa-solid fa-qrcode', name: 'Paytm / Paytm Bank', tags: 'paytm paytmbank upi wallet bank' },
+    { id: 'fa-solid fa-mobile-screen-button', name: 'PhonePe', tags: 'phonepe upi wallet pay' },
+    { id: 'fa-solid fa-bolt', name: 'Fi Money', tags: 'fi fi.money neobank bank finance' },
+    { id: 'fa-solid fa-plane-departure', name: 'Niyo Global', tags: 'niyo goniyo travel card bank' },
+
     // Social Media & Popular Brands
     { id: 'fa-solid fa-phone-volume', name: 'Truecaller', tags: 'truecaller caller id phone call contact brand' },
     { id: 'fa-brands fa-github', name: 'GitHub', tags: 'github code repo git social brand' },
