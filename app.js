@@ -3100,9 +3100,9 @@
       btn.title = icon.name;
       const brandStyle = getBrandColorStyle(icon.id);
       btn.style.cssText = `
-        width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
+        width: 100%; aspect-ratio: 1; min-height: 36px; max-height: 38px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
         background: rgba(255,255,255,0.04); color: #fff; display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; cursor: pointer; transition: all 0.15s ease;
+        font-size: 1rem; cursor: pointer; transition: all 0.15s ease; box-sizing: border-box; padding: 0;
       `;
       btn.innerHTML = `<i class="${formatIconClass(icon.id)}" style="${brandStyle}"></i>`;
 

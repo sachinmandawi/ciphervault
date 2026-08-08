@@ -4173,3 +4173,28 @@ html, body {
     border-radius: 14px;
   }
 }
+
+/* ICON PICKER OVERFLOW & NO HORIZONTAL SCROLLBAR FIX */
+#item-icon-popover, #icon-picker-popover, #inline-create-icon-popover {
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+#item-icon-grid, #icon-grid-container, #inline-create-icon-grid {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+#item-icon-grid::-webkit-scrollbar,
+#icon-grid-container::-webkit-scrollbar,
+#inline-create-icon-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+#item-icon-grid::-webkit-scrollbar-thumb,
+#icon-grid-container::-webkit-scrollbar-thumb,
+#inline-create-icon-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
