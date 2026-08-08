@@ -765,7 +765,7 @@
       try { await fetchPromise; } catch(e) {}
     }
 
-    const savedPass = sessionStorage.getItem('cipher_active_pass');
+    const savedPass = localStorage.getItem('cipher_active_pass') || sessionStorage.getItem('cipher_active_pass');
     if (savedPass && state.saltBase64 && state.verifierObj) {
       try {
         const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
@@ -808,6 +808,7 @@
         state.vaultItems = [];
         state.fileSha = null;
 
+        localStorage.setItem('cipher_active_pass', pass);
         sessionStorage.setItem('cipher_active_pass', pass);
         
         const payload = {
@@ -883,6 +884,7 @@
 
         if (isValid) {
           state.masterKey = key;
+          localStorage.setItem('cipher_active_pass', pass);
           sessionStorage.setItem('cipher_active_pass', pass);
           await loadVaultFromGitHub(key);
           unlockVault();
@@ -1045,6 +1047,7 @@
   function lockVault() {
     state.masterKey = null;
     state.vaultItems = [];
+    localStorage.removeItem('cipher_active_pass');
     sessionStorage.removeItem('cipher_active_pass');
     if (DOM.authOverlay) DOM.authOverlay.classList.add('active');
     if (DOM.app) DOM.app.classList.add('blur-content');
@@ -4367,6 +4370,7 @@
           localStorage.removeItem('cipher_gh_token');
           localStorage.removeItem('cipher_offline_vault');
           localStorage.removeItem('cipher_offline_sha');
+          localStorage.removeItem('cipher_active_pass');
           sessionStorage.removeItem('cipher_active_pass');
           window.location.reload();
         }
