@@ -1178,6 +1178,9 @@
     if (!iconId) return '';
     const id = iconId.toLowerCase();
 
+    if (id.includes('github')) return 'color:#ffffff;';
+    if (id.includes('x-twitter')) return 'color:#ffffff;';
+    if (id.includes('twitter')) return 'color:#1DA1F2;';
     if (id.includes('instagram')) return 'color:#E4405F; background: -webkit-linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;';
     if (id.includes('google') && !id.includes('drive') && !id.includes('pay')) return 'color:#4285F4;';
     if (id.includes('youtube')) return 'color:#FF0000;';
@@ -1185,20 +1188,23 @@
     if (id.includes('whatsapp')) return 'color:#25D366;';
     if (id.includes('telegram')) return 'color:#24A1DE;';
     if (id.includes('discord')) return 'color:#5865F2;';
-    if (id.includes('twitter') || id.includes('x-twitter')) return 'color:#1DA1F2;';
     if (id.includes('linkedin')) return 'color:#0A66C2;';
     if (id.includes('spotify')) return 'color:#1DB954;';
     if (id.includes('reddit')) return 'color:#FF4500;';
     if (id.includes('pinterest')) return 'color:#E60023;';
     if (id.includes('snapchat')) return 'color:#FFFC00; text-shadow: 0 0 2px #000;';
+    if (id.includes('tiktok')) return 'color:#ffffff; text-shadow: -1px -1px 0 #25F4EE, 1px 1px 0 #FE2C55;';
     if (id.includes('twitch')) return 'color:#9146FF;';
     if (id.includes('amazon')) return 'color:#FF9900;';
     if (id.includes('microsoft') || id.includes('windows')) return 'color:#00A4EF;';
+    if (id.includes('chrome')) return 'color:#4285F4;';
+    if (id.includes('firefox')) return 'color:#FF7139;';
     if (id.includes('paypal')) return 'color:#003087;';
     if (id.includes('stripe')) return 'color:#635BFF;';
     if (id.includes('bitcoin') || id.includes('btc')) return 'color:#F7931A;';
     if (id.includes('ethereum') || id.includes('eth')) return 'color:#627EEA;';
     if (id.includes('gitlab')) return 'color:#FC6D26;';
+    if (id.includes('bitbucket')) return 'color:#205081;';
     if (id.includes('docker')) return 'color:#2496ED;';
     if (id.includes('python')) return 'color:#3776AB;';
     if (id.includes('js') || id.includes('javascript')) return 'color:#F7DF1E;';
@@ -1208,6 +1214,13 @@
     if (id.includes('angular')) return 'color:#DD0031;';
     if (id.includes('wordpress')) return 'color:#21759B;';
     if (id.includes('shopify')) return 'color:#96BF48;';
+    if (id.includes('notion')) return 'color:#ffffff;';
+    if (id.includes('trello')) return 'color:#0079BF;';
+    if (id.includes('medium')) return 'color:#ffffff;';
+    if (id.includes('quora')) return 'color:#B92B27;';
+    if (id.includes('vimeo')) return 'color:#1AB7EA;';
+    if (id.includes('soundcloud')) return 'color:#FF5500;';
+    if (id.includes('npm')) return 'color:#CB3837;';
     if (id.includes('dribbble')) return 'color:#EA4C89;';
     if (id.includes('figma')) return 'color:#F24E1E;';
     if (id.includes('slack')) return 'color:#E01E5A;';
@@ -1216,9 +1229,11 @@
     if (id.includes('xbox')) return 'color:#107C41;';
     if (id.includes('visa')) return 'color:#1A1F71;';
     if (id.includes('mastercard')) return 'color:#EB001B;';
+    if (id.includes('airbnb')) return 'color:#FF5A5F;';
+    if (id.includes('uber')) return 'color:#ffffff;';
     if (id.includes('apple') && !id.includes('pay')) return 'color:#ffffff;';
 
-    return '';
+    return 'color:#ffffff;';
   }
 
   function getIconHtml(item) {
