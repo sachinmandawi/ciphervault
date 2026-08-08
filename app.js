@@ -1224,28 +1224,12 @@
   function getIconHtml(item) {
     if (!item) return '<i class="fa-solid fa-globe"></i>';
 
-    // 1. If item has URL, fetch original high-res official brand favicon logo image (sz=128)
-    if (item.url && typeof item.url === 'string' && item.url.trim()) {
-      try {
-        let domain = item.url.trim().replace(/^https?:\/\//i, '').split('/')[0].split('?')[0].split(':')[0];
-        if (domain && domain.includes('.')) {
-          const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
-          const brandClass = item.icon ? formatIconClass(item.icon) : 'fa-solid fa-globe';
-          const brandStyle = item.icon ? getBrandColorStyle(item.icon) : '';
-          return `
-            <img src="${faviconUrl}" alt="${escapeHtml(item.title || 'logo')}" class="vault-item-real-logo" style="width:26px; height:26px; border-radius:6px; object-fit:contain; vertical-align:middle; flex-shrink:0;" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
-            <i class="${brandClass}" style="display:none; ${brandStyle}"></i>
-          `;
-        }
-      } catch (err) {}
-    }
-
-    // 2. If item has custom chosen icon, use it with authentic official brand color
+    // 1. If item has custom chosen icon, use it with authentic official brand color
     if (item.icon) {
       return `<i class="${formatIconClass(item.icon)}" style="${getBrandColorStyle(item.icon)}"></i>`;
     }
 
-    // 3. Fallback based on item.type
+    // 2. Fallback based on item.type
     if (item.type === 'card') return '<i class="fa-regular fa-credit-card" style="color:var(--accent-purple);"></i>';
     if (item.type === 'bank') return '<i class="fa-solid fa-building-columns" style="color:var(--accent-purple);"></i>';
     if (item.type === 'note') return '<i class="fa-regular fa-note-sticky" style="color:var(--accent-purple);"></i>';
@@ -1255,10 +1239,10 @@
       if (cat) return `<i class="${formatIconClass(cat.icon || 'fa-folder')}" style="color:${escapeHtml(cat.color || '#8b5cf6')};"></i>`;
     }
 
-    // Auto-detect brand from title if no URL (e.g. Title = "Instagram", "YouTube", "Google", "WhatsApp", "Discord", "Spotify", "GitHub")
-    if (item.title) {
-      const titleLower = item.title.toLowerCase();
-      const matchedBrand = CATEGORY_ICONS.find(b => b.id.startsWith('fa-brands') && (titleLower.includes(b.name.toLowerCase()) || titleLower.includes(b.id.replace('fa-brands fa-', '').toLowerCase())));
+    // Auto-detect brand from title or URL string if no custom icon (e.g. Title/URL = "Instagram", "YouTube", "Google", "WhatsApp", "Discord", "Spotify", "GitHub")
+    const searchString = `${item.title || ''} ${item.url || ''}`.toLowerCase();
+    if (searchString.trim()) {
+      const matchedBrand = CATEGORY_ICONS.find(b => b.id.startsWith('fa-brands') && (searchString.includes(b.name.toLowerCase()) || searchString.includes(b.id.replace('fa-brands fa-', '').toLowerCase())));
       if (matchedBrand) {
         return `<i class="${formatIconClass(matchedBrand.id)}" style="${getBrandColorStyle(matchedBrand.id)}"></i>`;
       }
