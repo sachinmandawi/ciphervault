@@ -1178,6 +1178,7 @@
     if (!iconId) return '';
     const id = iconId.toLowerCase();
 
+    if (id.includes('truecaller') || id.includes('phone-volume')) return 'color:#0087FF;';
     if (id.includes('github')) return 'color:#ffffff;';
     if (id.includes('x-twitter')) return 'color:#ffffff;';
     if (id.includes('twitter')) return 'color:#1DA1F2;';
@@ -2653,6 +2654,7 @@
   // --- NOTION VISUAL ICON PICKER DATASET (300+ ICONS) ---
   const CATEGORY_ICONS = [
     // Social Media & Popular Brands
+    { id: 'fa-solid fa-phone-volume', name: 'Truecaller', tags: 'truecaller caller id phone call contact brand' },
     { id: 'fa-brands fa-github', name: 'GitHub', tags: 'github code repo git social brand' },
     { id: 'fa-brands fa-google', name: 'Google', tags: 'google gmail search drive social brand' },
     { id: 'fa-brands fa-twitter', name: 'Twitter', tags: 'twitter tweet social brand' },
