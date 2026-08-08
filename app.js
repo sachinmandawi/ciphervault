@@ -3199,6 +3199,8 @@
     closeInlineCreateCategoryPanel();
 
     showToast(`Category "${name}" created!`, 'success');
+    renderCustomCategoriesSidebar();
+    populateItemTypeDropdown();
     renderVault();
     await saveVaultToGitHub();
   }
@@ -3313,6 +3315,8 @@
     if (state.currentCategory === catId) state.currentCategory = 'all';
 
     await saveVaultToGitHub();
+    renderCustomCategoriesSidebar();
+    updateCountsAndStats();
     renderVault();
     populateItemTypeDropdown();
     showToast(`Category "${cat.name}" deleted`, 'info');
