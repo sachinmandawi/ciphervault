@@ -2970,7 +2970,7 @@
     // Food, Drink & Dining
     { id: 'fa-utensils', name: 'Spoon Fork', tags: 'food restaurant eat' },
     { id: 'fa-mug-hot', name: 'Hot Coffee', tags: 'coffee tea cafe break' },
-    { id: 'fa-coffee', name: 'Coffee Cup', tags: 'cafe java drink' },
+    { id: 'fa-mug-saucer', name: 'Tea Cup', tags: 'cafe tea drink saucer' },
     { id: 'fa-pizza-slice', name: 'Pizza Slice', tags: 'food fastfood order' },
     { id: 'fa-burger', name: 'Hamburger', tags: 'food fastfood eat' },
     { id: 'fa-wine-glass', name: 'Wine Glass', tags: 'drink bar party' },
@@ -3043,11 +3043,16 @@
 
     const currentIcon = selectedInput ? selectedInput.value : 'fa-folder';
 
-    grid.innerHTML = filtered.map(icon => `
-      <button type="button" class="icon-picker-btn ${icon.id === currentIcon ? 'active' : ''}" data-icon-id="${icon.id}" title="${escapeHtml(icon.name)}">
-        <i class="${formatIconClass(icon.id)}"></i>
-      </button>
-    `).join('');
+
+    grid.innerHTML = filtered.map(icon => {
+      const brandStyle = getBrandColorStyle(icon.id);
+      return `
+        <button type="button" class="icon-picker-btn ${icon.id === currentIcon ? 'active' : ''}" data-icon-id="${icon.id}" title="${escapeHtml(icon.name)}" style="display:inline-flex; align-items:center; justify-content:center;">
+          <i class="${formatIconClass(icon.id)}" style="${brandStyle}"></i>
+        </button>
+      `;
+    }).join('');
+
 
     grid.querySelectorAll('.icon-picker-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -3070,7 +3075,9 @@
     if (hiddenInput) hiddenInput.value = iconData.id;
 
     if (previewEl) {
-      previewEl.innerHTML = `<i class="${formatIconClass(iconData.id)}" style="color:${color};"></i>`;
+      const brandStyle = getBrandColorStyle(iconData.id);
+      const styleStr = brandStyle || `color:${color};`;
+      previewEl.innerHTML = `<i class="${formatIconClass(iconData.id)}" style="${styleStr}"></i>`;
     }
     if (labelEl) {
       labelEl.textContent = iconData.name;
