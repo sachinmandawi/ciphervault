@@ -3452,6 +3452,7 @@
     if (DOM.customFieldsContainer) DOM.customFieldsContainer.innerHTML = '';
     switchCategoryFields(defaultType);
     if (DOM.itemStrengthBar) DOM.itemStrengthBar.className = 'strength-bar';
+    renderInlineFormLabels([]);
     switchView(DOM.viewItemEdit);
   }
 
@@ -3479,7 +3480,7 @@
     if (DOM.itemIfsc) DOM.itemIfsc.value = item.ifsc || '';
     if (DOM.itemPin) DOM.itemPin.value = item.pin || '';
     if (DOM.itemNotes) DOM.itemNotes.value = item.notes || '';
-    if (DOM.itemTags) DOM.itemTags.value = item.tags ? item.tags.map(t => `#${t}`).join(', ') : '';
+    if (DOM.itemTags) DOM.itemTags.value = item.tags ? (Array.isArray(item.tags) ? item.tags.map(t => `#${t}`).join(', ') : item.tags) : '';
     
     if (DOM.customFieldsContainer) {
       DOM.customFieldsContainer.innerHTML = '';
@@ -3490,9 +3491,9 @@
       }
     }
 
-
     switchCategoryFields(item.type || 'login');
     if (item.password) updateItemPasswordStrength(item.password);
+    renderInlineFormLabels(item.tags || []);
 
     switchView(DOM.viewItemEdit);
   }
@@ -3704,186 +3705,115 @@
     }
   }
 
-  // --- INTERACTIVE LABEL & TAG MANAGEMENT POPUP ---
-  let tempManageTags = [];
-  let currentManageItemId = null;
-
+  // --- INLINE ITEM LABEL & TAG MANAGEMENT ---
   function openManageLabelsModal(itemId) {
-    try {
-      const item = state.vaultItems.find(i => String(i.id) === String(itemId));
-      if (!item) return;
-
-      currentManageItemId = item.id;
-      let existing = [];
-      if (Array.isArray(item.tags)) {
-        existing = item.tags;
-      } else if (typeof item.tags === 'string') {
-        existing = item.tags.split(/[,#\s]+/).filter(Boolean);
+    openEditModal(itemId);
+    setTimeout(() => {
+      const tagsInput = document.getElementById('item-tags');
+      if (tagsInput) {
+        tagsInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        tagsInput.focus();
       }
-      tempManageTags = [...existing];
-
-      const input = document.getElementById('input-new-label-name');
-      if (input) input.value = '';
-
-      const titleEl = document.getElementById('manage-labels-modal-title');
-      if (titleEl) titleEl.textContent = `Manage Labels: ${item.title}`;
-
-      renderLabelCheckmarksList();
-
-      const modal = document.getElementById('modal-manage-labels');
-      if (modal) modal.classList.add('active');
-    } catch (err) {
-      console.error('Error opening manage labels modal:', err);
-      showToast('Error opening label manager', 'error');
-    }
+    }, 150);
   }
 
-  function renderLabelCheckmarksList() {
-    const container = document.getElementById('labels-checkmark-list');
+  function renderInlineFormLabels(activeTagsInput = []) {
+    const container = document.getElementById('inline-form-labels-container');
     if (!container) return;
 
-    const allTags = new Set();
+    let activeTags = [];
+    if (Array.isArray(activeTagsInput)) {
+      activeTags = activeTagsInput.map(t => String(t).replace(/^#/, '').trim().toLowerCase()).filter(Boolean);
+    } else if (typeof activeTagsInput === 'string') {
+      activeTags = activeTagsInput.split(/[,#\s]+/).map(t => t.replace(/^#/, '').trim().toLowerCase()).filter(Boolean);
+    }
+
+    const allGlobalTags = new Set();
     state.vaultItems.forEach(i => {
       if (i && i.tags) {
         if (Array.isArray(i.tags)) {
-          i.tags.forEach(t => { if (t) allTags.add(String(t).replace(/^#/, '').trim()); });
+          i.tags.forEach(t => { if (t) allGlobalTags.add(String(t).replace(/^#/, '').trim().toLowerCase()); });
         } else if (typeof i.tags === 'string') {
-          i.tags.split(/[,#\s]+/).forEach(t => { if (t) allTags.add(t.replace(/^#/, '').trim()); });
+          i.tags.split(/[,#\s]+/).forEach(t => { if (t) allGlobalTags.add(String(t).replace(/^#/, '').trim().toLowerCase()); });
         }
       }
     });
-    tempManageTags.forEach(t => { if (t) allTags.add(String(t).replace(/^#/, '').trim()); });
+    activeTags.forEach(t => allGlobalTags.add(t));
 
-    const tagsArray = Array.from(allTags).filter(Boolean);
+    const tagsList = Array.from(allGlobalTags).filter(Boolean);
     container.innerHTML = '';
 
-    if (tagsArray.length === 0) {
+    if (tagsList.length === 0) {
       container.innerHTML = `
-        <div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;">
-          <i class="fa-solid fa-tags" style="font-size:1.5rem; margin-bottom:0.5rem; color:var(--text-dim);"></i><br>
-          No labels created yet. Type a label name above to create your first label!
-        </div>
+        <span style="font-size:0.78rem; color:var(--text-dim); font-style:italic;">
+          No existing labels. Type a label name above and click "+ Add Label".
+        </span>
       `;
       return;
     }
 
-    tagsArray.forEach(tag => {
-      const isChecked = tempManageTags.includes(tag);
-      const row = document.createElement('div');
-      row.className = 'label-checkmark-row';
-      row.style.cssText = `
-        display:flex; align-items:center; justify-content:space-between;
-        padding:0.65rem 0.85rem; border-radius:10px;
-        background:${isChecked ? 'var(--bg-hover)' : 'rgba(255,255,255,0.03)'};
-        border:1px solid ${isChecked ? 'var(--bg-hover)' : 'rgba(255,255,255,0.08)'};
-        cursor:pointer; transition:all 0.15s ease;
+    tagsList.forEach(tag => {
+      const isAssigned = activeTags.includes(tag);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `badge-pill ${isAssigned ? 'active' : ''}`;
+      btn.style.cssText = `
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        padding: 0.3rem 0.65rem; border-radius: 99px;
+        font-size: 0.78rem; font-weight: 600; cursor: pointer;
+        transition: all 0.15s ease; border: 1px solid ${isAssigned ? 'var(--accent-purple)' : 'rgba(255,255,255,0.12)'};
+        background: ${isAssigned ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255,255,255,0.05)'};
+        color: ${isAssigned ? '#ffffff' : 'var(--text-muted)'};
       `;
 
-      row.innerHTML = `
-        <div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden; flex:1;">
-          <input type="checkbox" class="label-checkbox" data-tag="${escapeHtml(tag)}" ${isChecked ? 'checked' : ''} style="width:18px; height:18px; accent-color:var(--accent-purple); cursor:pointer; flex-shrink:0;">
-          <span style="font-size:0.9rem; font-weight:600; color:${isChecked ? '#fff' : 'var(--text-muted)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">#${escapeHtml(tag)}</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
-          <span class="badge-pill label-badge" style="font-size:0.7rem; background:${isChecked ? 'var(--bg-hover)' : 'rgba(255,255,255,0.06)'}; color:${isChecked ? 'var(--accent-purple)' : 'var(--text-dim)'};">${isChecked ? 'Assigned' : 'Unassigned'}</span>
-          <button type="button" class="btn-icon btn-delete-label" style="color:var(--accent-red); font-size:0.9rem; padding:0.3rem;" title="Delete globally"><i class="fa-solid fa-trash"></i></button>
-        </div>
+      btn.innerHTML = `
+        ${isAssigned ? '<i class="fa-solid fa-check" style="font-size:0.7rem; color:var(--accent-purple);"></i>' : ''}
+        <span>#${escapeHtml(tag)}</span>
+        <i class="fa-solid fa-xmark btn-del-tag-global" data-tag="${escapeHtml(tag)}" title="Delete label globally" style="font-size:0.7rem; margin-left:0.2rem; color:rgba(255,255,255,0.5);"></i>
       `;
 
-      const cb = row.querySelector('.label-checkbox');
-      const badge = row.querySelector('.label-badge');
-      const labelText = row.querySelector('span');
-      const btnDelLabel = row.querySelector('.btn-delete-label');
-
-      const updateRowUI = (checked) => {
-        if (checked) {
-          if (!tempManageTags.includes(tag)) tempManageTags.push(tag);
-          row.style.background = 'var(--bg-hover)';
-          row.style.borderColor = 'var(--border-color)';
-          if (badge) {
-            badge.textContent = 'Assigned';
-            badge.style.background = 'var(--bg-hover)';
-            badge.style.color = 'var(--accent-purple)';
-          }
-          if (labelText) labelText.style.color = '#fff';
-        } else {
-          tempManageTags = tempManageTags.filter(t => t !== tag);
-          row.style.background = 'rgba(255,255,255,0.03)';
-          row.style.borderColor = 'rgba(255,255,255,0.08)';
-          if (badge) {
-            badge.textContent = 'Unassigned';
-            badge.style.background = 'rgba(255,255,255,0.06)';
-            badge.style.color = 'var(--text-dim)';
-          }
-          if (labelText) labelText.style.color = 'var(--text-muted)';
-        }
-      };
-
-      cb.addEventListener('change', (e) => {
-        e.stopPropagation();
-        updateRowUI(cb.checked);
-      });
-
-      if (btnDelLabel) {
-        btnDelLabel.addEventListener('click', async (e) => {
+      btn.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-del-tag-global')) {
           e.stopPropagation();
-          if (confirm(`Are you sure you want to permanently delete the label "#${tag}" from ALL vault items?`)) {
-            tempManageTags = tempManageTags.filter(t => t !== tag);
-            state.vaultItems.forEach(item => {
-              if (Array.isArray(item.tags)) {
-                item.tags = item.tags.filter(t => t.replace(/^#/, '').trim() !== tag);
-              } else if (typeof item.tags === 'string') {
-                item.tags = item.tags.split(/[,#\s]+/).map(t => t.replace(/^#/, '').trim()).filter(t => t && t !== tag).join(',');
-              }
-            });
-            await renderVault();
-            await saveVaultToGitHub();
-            renderLabelCheckmarksList();
-            showToast(`Label #${tag} deleted globally`, 'success');
-          }
-        });
-      }
-
-      row.addEventListener('click', (e) => {
-        if (e.target !== cb && !e.target.closest('.btn-delete-label')) {
-          cb.checked = !cb.checked;
-          updateRowUI(cb.checked);
+          deleteGlobalTag(tag);
+          return;
         }
+
+        const tagsInput = document.getElementById('item-tags');
+        if (!tagsInput) return;
+
+        let currentInputTags = tagsInput.value.split(/[,#\s]+/).map(t => t.trim().toLowerCase().replace(/^#/, '')).filter(Boolean);
+        if (isAssigned) {
+          currentInputTags = currentInputTags.filter(t => t !== tag);
+        } else {
+          if (!currentInputTags.includes(tag)) currentInputTags.push(tag);
+        }
+
+        tagsInput.value = currentInputTags.map(t => `#${t}`).join(', ');
+        renderInlineFormLabels(currentInputTags);
       });
 
-      container.appendChild(row);
+      container.appendChild(btn);
     });
   }
 
-  function handleAddNewLabel() {
-    const input = document.getElementById('input-new-label-name');
-    if (!input) return;
-    const rawVal = input.value.trim().toLowerCase().replace(/^#/, '').replace(/[^a-z0-9_-]/g, '');
-    if (!rawVal) {
-      showToast('Please type a valid label name!', 'error');
-      return;
+  function deleteGlobalTag(tag) {
+    if (confirm(`Are you sure you want to permanently delete the label "#${tag}" from ALL vault items?`)) {
+      state.vaultItems.forEach(item => {
+        if (Array.isArray(item.tags)) {
+          item.tags = item.tags.filter(t => String(t).replace(/^#/, '').trim().toLowerCase() !== tag);
+        } else if (typeof item.tags === 'string') {
+          item.tags = item.tags.split(/[,#\s]+/).map(t => t.replace(/^#/, '').trim()).filter(t => t && t.toLowerCase() !== tag).join(',');
+        }
+      });
+      renderVault();
+      saveVaultToGitHub();
+      showToast(`Label #${tag} deleted globally`, 'success');
+
+      const tagsInput = document.getElementById('item-tags');
+      const currentVal = tagsInput ? tagsInput.value : '';
+      renderInlineFormLabels(currentVal);
     }
-
-    if (!tempManageTags.includes(rawVal)) {
-      tempManageTags.push(rawVal);
-    }
-    input.value = '';
-    renderLabelCheckmarksList();
-    showToast(`Added label #${rawVal}`, 'info');
-  }
-
-  async function handleSaveItemLabels() {
-    if (!currentManageItemId) return;
-    const item = state.vaultItems.find(i => String(i.id) === String(currentManageItemId));
-    if (!item) return;
-
-    item.tags = [...tempManageTags];
-    item.updatedAt = Date.now();
-
-    await renderVault();
-    closeModal();
-    await saveVaultToGitHub();
-    showToast(`Labels updated for ${item.title}!`, 'success');
   }
 
   // --- SECURITY AUDIT VIEW GENERATION ---
@@ -4320,6 +4250,27 @@
     }
 
     if (DOM.btnDangerWipe) DOM.btnDangerWipe.addEventListener('click', wipeVaultData);
+
+    const btnAddInlineFormTag = document.getElementById('btn-add-inline-form-tag');
+    if (btnAddInlineFormTag) {
+      btnAddInlineFormTag.addEventListener('click', () => {
+        const tagsInput = document.getElementById('item-tags');
+        if (!tagsInput) return;
+        const raw = tagsInput.value.trim();
+        let currentTags = raw.split(/[,#\s]+/).map(t => t.trim().toLowerCase().replace(/^#/, '')).filter(Boolean);
+        tagsInput.value = currentTags.map(t => `#${t}`).join(', ');
+        renderInlineFormLabels(currentTags);
+      });
+    }
+
+    const tagsInputEl = document.getElementById('item-tags');
+    if (tagsInputEl) {
+      tagsInputEl.addEventListener('input', () => {
+        const raw = tagsInputEl.value;
+        const currentTags = raw.split(/[,#\s]+/).map(t => t.trim().toLowerCase().replace(/^#/, '')).filter(Boolean);
+        renderInlineFormLabels(currentTags);
+      });
+    }
 
     const btnAddCat = document.getElementById('btn-add-category');
     if (btnAddCat) {

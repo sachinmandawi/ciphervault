@@ -707,10 +707,30 @@
                   </button>
                 </div>
 
-                <!-- CUSTOM TAGS / LABELS FIELD -->
-                <div class="form-group mt-2">
-                  <label for="item-tags">Custom Tags / Labels <span class="sub-text">(e.g. #work, #personal, #crypto, #banking)</span></label>
-                  <input type="text" id="item-tags" placeholder="e.g. #work, #personal, #crypto">
+                <!-- CUSTOM TAGS / LABELS FIELD (INLINE MANAGEMENT) -->
+                <div class="form-group mt-3" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 0.6rem;">
+                    <label for="item-tags" style="font-size: 0.82rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 0.4rem; margin:0;">
+                      <i class="fa-solid fa-tags" style="color: var(--accent-purple);"></i> Item Labels / Tags
+                    </label>
+                    <span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 400;">Select existing or type new</span>
+                  </div>
+                  
+                  <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                    <input type="text" id="item-tags" placeholder="Type label name (e.g. work, crypto)..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.4rem 0.65rem; color: var(--text-main); font-size: 0.82rem; outline: none;">
+                    <button type="button" id="btn-add-inline-form-tag" class="btn btn-primary" style="padding: 0.4rem 0.85rem; font-size: 0.78rem; flex-shrink: 0;">
+                      <i class="fa-solid fa-plus"></i> Add Label
+                    </button>
+                  </div>
+
+                  <div>
+                    <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">
+                      <i class="fa-solid fa-list-check"></i> Assign Existing Labels (Click to toggle)
+                    </div>
+                    <div id="inline-form-labels-container" style="display: flex; flex-wrap: wrap; gap: 0.45rem; min-height: 32px; align-items: center;">
+                      <!-- Dynamically populated label checkmark pills -->
+                    </div>
+                  </div>
                 </div>
 
               </div>
@@ -982,50 +1002,7 @@
     </div>
   </div>
 
-  <!-- MANAGE LABELS MODAL -->
-  <div id="modal-manage-labels" class="modal-overlay">
-    <div class="modal-card glass-panel" style="max-width: 460px;">
-      <div class="modal-header" style="justify-content:space-between; margin-bottom: 0.5rem; padding-top: 1.5rem;">
-        <div style="display:flex; align-items:center; gap:0.6rem;">
-          <i class="fa-solid fa-tags" style="color:var(--accent-purple); font-size:1.1rem;"></i>
-          <h3 style="margin:0; font-size:1.1rem; color:#ffffff; font-weight:600; line-height:1.2;">Manage Item Labels</h3>
-        </div>
-        <button class="btn-icon close-modal" style="background:transparent; border:none; color:var(--text-muted); padding:0; width:24px; height:24px;"><i class="fa-solid fa-xmark"></i></button>
-      </div>
 
-      <div class="modal-body" style="gap:1.25rem;">
-        <!-- Top Section: Create New Label -->
-        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(139,92,246,0.25); padding:1rem; border-radius:12px;">
-          <label style="font-size:0.75rem; font-weight:700; color:var(--accent-purple); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:0.5rem;">
-            <i class="fa-solid fa-plus"></i> Create New Label
-          </label>
-          <div style="display:flex; gap:0.5rem;">
-            <input type="text" id="input-new-label-name" class="form-control" placeholder="Type label name (e.g. work, crypto)..." style="font-size:0.88rem;">
-            <button type="button" id="btn-add-label-action" class="btn btn-primary" style="padding:0.55rem 1rem; flex-shrink:0;">
-              <i class="fa-solid fa-plus"></i> Add
-            </button>
-          </div>
-        </div>
-
-        <!-- Bottom Section: Existing Labels with Checkmarks -->
-        <div>
-          <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:0.65rem;">
-            <i class="fa-solid fa-list-check"></i> Assign Existing Labels
-          </label>
-          <div id="labels-checkmark-list" style="display:flex; flex-direction:column; gap:0.5rem; max-height:260px; overflow-y:auto; padding-right:0.25rem;">
-            <!-- Dynamically populated label checkmarks -->
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer" style="justify-content: space-between; padding-bottom:0;">
-        <button type="button" class="close-modal" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.85rem; font-weight:500; padding:0.5rem 0;">Cancel</button>
-        <button type="button" id="btn-save-labels-action" style="background:transparent; border:none; color:var(--accent-purple); cursor:pointer; font-size:0.85rem; font-weight:600; display:flex; align-items:center; gap:0.35rem; padding:0.5rem 0;">
-          <i class="fa-solid fa-check"></i> Save Labels
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- INLINE CREATE CUSTOM CATEGORY FLYOUT PANEL -->
   <div id="inline-create-category-panel" class="card-dropdown-menu hidden" style="position:fixed; width: 210px; padding: 0.35rem; z-index: 100000; background: #252525; border: 1px solid rgba(255,255,255,0.09); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
