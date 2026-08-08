@@ -1178,16 +1178,19 @@
     if (!iconId) return '';
     const id = iconId.toLowerCase();
 
-    if (id.includes('render') || id.includes('cloud-arrow-up')) return 'color:#46E3B7;';
+    // Developer & Cloud Platforms
+    if (id.includes('render')) return 'color:#46E3B7;';
     if (id.includes('heroku')) return 'color:#6762A6;';
-    if (id.includes('vercel') || id.includes('caret-up')) return 'color:#FFFFFF;';
+    if (id.includes('vercel')) return 'color:#FFFFFF;';
     if (id.includes('netlify')) return 'color:#00C7B7;';
     if (id.includes('supabase')) return 'color:#3ECF8E;';
     if (id.includes('firebase')) return 'color:#FFCA28;';
-    if (id.includes('mongo') || id.includes('mongodb')) return 'color:#47A248;';
+    if (id.includes('mongodb') || id.includes('mongo')) return 'color:#47A248;';
     if (id.includes('postman')) return 'color:#FF6C37;';
     if (id.includes('sentry')) return 'color:#362D59;';
-    if (id.includes('slice') || id.includes('pizza-slice')) return 'color:#8000FF;';
+
+    // Neobanks & Banks
+    if (id.includes('slice')) return 'color:#8000FF;';
     if (id.includes('jupiter')) return 'color:#00D2A0;';
     if (id.includes('sbi')) return 'color:#0072BC;';
     if (id.includes('hdfc')) return 'color:#004C8F;';
@@ -1197,11 +1200,11 @@
     if (id.includes('paytm')) return 'color:#00BAF2;';
     if (id.includes('phonepe')) return 'color:#5F259F;';
     if (id.includes('cred')) return 'color:#FFFFFF;';
-    if (id.includes('fi.money') || id.includes('fi money')) return 'color:#00D084;';
+    if (id.includes('fi.money') || id.includes('fi-money')) return 'color:#00D084;';
     if (id.includes('niyo')) return 'color:#0052FF;';
     if (id.includes('idfc')) return 'color:#990000;';
     if (id.includes('baroda')) return 'color:#F24E1E;';
-    if (id.includes('truecaller') || id.includes('phone-volume')) return 'color:#0087FF;';
+    if (id.includes('truecaller')) return 'color:#0087FF;';
     if (id.includes('github')) return 'color:#ffffff;';
     if (id.includes('x-twitter')) return 'color:#ffffff;';
     if (id.includes('twitter')) return 'color:#1DA1F2;';
