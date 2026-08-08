@@ -2694,7 +2694,7 @@
   const CATEGORY_ICONS = [
     // Cloud & Developer Platforms
     { id: 'fa-solid fa-cloud-arrow-up brand-render', name: 'Render', tags: 'render render.com cloud hosting web deploy server' },
-    { id: 'fa-brands fa-heroku', name: 'Heroku', tags: 'heroku heroku.com cloud paas hosting server' },
+    { id: 'fa-solid fa-server brand-heroku', name: 'Heroku', tags: 'heroku heroku.com cloud paas hosting server' },
     { id: 'fa-solid fa-caret-up brand-vercel', name: 'Vercel', tags: 'vercel vercel.com nextjs frontend cloud hosting' },
     { id: 'fa-solid fa-diagram-project brand-netlify', name: 'Netlify', tags: 'netlify netlify.com static jamstack hosting' },
     { id: 'fa-solid fa-bolt brand-supabase', name: 'Supabase', tags: 'supabase supabase.com postgres database firebase' },
