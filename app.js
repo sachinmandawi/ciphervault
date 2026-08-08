@@ -1178,6 +1178,15 @@
     if (!iconId) return '';
     const id = iconId.toLowerCase();
 
+    if (id.includes('render') || id.includes('cloud-arrow-up')) return 'color:#46E3B7;';
+    if (id.includes('heroku')) return 'color:#6762A6;';
+    if (id.includes('vercel') || id.includes('caret-up')) return 'color:#FFFFFF;';
+    if (id.includes('netlify')) return 'color:#00C7B7;';
+    if (id.includes('supabase')) return 'color:#3ECF8E;';
+    if (id.includes('firebase')) return 'color:#FFCA28;';
+    if (id.includes('mongo') || id.includes('mongodb')) return 'color:#47A248;';
+    if (id.includes('postman')) return 'color:#FF6C37;';
+    if (id.includes('sentry')) return 'color:#362D59;';
     if (id.includes('slice') || id.includes('pizza-slice')) return 'color:#8000FF;';
     if (id.includes('jupiter')) return 'color:#00D2A0;';
     if (id.includes('sbi')) return 'color:#0072BC;';
@@ -2667,6 +2676,16 @@
 
   // --- NOTION VISUAL ICON PICKER DATASET (300+ ICONS) ---
   const CATEGORY_ICONS = [
+    // Cloud & Developer Platforms
+    { id: 'fa-solid fa-cloud-arrow-up', name: 'Render', tags: 'render render.com cloud hosting web deploy server' },
+    { id: 'fa-brands fa-heroku', name: 'Heroku', tags: 'heroku heroku.com cloud paas hosting server' },
+    { id: 'fa-solid fa-caret-up', name: 'Vercel', tags: 'vercel vercel.com nextjs frontend cloud hosting' },
+    { id: 'fa-solid fa-diagram-project', name: 'Netlify', tags: 'netlify netlify.com static jamstack hosting' },
+    { id: 'fa-solid fa-bolt', name: 'Supabase', tags: 'supabase supabase.com postgres database firebase' },
+    { id: 'fa-solid fa-fire-flame-curved', name: 'Firebase', tags: 'firebase google.firebase database auth' },
+    { id: 'fa-solid fa-leaf', name: 'MongoDB', tags: 'mongodb mongo database nosql' },
+    { id: 'fa-solid fa-paper-plane', name: 'Postman', tags: 'postman api http test' },
+
     // Neobanks, UPI & Banking
     { id: 'fa-solid fa-pizza-slice', name: 'Slice Bank', tags: 'slice slice.bank.in card neobank finance bank' },
     { id: 'fa-solid fa-planet-ring', name: 'Jupiter Money', tags: 'jupiter jupiter.money neobank bank finance' },
