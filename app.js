@@ -2746,7 +2746,7 @@
     { id: 'fa-brands fa-dribbble', name: 'Dribbble', tags: 'dribbble design portfolio brand' },
     { id: 'fa-brands fa-figma', name: 'Figma', tags: 'figma design ui mockup brand' },
     { id: 'fa-brands fa-slack', name: 'Slack', tags: 'slack chat work team brand' },
-    { id: 'fa-brands fa-notion', name: 'Notion', tags: 'notion notes wiki workspace brand' },
+    { id: 'fa-solid fa-book-bookmark brand-notion', name: 'Notion', tags: 'notion notes wiki workspace brand' },
     { id: 'fa-brands fa-trello', name: 'Trello', tags: 'trello kanban board tasks brand' },
     { id: 'fa-brands fa-pinterest', name: 'Pinterest', tags: 'pinterest pin board image brand' },
     { id: 'fa-brands fa-medium', name: 'Medium', tags: 'medium blog article write brand' },
