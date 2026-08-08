@@ -546,6 +546,7 @@
     customFieldsContainer: document.getElementById('custom-fields-container'),
     btnAddCustomField: document.getElementById('btn-add-custom-field'),
     btnModalGen: document.getElementById('btn-modal-gen'),
+    itemStrengthBar: document.getElementById('item-strength-bar'),
 
     // Toast
     toastContainer: document.getElementById('toast-container'),
@@ -3521,19 +3522,27 @@
         const filtered = CATEGORY_ICONS.filter(i => !q || i.name.toLowerCase().includes(q) || i.tags.toLowerCase().includes(q));
         const currentIcon = iconValInput ? iconValInput.value : 'fa-folder';
 
-        iconGrid.innerHTML = filtered.map(i => `
-          <button type="button" class="icon-picker-btn ${i.id === currentIcon ? 'active' : ''}" data-icon-id="${i.id}" style="width:24px; height:24px; font-size:0.75rem; border-radius:4px; padding:0;" title="${escapeHtml(i.name)}">
-            <i class="${formatIconClass(i.id)}"></i>
-          </button>
-        `).join('');
+        iconGrid.innerHTML = filtered.map(i => {
+          const brandStyle = getBrandColorStyle(i.id);
+          const curColor = colorValInput ? colorValInput.value : '#8b5cf6';
+          const styleStr = brandStyle || `color:${curColor};`;
+          return `
+            <button type="button" class="icon-picker-btn ${i.id === currentIcon ? 'active' : ''}" data-icon-id="${i.id}" style="width:24px; height:24px; font-size:0.75rem; border-radius:4px; padding:0; display:inline-flex; align-items:center; justify-content:center;" title="${escapeHtml(i.name)}">
+              <i class="${formatIconClass(i.id)}" style="${styleStr}"></i>
+            </button>
+          `;
+        }).join('');
+
 
         iconGrid.querySelectorAll('.icon-picker-btn').forEach(b => {
           b.addEventListener('click', (e) => {
             e.stopPropagation();
             const chosenId = b.dataset.iconId;
             if (iconValInput) iconValInput.value = chosenId;
+            const brandStyle = getBrandColorStyle(chosenId);
             const curColor = colorValInput ? colorValInput.value : '#8b5cf6';
-            if (iconPreview) iconPreview.innerHTML = `<i class="${formatIconClass(chosenId)}" style="color:${curColor}; font-size:0.82rem;"></i>`;
+            const styleStr = brandStyle || `color:${curColor};`;
+            if (iconPreview) iconPreview.innerHTML = `<i class="${formatIconClass(chosenId)}" style="${styleStr} font-size:0.82rem;"></i>`;
             if (iconPopover) iconPopover.classList.add('hidden');
             adjustCatDropdownPosition(false);
           });
@@ -3578,7 +3587,9 @@
           const newColor = dot.dataset.color;
           if (colorValInput) colorValInput.value = newColor;
           const curIcon = iconValInput ? iconValInput.value : 'fa-folder';
-          if (iconPreview) iconPreview.innerHTML = `<i class="fa-solid ${curIcon}" style="color:${newColor}; font-size:0.82rem;"></i>`;
+          const brandStyle = getBrandColorStyle(curIcon);
+          const styleStr = brandStyle || `color:${newColor};`;
+          if (iconPreview) iconPreview.innerHTML = `<i class="${formatIconClass(curIcon)}" style="${styleStr} font-size:0.82rem;"></i>`;
         });
       });
 
@@ -4565,9 +4576,11 @@
         if (colorInput) colorInput.value = dot.dataset.color;
 
         const previewEl = document.getElementById('inline-create-icon-preview');
-        const iconInput = document.getElementById('inline-create-cat-icon');
-        const curIcon = iconInput ? iconInput.value : 'fa-folder';
-        if (previewEl) previewEl.innerHTML = `<i class="fa-solid ${curIcon}" style="color:${dot.dataset.color}; font-size:0.82rem;"></i>`;
+        const iconInput2 = document.getElementById('inline-create-cat-icon');
+        const curIcon2 = iconInput2 ? iconInput2.value : 'fa-folder';
+        const brandStyle2 = getBrandColorStyle(curIcon2);
+        const styleStr2 = brandStyle2 || `color:${dot.dataset.color};`;
+        if (previewEl) previewEl.innerHTML = `<i class="${formatIconClass(curIcon2)}" style="${styleStr2} font-size:0.82rem;"></i>`;
       });
     });
 
@@ -4584,11 +4597,18 @@
       const iconInput = document.getElementById('inline-create-cat-icon');
       const currentIcon = iconInput ? iconInput.value : 'fa-folder';
 
-      inlineCreateIconGrid.innerHTML = filtered.map(i => `
-        <button type="button" class="icon-picker-btn ${i.id === currentIcon ? 'active' : ''}" data-icon-id="${i.id}" style="width:24px; height:24px; font-size:0.75rem; border-radius:4px; padding:0;" title="${escapeHtml(i.name)}">
-          <i class="${formatIconClass(i.id)}"></i>
-        </button>
-      `).join('');
+      inlineCreateIconGrid.innerHTML = filtered.map(i => {
+        const brandStyle = getBrandColorStyle(i.id);
+        const colorInput = document.getElementById('inline-create-cat-color');
+        const curColor = colorInput ? colorInput.value : '#8b5cf6';
+        const styleStr = brandStyle || `color:${curColor};`;
+        return `
+          <button type="button" class="icon-picker-btn ${i.id === currentIcon ? 'active' : ''}" data-icon-id="${i.id}" style="width:24px; height:24px; font-size:0.75rem; border-radius:4px; padding:0; display:inline-flex; align-items:center; justify-content:center;" title="${escapeHtml(i.name)}">
+            <i class="${formatIconClass(i.id)}" style="${styleStr}"></i>
+          </button>
+        `;
+      }).join('');
+
 
       inlineCreateIconGrid.querySelectorAll('.icon-picker-btn').forEach(b => {
         b.addEventListener('click', (e) => {
@@ -4597,8 +4617,10 @@
           if (iconInput) iconInput.value = chosenId;
           const colorInput = document.getElementById('inline-create-cat-color');
           const curColor = colorInput ? colorInput.value : '#8b5cf6';
+          const brandStyle = getBrandColorStyle(chosenId);
+          const styleStr = brandStyle || `color:${curColor};`;
           const previewEl = document.getElementById('inline-create-icon-preview');
-          if (previewEl) previewEl.innerHTML = `<i class="${formatIconClass(chosenId)}" style="color:${curColor}; font-size:0.82rem;"></i>`;
+          if (previewEl) previewEl.innerHTML = `<i class="${formatIconClass(chosenId)}" style="${styleStr} font-size:0.82rem;"></i>`;
           if (inlineCreateIconPopover) inlineCreateIconPopover.classList.add('hidden');
         });
       });
