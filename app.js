@@ -764,7 +764,7 @@
       try { await fetchPromise; } catch(e) {}
     }
 
-    const savedPass = sessionStorage.getItem('cipher_active_pass') || localStorage.getItem('cipher_remember_pass');
+    const savedPass = sessionStorage.getItem('cipher_active_pass');
     if (savedPass && state.saltBase64 && state.verifierObj) {
       try {
         const salt = CryptoEngine.base64ToBuffer(state.saltBase64);
@@ -772,8 +772,6 @@
         const isValid = await CryptoEngine.verifyKey(state.verifierObj, key);
         if (isValid) {
           state.masterKey = key;
-          sessionStorage.setItem('cipher_active_pass', savedPass);
-          localStorage.setItem('cipher_remember_pass', savedPass);
           await loadVaultFromGitHub(key);
           unlockVault();
           return;
@@ -810,7 +808,6 @@
         state.fileSha = null;
 
         sessionStorage.setItem('cipher_active_pass', pass);
-        localStorage.setItem('cipher_remember_pass', pass);
         
         const payload = {
           salt: state.saltBase64,
@@ -886,7 +883,6 @@
         if (isValid) {
           state.masterKey = key;
           sessionStorage.setItem('cipher_active_pass', pass);
-          localStorage.setItem('cipher_remember_pass', pass);
           await loadVaultFromGitHub(key);
           unlockVault();
           showToast(`Unlocked! Synced with Private Repo (ciphervault-db)`, 'success');
@@ -1049,7 +1045,6 @@
     state.masterKey = null;
     state.vaultItems = [];
     sessionStorage.removeItem('cipher_active_pass');
-    localStorage.removeItem('cipher_remember_pass');
     if (DOM.authOverlay) DOM.authOverlay.classList.add('active');
     if (DOM.app) DOM.app.classList.add('blur-content');
     const lp = document.getElementById('landing-page');
@@ -3204,8 +3199,6 @@
     closeInlineCreateCategoryPanel();
 
     showToast(`Category "${name}" created!`, 'success');
-    renderCustomCategoriesSidebar();
-    populateItemTypeDropdown();
     renderVault();
     await saveVaultToGitHub();
   }
@@ -3320,8 +3313,6 @@
     if (state.currentCategory === catId) state.currentCategory = 'all';
 
     await saveVaultToGitHub();
-    renderCustomCategoriesSidebar();
-    updateCountsAndStats();
     renderVault();
     populateItemTypeDropdown();
     showToast(`Category "${cat.name}" deleted`, 'info');

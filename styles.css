@@ -1164,12 +1164,14 @@ body {
   justify-content: center;
   font-size: 0.65rem;
   color: transparent;
-  transition: all 0.15s ease;
+  opacity: 0;
+  transition: opacity 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
   flex-shrink: 0;
   margin-right: 0.4rem;
 }
 
 .item-card:hover .item-card-checkbox {
+  opacity: 1;
   border-color: var(--accent-purple);
 }
 
@@ -1179,6 +1181,7 @@ body {
 }
 
 .item-card.selected .item-card-checkbox {
+  opacity: 1;
   background: var(--accent-purple);
   border-color: var(--accent-purple);
   color: #ffffff;
